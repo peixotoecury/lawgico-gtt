@@ -453,14 +453,37 @@ body{background:var(--surface2);color:var(--texto);}
         <div class="dash-card-body" style="height:240px;"><canvas id="chartSituacaoProcessos"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-head"><span>Processos por UF</span></div>
+        <div class="dash-card-head"><span>Vínculo com o GTT</span></div>
+        <div class="dash-card-body" style="height:240px;"><canvas id="chartVinculoGtt"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Exposição por UF (Valor de Causa)</span></div>
         <div class="dash-card-body" style="height:240px;"><canvas id="chartProcessosUF"></canvas></div>
       </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Distribuição por Ano de Ajuizamento</span></div>
+        <div class="dash-card-body" style="height:240px;"><canvas id="chartProcessosAno"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Desfecho</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartDesfecho"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Comarcas com Maior Litigiosidade</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartComarcas"></canvas></div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head"><span>Principais Reclamadas · Empresa Empregadora</span></div>
+      <div class="table-wrap"><table class="rel-table">
+        <thead><tr><th>Terceira Principal</th><th>Processos</th><th>Valor de Causa</th><th>Médio</th><th>Share</th></tr></thead>
+        <tbody id="tbodyReclamadas"></tbody>
+      </table></div>
     </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Processos</span></div>
       <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Processo</th><th>Fornecedor</th><th>Situação</th><th>Fase</th><th>UF</th><th>Valor da Causa</th></tr></thead>
+        <thead><tr><th>Processo</th><th>Fornecedor</th><th>Situação</th><th>Fase</th><th>UF</th><th>Vínculo GTT</th><th>Desfecho</th><th>Valor da Causa</th></tr></thead>
         <tbody id="tbodyProcessos"></tbody>
       </table></div>
     </div>
@@ -1175,13 +1198,19 @@ function renderIrregularidades(){
 
 // ── Processos ────────────────────────────────────────────────────────
 let CHART_SITUACAO=null, CHART_PROC_UF=null;
+let CHART_VINCULO_GTT=null, CHART_PROC_ANO=null, CHART_DESFECHO=null, CHART_COMARCAS=null;
 function renderProcessos(){
   const totalCausa = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_causa)||0),0);
+  const totalDeposito = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_deposito)||0),0);
+  const totalCondenacao = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_condenacao)||0),0);
+  const totalAcordo = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_acordo)||0),0);
   document.getElementById('kpiProcessos').innerHTML = [
     { label:'Total de Processos', val:String(PROCESSOS.length) },
     { label:'Total Valor da Causa', val:fmtMi(totalCausa) },
-    { label:'Média Valor da Causa', val:fmtMi(totalCausa/(PROCESSOS.length||1)) },
-    { label:'Ativos', val:String(PROCESSOS.filter(p=>p.situacao==='Ativo').length) },
+    { label:'Ticket Médio', val:fmtMi(totalCausa/(PROCESSOS.length||1)) },
+    { label:'Depósitos Judiciais', val:fmtMi(totalDeposito) },
+    { label:'Condenações', val:fmtMi(totalCondenacao) },
+    { label:'Acordos', val:fmtMi(totalAcordo) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
 
   const porSituacao = {};
@@ -1192,18 +1221,72 @@ function renderProcessos(){
     options:{ maintainAspectRatio:false, cutout:'58%', plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12}},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(1)+'%)':v;}}} },
   });
 
-  const porUF = {};
-  PROCESSOS.forEach(p => { const u = p.uf||'—'; porUF[u]=(porUF[u]||0)+1; });
-  const ufOrdenado = Object.entries(porUF).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  // Vínculo com o GTT — precisa das colunas novas (terceira_ativa_no_gtt)
+  const porVinculo = {};
+  PROCESSOS.forEach(p => { const v = p.terceira_ativa_no_gtt || 'Sem informação'; porVinculo[v]=(porVinculo[v]||0)+1; });
+  if(CHART_VINCULO_GTT) CHART_VINCULO_GTT.destroy();
+  CHART_VINCULO_GTT = new Chart(document.getElementById('chartVinculoGtt'), {
+    type:'doughnut', data:{ labels:Object.keys(porVinculo), datasets:[{data:Object.values(porVinculo), backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8}] },
+    options:{ maintainAspectRatio:false, cutout:'58%', plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12}},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(1)+'%)':v;}}} },
+  });
+
+  // Exposição por UF — agora em valor de causa, não em contagem
+  const causaPorUF = {};
+  PROCESSOS.forEach(p => { const u = p.uf||'—'; causaPorUF[u] = (causaPorUF[u]||0) + (Number(p.valor_causa)||0); });
+  const ufOrdenado = Object.entries(causaPorUF).sort((a,b)=>b[1]-a[1]).slice(0,10);
   if(CHART_PROC_UF) CHART_PROC_UF.destroy();
   CHART_PROC_UF = new Chart(document.getElementById('chartProcessosUF'), {
     type:'bar', data:{ labels:ufOrdenado.map(e=>e[0]), datasets:[{data:ufOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:44}] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>fmtMi(v)}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'},ticks:{callback:v=>fmtMi(v)}}} },
   });
 
+  // Distribuição por ano de ajuizamento
+  const porAno = {};
+  PROCESSOS.forEach(p => { const a = p.ano_distribuicao || '—'; porAno[a]=(porAno[a]||0)+1; });
+  const anosOrdenados = Object.keys(porAno).sort();
+  if(CHART_PROC_ANO) CHART_PROC_ANO.destroy();
+  CHART_PROC_ANO = new Chart(document.getElementById('chartProcessosAno'), {
+    type:'bar', data:{ labels:anosOrdenados, datasets:[{data:anosOrdenados.map(a=>porAno[a]), backgroundColor:PALETA_CATEGORICA[2], borderRadius:4, maxBarThickness:44}] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
+  });
+
+  // Desfecho
+  const porDesfecho = {};
+  PROCESSOS.forEach(p => { const d = p.tipo_desfecho || 'Sem informação'; porDesfecho[d]=(porDesfecho[d]||0)+1; });
+  const desfechoOrdenado = Object.entries(porDesfecho).sort((a,b)=>b[1]-a[1]);
+  if(CHART_DESFECHO) CHART_DESFECHO.destroy();
+  CHART_DESFECHO = new Chart(document.getElementById('chartDesfecho'), {
+    type:'bar', data:{ labels:desfechoOrdenado.map(e=>e[0].length>28?e[0].slice(0,28)+'…':e[0]), datasets:[{data:desfechoOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:26}] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+
+  // Comarcas com maior litigiosidade
+  const porComarca = {};
+  PROCESSOS.forEach(p => { const c = p.comarca || '—'; porComarca[c]=(porComarca[c]||0)+1; });
+  const comarcasOrdenadas = Object.entries(porComarca).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  if(CHART_COMARCAS) CHART_COMARCAS.destroy();
+  CHART_COMARCAS = new Chart(document.getElementById('chartComarcas'), {
+    type:'bar', data:{ labels:comarcasOrdenadas.map(e=>e[0]), datasets:[{data:comarcasOrdenadas.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[6], borderRadius:4, maxBarThickness:26}] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+
+  // Principais reclamadas (empresa empregadora)
+  const porReclamada = {};
+  PROCESSOS.forEach(p => {
+    const emp = p.empresa_reclamada || '—';
+    porReclamada[emp] = porReclamada[emp] || { qtd:0, valor:0 };
+    porReclamada[emp].qtd++;
+    porReclamada[emp].valor += Number(p.valor_causa)||0;
+  });
+  const totalProcessosComReclamada = PROCESSOS.length || 1;
+  const reclamadasOrdenadas = Object.entries(porReclamada).sort((a,b)=>b[1].qtd-a[1].qtd).slice(0,20);
+  document.getElementById('tbodyReclamadas').innerHTML = reclamadasOrdenadas.map(([nome,d]) => `
+    <tr><td>${esc(nome)}</td><td class="mono">${d.qtd}</td><td class="mono">${fmtMi(d.valor)}</td><td class="mono">${fmtMi(d.valor/d.qtd)}</td><td class="mono">${(d.qtd/totalProcessosComReclamada*100).toFixed(1)}%</td></tr>
+  `).join('') || '<tr><td colspan="5" class="empty-state">Nenhum processo.</td></tr>';
+
   document.getElementById('tbodyProcessos').innerHTML = PROCESSOS.slice(0,200).map(p => `
-    <tr><td class="mono">${esc(p.numero_processo)}</td><td>${esc(p.empresa_reclamada||'—')}</td><td>${esc(p.situacao||'—')}</td><td>${esc(p.fase||'—')}</td><td>${esc(p.uf||'—')}</td><td class="mono">${fmtMoney(p.valor_causa)}</td></tr>
-  `).join('') || '<tr><td colspan="6" class="empty-state">Nenhum processo.</td></tr>';
+    <tr><td class="mono">${esc(p.numero_processo)}</td><td>${esc(p.empresa_reclamada||'—')}</td><td>${esc(p.situacao||'—')}</td><td>${esc(p.fase||'—')}</td><td>${esc(p.uf||'—')}</td><td>${esc(p.terceira_ativa_no_gtt||'—')}</td><td>${esc(p.tipo_desfecho||'—')}</td><td class="mono">${fmtMoney(p.valor_causa)}</td></tr>
+  `).join('') || '<tr><td colspan="8" class="empty-state">Nenhum processo.</td></tr>';
 }
 
 // ── Contratos ────────────────────────────────────────────────────────
