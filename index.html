@@ -130,6 +130,24 @@ body{background:var(--surface2);color:var(--texto);}
 .status-dot.dispensado{background:#333;}
 
 .hint{font-size:11px;color:var(--muted2);margin-top:4px;}
+
+/* ── BI Executivo (estilo Relatório Gerencial) ── */
+.bi-header{background:var(--escuro-pc);color:#fff;padding:12px 20px;border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.bi-header-titulo{font-weight:800;font-size:15px;}
+.bi-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border2);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
+.bi-kpi-grupo{background:#fff;padding:12px 16px;}
+.bi-kpi-grupo-titulo{background:var(--escuro-pc);color:#fff;font-size:11px;font-weight:700;text-align:center;padding:6px;margin:-12px -16px 10px;}
+.bi-kpi-cols{display:flex;justify-content:space-around;text-align:center;gap:6px;}
+.bi-kpi-col-label{font-size:9.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border2);padding-bottom:4px;margin-bottom:6px;}
+.bi-kpi-col-val{font-size:18px;font-weight:800;color:var(--escuro-pc);}
+.bi-kpi-col-val.neg{color:var(--red);}
+.bi-kpi-col-val.pos{color:var(--green);}
+.bi-fases-ref{font-size:10.5px;line-height:1.6;color:var(--muted);}
+.bi-fases-ref b{color:var(--escuro-pc);display:block;margin-top:8px;font-size:11px;}
+.bi-fases-ref ul{margin:2px 0 0 16px;}
+.btn-present{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer;}
+.btn-present:hover{background:rgba(255,255,255,.25);}
+#page-bi:fullscreen{background:var(--surface2);padding:24px;overflow:auto;}
 .icon-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:4px;color:var(--muted);}
 .icon-btn:hover{color:var(--escuro-pc);}
 </style>
@@ -224,6 +242,7 @@ body{background:var(--surface2);color:var(--texto);}
     <button class="tab-btn" onclick="mudarAba('processos')">⚖️ Processos de Terceiros</button>
     <button class="tab-btn" onclick="mudarAba('contratos')">📄 Gestão de Contratos</button>
     <button class="tab-btn" onclick="mudarAba('parcelamentos')">💳 Parcelamentos</button>
+    <button class="tab-btn" onclick="mudarAba('bi')">📈 BI Executivo</button>
   </div>
 
   <!-- ── Cenário Geral ── -->
@@ -408,6 +427,69 @@ body{background:var(--surface2);color:var(--texto);}
       </table></div>
     </div>
   </div>
+
+  <!-- ── BI Executivo ── -->
+  <div id="page-bi" class="page">
+    <div class="bi-header">
+      <span class="bi-header-titulo" id="biTitulo">P&amp;C — Relatório Gerencial — GTT</span>
+      <button class="btn-present" onclick="toggleFullscreenBI()">⛶ Apresentar</button>
+    </div>
+    <div class="filter-row">
+      <div class="form-group"><label class="form-label">Fornecedor</label>
+        <select id="fBiFornecedor" class="form-input" onchange="renderBI()"><option value="">Todos</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">UF</label>
+        <select id="fBiUF" class="form-input" onchange="renderBI()"><option value="">Todas</option></select>
+      </div>
+    </div>
+
+    <div class="bi-kpi-row">
+      <div class="bi-kpi-grupo">
+        <div class="bi-kpi-grupo-titulo">MÉDIA COMPLIANCE</div>
+        <div class="bi-kpi-cols" id="biCompliance"></div>
+      </div>
+      <div class="bi-kpi-grupo">
+        <div class="bi-kpi-grupo-titulo">QUANTIDADE DE EMPRESAS</div>
+        <div class="bi-kpi-cols" id="biEmpresas"></div>
+      </div>
+      <div class="bi-kpi-grupo">
+        <div class="bi-kpi-grupo-titulo">CONTRATOS DE PRESTAÇÃO DE SERVIÇOS</div>
+        <div class="bi-kpi-cols" id="biContratos"></div>
+      </div>
+      <div class="bi-kpi-grupo">
+        <div class="bi-kpi-grupo-titulo">% REGULARIDADE</div>
+        <div class="bi-kpi-cols" id="biRegularidade"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Fase de Monitoramento</span></div>
+        <div class="dash-card-body" style="height:280px;"><canvas id="chartBiFase"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Comparativo Compliance</span></div>
+        <div class="dash-card-body" style="height:280px;"><canvas id="chartBiCompliance"></canvas></div>
+      </div>
+      <div class="dash-card" style="grid-column:1/-1;">
+        <div class="dash-card-head"><span>Fases do Monitoramento</span></div>
+        <div class="dash-card-body bi-fases-ref">
+          <b>FASE 1 – ADAPTAÇÃO E ADESÃO AO PROJETO</b>
+          <ul><li>Apresentação do projeto e envio do manual</li><li>Solução de dúvidas e concessão de prazo flexível</li></ul>
+          <b>FASE 2 – ALERTA DE ADESÃO</b>
+          <ul><li>Informe sobre última tentativa de adesão no caso de não inclusão da primeira tentativa</li></ul>
+          <b>FASE 3 – MANUTENÇÃO – FASE REGULAR</b>
+          <ul><li>Análise da regularidade dos documentos</li><li>Identificação de pontos de exposição</li><li>Controle de adesão permanente</li><li>Cobrança contínua</li><li>Reportes mensais à Empresa</li></ul>
+          <b>FASE 4 – ALERTA DE ATRASO</b>
+          <ul><li>Empresas que não aderiram após a fase 2</li><li>Empresas que deixaram de cumprir prazos após a fase 3 com atraso superior a 60 dias</li><li>Escalonamento do tratamento para área de compras</li></ul>
+          <b>FASE 5 – NOTIFICAÇÃO</b>
+          <ul><li>Concessão de prazo para inclusão de documentos faltantes</li><li>Lembrete sobre obrigações contratuais</li><li>Comunicado sobre consequências do não compliance</li><li>Recomendação de não contratação</li></ul>
+          <b>FASE 6 – NOTIFICAÇÃO RESCISÃO – 48H</b>
+          <ul><li>Escalonamento do tratamento</li><li>Comunicado de inclusão em ranking de risco e recomendação de não recontratação</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -549,6 +631,10 @@ function popularFiltros(){
   preencher('fFornFase', fases);
   preencher('fFornUF', ufsLimpo);
   preencher('fEmpFornecedor', nomes);
+  preencher('fBiFornecedor', nomes);
+  preencher('fBiUF', ufsLimpo);
+  const clienteAtivo = CLIENTES.find(c=>c.id===CLIENTE_ID);
+  if(clienteAtivo) document.getElementById('biTitulo').textContent = `P&C — Relatório Gerencial — GTT — ${clienteAtivo.nome}`;
 }
 
 // ── Score de Risco Consolidado ──────────────────────────────────────
@@ -584,7 +670,7 @@ function classeRisco(score){
 
 // ── Navegação ────────────────────────────────────────────────────────
 function mudarAba(aba){
-  const ordem = ['geral','fornecedores','clientes','empregados','documentos','irregularidades','processos','contratos','parcelamentos'];
+  const ordem = ['geral','fornecedores','clientes','empregados','documentos','irregularidades','processos','contratos','parcelamentos','bi'];
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ordem[i]===aba));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+aba).classList.add('active');
@@ -597,6 +683,7 @@ function mudarAba(aba){
   if(aba==='processos') renderProcessos();
   if(aba==='contratos') renderContratos();
   if(aba==='parcelamentos') renderParcelamentos();
+  if(aba==='bi') renderBI();
 }
 
 // ── Cenário Geral ────────────────────────────────────────────────────
@@ -1079,6 +1166,77 @@ function abrirDetalheFornecedor(empresa){
 }
 
 // ── Exportar Excel (dados prontos pra reenvio ou pra importar no Power BI) ──
+// ── BI Executivo (estilo Relatório Gerencial / Power BI) ────────────
+function toggleFullscreenBI(){
+  const el = document.getElementById('page-bi');
+  if(!document.fullscreenElement) el.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+}
+let CHART_BI_FASE=null, CHART_BI_COMPLIANCE=null;
+function biCard(atual, anterior, formatador, deltaInvertido){
+  const delta = (atual!=null && anterior!=null) ? atual - anterior : null;
+  const deltaTxt = delta==null ? '' : (delta>=0?'+':'') + (formatador===fmtPct ? (delta*100).toFixed(1)+'%' : delta.toLocaleString('pt-BR'));
+  const deltaClasse = delta==null ? '' : ((deltaInvertido ? delta<=0 : delta>=0) ? 'pos' : 'neg');
+  return `
+    <div><div class="bi-kpi-col-label">Atual</div><div class="bi-kpi-col-val">${atual!=null?formadorAplica(formatador,atual):'—'}</div></div>
+    <div><div class="bi-kpi-col-label">Mês Anterior</div><div class="bi-kpi-col-val" style="font-size:14px;color:var(--muted2);">${anterior!=null?formadorAplica(formatador,anterior):'—'}</div></div>
+    <div><div class="bi-kpi-col-label">Diferença</div><div class="bi-kpi-col-val ${deltaClasse}" style="font-size:14px;">${deltaTxt||'—'}</div></div>`;
+}
+function formadorAplica(fn, v){ return fn===fmtPct ? fmtPct(v) : String(v); }
+
+function renderBI(){
+  const filtroFornecedor = document.getElementById('fBiFornecedor').value;
+  const filtroUF = document.getElementById('fBiUF').value;
+  let fornecedores = FORNECEDORES.filter(f => f.status !== 'INATIVA');
+  if(filtroFornecedor) fornecedores = fornecedores.filter(f => f.empresa === filtroFornecedor);
+  if(filtroUF) fornecedores = fornecedores.filter(f => (f.localidades||'').includes(filtroUF));
+
+  const mesesCompl = [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort();
+  const ultimoMes = mesesCompl[mesesCompl.length-1], penultimoMes = mesesCompl[mesesCompl.length-2];
+  const mediaMes = mes => {
+    const vals = COMPLIANCE.filter(c => c.mes_referencia===mes && (!filtroFornecedor || c.empresa===filtroFornecedor)).map(c=>Number(c.compliance)).filter(v=>!isNaN(v));
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+  };
+  document.getElementById('biCompliance').innerHTML = biCard(ultimoMes?mediaMes(ultimoMes):null, penultimoMes?mediaMes(penultimoMes):null, fmtPct);
+
+  document.getElementById('biEmpresas').innerHTML = biCard(fornecedores.length, null, v=>String(v));
+
+  const vencidos = fornecedores.filter(f=>f.status_contrato==='VENCIDO').length;
+  const vigentes = fornecedores.filter(f=>f.status_contrato==='VIGENTE').length;
+  document.getElementById('biContratos').innerHTML = `
+    <div><div class="bi-kpi-col-label">Vigentes</div><div class="bi-kpi-col-val" style="color:var(--green);">${vigentes}</div></div>
+    <div><div class="bi-kpi-col-label">Vencidos</div><div class="bi-kpi-col-val" style="color:var(--red);">${vencidos}</div></div>
+    <div><div class="bi-kpi-col-label">Total</div><div class="bi-kpi-col-val">${fornecedores.length}</div></div>`;
+
+  const scores = fornecedores.map(f => scoreRisco(f.empresa));
+  const regulares = scores.filter(s => s.complAtual!=null && s.complAtual>=0.7).length;
+  const pctReg = fornecedores.length ? regulares/fornecedores.length : null;
+  document.getElementById('biRegularidade').innerHTML = biCard(pctReg, null, fmtPct);
+
+  const porFase = {};
+  fornecedores.forEach(f => { const fase = f.fase_atual || 'Sem fase'; porFase[fase] = (porFase[fase]||0)+1; });
+  const labelsFase = Object.keys(porFase).sort();
+  if(CHART_BI_FASE) CHART_BI_FASE.destroy();
+  CHART_BI_FASE = new Chart(document.getElementById('chartBiFase'), {
+    type:'doughnut',
+    data:{ labels:labelsFase, datasets:[{ data:labelsFase.map(l=>porFase[l]), backgroundColor:['#8E44AD','#B39DDB','#117A65','#E67E22','#C0392B','#7B241C','#7E98AA'] }] },
+    options:{ maintainAspectRatio:false, plugins:{ legend:{position:'right',labels:{boxWidth:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700'},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return v+' ('+(v/t*100).toFixed(1)+'%)';}} } },
+  });
+
+  const topEmpresas = [...new Set(COMPLIANCE.map(c=>c.empresa))].filter(e => !filtroFornecedor || e===filtroFornecedor).slice(0,15);
+  const valorMes = (emp,mes) => { const r = COMPLIANCE.find(c=>c.empresa===emp && c.mes_referencia===mes); return r ? Number(r.compliance)*100 : 0; };
+  if(CHART_BI_COMPLIANCE) CHART_BI_COMPLIANCE.destroy();
+  CHART_BI_COMPLIANCE = new Chart(document.getElementById('chartBiCompliance'), {
+    type:'bar',
+    data:{ labels: topEmpresas.map(e=>e.length>16?e.slice(0,16)+'…':e),
+      datasets:[
+        { label: penultimoMes?fmtMes(penultimoMes):'Mês Anterior', data: topEmpresas.map(e=>penultimoMes?valorMes(e,penultimoMes):0), backgroundColor:'#003B5C' },
+        { label: ultimoMes?fmtMes(ultimoMes):'Mês Atual', data: topEmpresas.map(e=>ultimoMes?valorMes(e,ultimoMes):0), backgroundColor:'#00A9E0' },
+      ] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:false}}, scales:{ y:{max:100,ticks:{callback:v=>v+'%'}}, x:{ticks:{autoSkip:false,maxRotation:60}} } },
+  });
+}
+
 async function exportarExcel(){
   if(!FORNECEDORES.length){ alert('Ainda carregando os dados — espera um instante e tenta de novo.'); return; }
   const { count: totalDocumentos } = await sb.from('gtt_documentos').select('*', {count:'exact', head:true}).eq('cliente_id', CLIENTE_ID);
