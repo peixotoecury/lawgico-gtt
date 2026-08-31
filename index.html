@@ -347,7 +347,7 @@ body{background:var(--surface2);color:var(--texto);}
         <button class="btn-outline" style="background:#fff;" onclick="alert('Cadastro de fornecedor novo — em construção. Por enquanto, adicione pela planilha na aba Atualizar Mês.')">+ Novo Fornecedor</button>
       </div>
       <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Nome</th><th>CNPJ</th><th>Score de Risco</th><th>Fase Atual</th><th>Empregados</th><th>Status</th><th>Contrato</th><th>Ações</th></tr></thead>
+        <thead><tr><th>Nome</th><th>CNPJ</th><th>Score de Risco</th><th>Fase Atual</th><th>Empregados</th><th>Compl. Mês</th><th>Compl. Ano</th><th>Irreg.</th><th>Status</th><th>Contrato</th><th>Ações</th></tr></thead>
         <tbody id="tbodyFornecedores"></tbody>
       </table></div>
     </div>
@@ -983,12 +983,19 @@ function renderFornecedores(){
     const c = classeRisco(s.score);
     const loc = LOCALIDADES.filter(l => l.empresa === f.empresa);
     const ultimoMes = loc.length ? loc.sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0] : null;
+    const complHistFornecedor = COMPLIANCE.filter(x=>x.empresa===f.empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia));
+    const meses12Forn = complHistFornecedor.slice(0,12).map(x=>Number(x.compliance)).filter(v=>!isNaN(v));
+    const complAnoForn = meses12Forn.length ? meses12Forn.reduce((a,b)=>a+b,0)/meses12Forn.length : null;
+    const irregTotalForn = s.irreg ? ['cartoes_britanico','horas_extras_2h','intervalo_intrajornada','intervalo_interjornada','dsr','irregularidades_rescisoes','irregularidades_trct','irregularidades_grrf','irregularidades_contrato_trabalho','irregularidades_ficha_registro','irregularidades_ficha_epi','irregularidades_recibo_ferias'].reduce((s2,c2)=>s2+(Number(s.irreg[c2])||0),0) : 0;
     return `<tr>
       <td>${esc(f.empresa)}</td>
       <td class="mono">${esc(f.cnpj||'—')}</td>
       <td><span class="badge ${c.classe}">${s.score} · ${c.texto}</span></td>
       <td>${esc(f.fase_atual||'—')}</td>
       <td class="mono">${ultimoMes ? Math.round(ultimoMes.qtd_funcionarios||0) : '—'}</td>
+      <td class="mono">${fmtPct(s.complAtual)}</td>
+      <td class="mono">${fmtPct(complAnoForn)}</td>
+      <td class="mono">${irregTotalForn}</td>
       <td>
         <select class="form-input" style="padding:4px 8px;font-size:12px;width:auto;" onchange="alterarStatusFornecedor(${f.id}, this.value)">
           <option value="ATIVO"${f.status==='ATIVO'?' selected':''}>Ativo</option>
@@ -1001,7 +1008,7 @@ function renderFornecedores(){
         <button class="icon-btn" title="Ver detalhes" onclick="abrirDetalheFornecedor('${esc(f.empresa)}')">👁</button>
       </td>
     </tr>`;
-  }).join('') || '<tr><td colspan="7" class="empty-state">Nenhum fornecedor encontrado.</td></tr>';
+  }).join('') || '<tr><td colspan="10" class="empty-state">Nenhum fornecedor encontrado.</td></tr>';
 }
 
 async function alterarStatusFornecedor(id, novoStatus){
