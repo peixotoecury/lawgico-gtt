@@ -216,10 +216,13 @@ body{background:var(--surface2);color:var(--texto);}
   <div class="tabs">
     <button class="tab-btn" onclick="mudarAba('geral')">📊 Cenário Geral</button>
     <button class="tab-btn" onclick="mudarAba('fornecedores')">🏢 Fornecedores</button>
+    <button class="tab-btn" onclick="mudarAba('clientes')">🏛️ Clientes</button>
+    <button class="tab-btn" onclick="mudarAba('empregados')">👥 Empregados</button>
     <button class="tab-btn" onclick="mudarAba('documentos')">📋 Documentos</button>
     <button class="tab-btn" onclick="mudarAba('irregularidades')">⚠️ Irregularidades</button>
     <button class="tab-btn" onclick="mudarAba('processos')">⚖️ Processos de Terceiros</button>
     <button class="tab-btn" onclick="mudarAba('contratos')">📄 Gestão de Contratos</button>
+    <button class="tab-btn" onclick="mudarAba('parcelamentos')">💳 Parcelamentos</button>
   </div>
 
   <!-- ── Cenário Geral ── -->
@@ -255,6 +258,46 @@ body{background:var(--surface2);color:var(--texto);}
   </div>
 
   <!-- ── Fornecedores ── -->
+  <!-- ── Clientes ── -->
+  <div id="page-clientes" class="page">
+    <div class="filter-row">
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" id="fClienteNome" class="form-input" placeholder="Buscar..." oninput="renderClientes()"></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head">
+        <span>Clientes <span id="contagemClientes"></span></span>
+        <button class="btn-outline" style="background:#fff;" onclick="abrirNovoCliente()">+ Adicionar Cliente</button>
+      </div>
+      <div class="table-wrap"><table class="rel-table">
+        <thead><tr><th>Nome</th><th>CNPJ</th><th>Segmento</th><th>Fornecedores</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="tbodyClientes"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ── Empregados ── -->
+  <div id="page-empregados" class="page">
+    <div class="filter-row">
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" id="fEmpNome" class="form-input" placeholder="Buscar..." oninput="renderEmpregados()"></div>
+      <div class="form-group"><label class="form-label">Fornecedor</label>
+        <select id="fEmpFornecedor" class="form-input" onchange="renderEmpregados()"><option value="">Todos</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select id="fEmpStatus" class="form-input" onchange="renderEmpregados()"><option value="">Todos</option><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head">
+        <span>Empregados <span id="contagemEmpregados"></span></span>
+        <button class="btn-outline" style="background:#fff;" onclick="abrirNovoEmpregado()">+ Adicionar Empregado</button>
+      </div>
+      <div class="table-wrap"><table class="rel-table">
+        <thead><tr><th>Nome</th><th>Fornecedor</th><th>Cargo</th><th>Departamento</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="tbodyEmpregados"></tbody>
+      </table></div>
+    </div>
+  </div>
+
   <div id="page-fornecedores" class="page">
     <div class="filter-row">
       <div class="form-group"><label class="form-label">Nome</label><input type="text" id="fFornNome" class="form-input" placeholder="Buscar..." oninput="renderFornecedores()"></div>
@@ -275,7 +318,7 @@ body{background:var(--surface2);color:var(--texto);}
         <button class="btn-outline" style="background:#fff;" onclick="alert('Cadastro de fornecedor novo — em construção. Por enquanto, adicione pela planilha na aba Atualizar Mês.')">+ Novo Fornecedor</button>
       </div>
       <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Nome</th><th>CNPJ</th><th>Score de Risco</th><th>Fase Atual</th><th>Empregados</th><th>Status</th><th>Contrato</th></tr></thead>
+        <thead><tr><th>Nome</th><th>CNPJ</th><th>Score de Risco</th><th>Fase Atual</th><th>Empregados</th><th>Status</th><th>Contrato</th><th>Ações</th></tr></thead>
         <tbody id="tbodyFornecedores"></tbody>
       </table></div>
     </div>
@@ -351,6 +394,19 @@ body{background:var(--surface2);color:var(--texto);}
       </table></div>
     </div>
   </div>
+
+  <!-- ── Parcelamentos ── -->
+  <div id="page-parcelamentos" class="page">
+    <div class="kpi-grid" id="kpiParcelamentos"></div>
+    <div class="dash-card">
+      <div class="dash-card-head"><span>Parcelamentos por Fornecedor</span></div>
+      <div class="hint" style="padding:10px 16px 0;">Clique numa linha pra ver as parcelas individuais.</div>
+      <div class="table-wrap"><table class="rel-table">
+        <thead><tr><th></th><th>Fornecedor</th><th>Tipo</th><th>Nº Parcelamento</th><th>Total Parcelas</th><th>Pagas</th><th>Pendentes</th><th>Vencidas</th><th>Status</th></tr></thead>
+        <tbody id="tbodyParcelamentos"></tbody>
+      </table></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -404,7 +460,7 @@ document.getElementById('loginSenha').addEventListener('keydown', e => { if(e.ke
 })();
 
 // ── Dados ────────────────────────────────────────────────────────────
-let FORNECEDORES = [], COMPLIANCE = [], IRREGULARIDADES = [], PROCESSOS = [], LOCALIDADES = [], DOCUMENTOS = [], PARCELAMENTOS = [], EMPREGADOS = [];
+let FORNECEDORES = [], COMPLIANCE = [], IRREGULARIDADES = [], PROCESSOS = [], LOCALIDADES = [], DOCUMENTOS = [], PARCELAMENTOS = [], EMPREGADOS = [], PARCELAS_DETALHE = [], CLIENTES = [];
 
 async function buscarTudo(tabela, filtros){
   let todos = [], de = 0;
@@ -425,7 +481,7 @@ async function carregarTudo(){
   // gtt_documentos NÃO entra aqui — tem 66 mil+ linhas e travava a entrada
   // no sistema por ~40s. É buscada sob demanda, só do fornecedor escolhido,
   // quando a aba Documentos é aberta (ver renderDocumentos).
-  [FORNECEDORES, COMPLIANCE, IRREGULARIDADES, PROCESSOS, LOCALIDADES, PARCELAMENTOS, EMPREGADOS] = await Promise.all([
+  [FORNECEDORES, COMPLIANCE, IRREGULARIDADES, PROCESSOS, LOCALIDADES, PARCELAMENTOS, EMPREGADOS, PARCELAS_DETALHE, CLIENTES] = await Promise.all([
     buscarTudo('gtt_fornecedores', {cliente_id: CLIENTE_ID}),
     buscarTudo('gtt_compliance_mensal', {cliente_id: CLIENTE_ID}),
     buscarTudo('gtt_irregularidades', {cliente_id: CLIENTE_ID}),
@@ -433,6 +489,8 @@ async function carregarTudo(){
     buscarTudo('gtt_terceiros_localidade', {cliente_id: CLIENTE_ID}),
     buscarTudo('gtt_parcelamentos', {cliente_id: CLIENTE_ID}),
     buscarTudo('gtt_empregados', {cliente_id: CLIENTE_ID}),
+    buscarTudo('gtt_parcelas_detalhe', {cliente_id: CLIENTE_ID}),
+    buscarTudo('gtt_clientes', {}),
   ]);
   // Nomes de empresa em maiúsculas em toda a base — padroniza exibição e
   // garante que o cruzamento entre tabelas (fornecedor x compliance x
@@ -474,6 +532,7 @@ function popularFiltros(){
   preencher('fDocFornecedor', nomes);
   preencher('fFornFase', fases);
   preencher('fFornUF', ufsLimpo);
+  preencher('fEmpFornecedor', nomes);
 }
 
 // ── Score de Risco Consolidado ──────────────────────────────────────
@@ -509,16 +568,19 @@ function classeRisco(score){
 
 // ── Navegação ────────────────────────────────────────────────────────
 function mudarAba(aba){
-  const ordem = ['geral','fornecedores','documentos','irregularidades','processos','contratos'];
+  const ordem = ['geral','fornecedores','clientes','empregados','documentos','irregularidades','processos','contratos','parcelamentos'];
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ordem[i]===aba));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+aba).classList.add('active');
   if(aba==='geral') renderGeral();
   if(aba==='fornecedores') renderFornecedores();
+  if(aba==='clientes') renderClientes();
+  if(aba==='empregados') renderEmpregados();
   if(aba==='documentos') renderDocumentos();
   if(aba==='irregularidades') renderIrregularidades();
   if(aba==='processos') renderProcessos();
   if(aba==='contratos') renderContratos();
+  if(aba==='parcelamentos') renderParcelamentos();
 }
 
 // ── Cenário Geral ────────────────────────────────────────────────────
@@ -625,6 +687,10 @@ function renderFornecedores(){
         </select>
       </td>
       <td>${esc(f.status_contrato||'—')}</td>
+      <td style="white-space:nowrap;">
+        <button class="icon-btn" title="Editar" onclick="abrirEditarFornecedor(${f.id})">✎</button>
+        <button class="icon-btn" title="Ver detalhes" onclick="abrirDetalheFornecedor('${esc(f.empresa)}')">👁</button>
+      </td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" class="empty-state">Nenhum fornecedor encontrado.</td></tr>';
 }
@@ -756,6 +822,244 @@ function renderContratos(){
     const cor = f.status_contrato==='VENCIDO' ? 'critico' : f.status_contrato==='VIGENTE' ? 'ok' : 'atencao';
     return `<tr><td>${esc(f.empresa)}</td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${f.vencimento_contrato||'—'}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'—')}</span></td><td>${esc(f.localidades||'—')}</td></tr>`;
   }).join('') || '<tr><td colspan="5" class="empty-state">Nenhum contrato.</td></tr>';
+}
+
+// ── Parcelamentos ────────────────────────────────────────────────────
+let PARCELAS_ABERTAS = {};
+function renderParcelamentos(){
+  const quitados = PARCELAMENTOS.filter(p => p.status_geral === 'QUITADO').length;
+  const vencidos = PARCELAMENTOS.filter(p => (p.parcelas_vencidas||0) > 0).length;
+  document.getElementById('kpiParcelamentos').innerHTML = [
+    { label: 'Total de Parcelamentos', val: String(PARCELAMENTOS.length) },
+    { label: 'Quitados', val: String(quitados) },
+    { label: 'Com Parcelas Vencidas', val: String(vencidos) },
+  ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
+
+  document.getElementById('tbodyParcelamentos').innerHTML = PARCELAMENTOS.map((p,i) => {
+    const cor = p.status_geral==='QUITADO' ? 'ok' : (p.parcelas_vencidas>0 ? 'critico' : 'atencao');
+    const idDetalhe = `parcDet${i}`;
+    return `<tr style="cursor:pointer;" onclick="toggleParcelaDetalhe('${idDetalhe}','${esc(p.empresa)}','${esc(p.numero_parcelamento||'')}')">
+      <td>▸</td>
+      <td>${esc(p.empresa)}</td><td>${esc(p.tipo_parcelamento||'—')}</td><td class="mono">${esc(p.numero_parcelamento||'—')}</td>
+      <td class="mono">${p.total_parcelas??'—'}</td><td class="mono">${p.parcelas_pagas??'—'}</td>
+      <td class="mono">${p.parcelas_pendentes??'—'}</td><td class="mono">${p.parcelas_vencidas??'—'}</td>
+      <td><span class="badge ${cor}">${esc(p.status_geral||'—')}</span></td>
+    </tr>
+    <tr id="${idDetalhe}" class="hidden"><td colspan="9" style="padding:0;"><div style="padding:10px 16px;background:var(--surface2);" id="${idDetalhe}_conteudo"></div></td></tr>`;
+  }).join('') || '<tr><td colspan="9" class="empty-state">Nenhum parcelamento.</td></tr>';
+}
+
+function toggleParcelaDetalhe(id, empresa, numeroParcelamento){
+  const tr = document.getElementById(id);
+  const aberto = !tr.classList.contains('hidden');
+  document.querySelectorAll('#tbodyParcelamentos tr[id^="parcDet"]').forEach(t => t.classList.add('hidden'));
+  if(aberto) return;
+  tr.classList.remove('hidden');
+  const conteudo = document.getElementById(id+'_conteudo');
+  const parcelas = PARCELAS_DETALHE.filter(d => d.empresa.toUpperCase().includes(empresa.toUpperCase().split(' ')[0]) &&
+    (!numeroParcelamento || (d.titulo_debito||'').includes(numeroParcelamento) || numeroParcelamento.includes((d.titulo_debito||'').split(' ').pop()||'###')));
+  if(!parcelas.length){ conteudo.innerHTML = '<span class="hint">Sem detalhamento parcela a parcela pra este parcelamento.</span>'; return; }
+  conteudo.innerHTML = `<table class="rel-table"><thead><tr><th>Parcela</th><th>Competência/Vencimento</th><th>Comprovante</th></tr></thead><tbody>
+    ${parcelas.sort((a,b)=>(a.competencia_vencimento||'').localeCompare(b.competencia_vencimento||'')).map(d => `
+      <tr><td class="mono">${esc(d.numero_prestacao||'—')}</td><td class="mono">${d.competencia_vencimento||'—'}</td>
+      <td>${d.comprovante==='SIM' ? '<span class="badge ok">Sim</span>' : d.comprovante==='NÃO'||d.comprovante==='NÃO ' ? '<span class="badge critico">Não</span>' : '—'}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
+// ── Clientes ─────────────────────────────────────────────────────────
+function renderClientes(){
+  const nome = document.getElementById('fClienteNome').value.toLowerCase();
+  const lista = CLIENTES.filter(c => !nome || c.nome.toLowerCase().includes(nome));
+  document.getElementById('contagemClientes').textContent = `(${lista.length})`;
+  document.getElementById('tbodyClientes').innerHTML = lista.map(c => {
+    const qtdFornecedores = c.id === CLIENTE_ID ? FORNECEDORES.length : 0;
+    return `<tr>
+      <td>${esc(c.nome)}</td><td class="mono">${esc(c.cnpj||'—')}</td><td>${esc(c.segmento||'—')}</td>
+      <td class="mono">${qtdFornecedores}</td>
+      <td>${(c.status||'Ativo')==='Ativo' ? '<span class="badge ok">Ativo</span>' : '<span class="badge neutro">Inativo</span>'}</td>
+      <td style="white-space:nowrap;">
+        <button class="icon-btn" title="Editar" onclick="abrirEditarCliente(${c.id})">✎</button>
+        <button class="icon-btn" title="Ver detalhes" onclick="alert('Cliente: ${esc(c.nome)}\\nSlug: ${esc(c.slug)}\\nCriado em: ${c.criado_em?c.criado_em.slice(0,10):'—'}')">👁</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="empty-state">Nenhum cliente.</td></tr>';
+}
+
+function abrirNovoCliente(){ abrirFormCliente(null); }
+function abrirEditarCliente(id){ abrirFormCliente(CLIENTES.find(c=>c.id===id)); }
+function abrirFormCliente(c){
+  const overlay = document.createElement('div');
+  overlay.id = 'overlayModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(11,30,45,.5);z-index:500;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-pc);padding:26px;width:100%;max-width:380px;">
+      <div style="font-weight:800;color:var(--escuro-pc);font-size:15px;margin-bottom:16px;">${c?'Editar':'Adicionar'} Cliente</div>
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" id="mCliNome" class="form-input" value="${c?esc(c.nome):''}"></div>
+      <div class="form-group"><label class="form-label">CNPJ</label><input type="text" id="mCliCnpj" class="form-input" value="${c?esc(c.cnpj||''):''}"></div>
+      <div class="form-group"><label class="form-label">Segmento</label><input type="text" id="mCliSegmento" class="form-input" value="${c?esc(c.segmento||''):''}"></div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select id="mCliStatus" class="form-input"><option value="Ativo"${(!c||c.status==='Ativo')?' selected':''}>Ativo</option><option value="Inativo"${c&&c.status==='Inativo'?' selected':''}>Inativo</option></select>
+      </div>
+      <div style="display:flex;gap:8px;"><button class="btn" onclick="salvarCliente(${c?c.id:'null'})">Salvar</button><button class="btn-outline" onclick="document.getElementById('overlayModal').remove()">Cancelar</button></div>
+      <div class="hint" id="mCliStatusMsg" style="margin-top:10px;"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+async function salvarCliente(id){
+  const dados = {
+    nome: document.getElementById('mCliNome').value.trim(),
+    cnpj: document.getElementById('mCliCnpj').value.trim() || null,
+    segmento: document.getElementById('mCliSegmento').value.trim() || null,
+    status: document.getElementById('mCliStatus').value,
+  };
+  if(!dados.nome){ document.getElementById('mCliStatusMsg').textContent = 'Informe o nome.'; return; }
+  let error;
+  if(id){
+    ({error} = await sb.from('gtt_clientes').update(dados).eq('id', id));
+  } else {
+    dados.slug = dados.nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    ({error} = await sb.from('gtt_clientes').insert(dados));
+  }
+  if(error){ document.getElementById('mCliStatusMsg').textContent = 'Erro: ' + error.message; return; }
+  CLIENTES = await buscarTudo('gtt_clientes', {});
+  document.getElementById('overlayModal').remove();
+  renderClientes();
+}
+
+// ── Empregados ───────────────────────────────────────────────────────
+function renderEmpregados(){
+  const nome = document.getElementById('fEmpNome').value.toLowerCase();
+  const fornecedor = document.getElementById('fEmpFornecedor').value;
+  const status = document.getElementById('fEmpStatus').value;
+  const lista = EMPREGADOS.filter(e =>
+    (!nome || e.nome.toLowerCase().includes(nome)) &&
+    (!fornecedor || e.fornecedor === fornecedor) &&
+    (!status || e.status === status)
+  );
+  document.getElementById('contagemEmpregados').textContent = `(${lista.length})`;
+  document.getElementById('tbodyEmpregados').innerHTML = lista.map(e => `
+    <tr>
+      <td>${esc(e.nome)}</td><td>${esc(e.fornecedor||'—')}</td><td>${esc(e.cargo||'—')}</td><td>${esc(e.departamento||'—')}</td>
+      <td>${e.status==='Ativo' ? '<span class="badge ok">Ativo</span>' : '<span class="badge neutro">Inativo</span>'}</td>
+      <td style="white-space:nowrap;">
+        <button class="icon-btn" title="Editar" onclick="abrirEditarEmpregado(${e.id})">✎</button>
+        <button class="icon-btn" title="Excluir" onclick="excluirEmpregado(${e.id})">🗑️</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="6" class="empty-state">Nenhum empregado cadastrado ainda.</td></tr>';
+}
+
+function abrirNovoEmpregado(){ abrirFormEmpregado(null); }
+function abrirEditarEmpregado(id){ abrirFormEmpregado(EMPREGADOS.find(e=>e.id===id)); }
+function abrirFormEmpregado(e){
+  const overlay = document.createElement('div');
+  overlay.id = 'overlayModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(11,30,45,.5);z-index:500;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-pc);padding:26px;width:100%;max-width:380px;">
+      <div style="font-weight:800;color:var(--escuro-pc);font-size:15px;margin-bottom:16px;">${e?'Editar':'Adicionar'} Empregado</div>
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" id="mEmpNome" class="form-input" value="${e?esc(e.nome):''}"></div>
+      <div class="form-group"><label class="form-label">Fornecedor</label>
+        <input type="text" id="mEmpFornecedor" class="form-input" list="listaFornecedoresModal" value="${e?esc(e.fornecedor||''):''}">
+        <datalist id="listaFornecedoresModal">${FORNECEDORES.map(f=>`<option value="${esc(f.empresa)}">`).join('')}</datalist>
+      </div>
+      <div class="form-group"><label class="form-label">Cargo</label><input type="text" id="mEmpCargo" class="form-input" value="${e?esc(e.cargo||''):''}"></div>
+      <div class="form-group"><label class="form-label">Departamento</label><input type="text" id="mEmpDepartamento" class="form-input" value="${e?esc(e.departamento||''):''}"></div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select id="mEmpStatus" class="form-input"><option value="Ativo"${(!e||e.status==='Ativo')?' selected':''}>Ativo</option><option value="Inativo"${e&&e.status==='Inativo'?' selected':''}>Inativo</option></select>
+      </div>
+      <div style="display:flex;gap:8px;"><button class="btn" onclick="salvarEmpregado(${e?e.id:'null'})">Salvar</button><button class="btn-outline" onclick="document.getElementById('overlayModal').remove()">Cancelar</button></div>
+      <div class="hint" id="mEmpStatusMsg" style="margin-top:10px;"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+async function salvarEmpregado(id){
+  const dados = {
+    cliente_id: CLIENTE_ID,
+    nome: document.getElementById('mEmpNome').value.trim(),
+    fornecedor: document.getElementById('mEmpFornecedor').value.trim() || null,
+    cargo: document.getElementById('mEmpCargo').value.trim() || null,
+    departamento: document.getElementById('mEmpDepartamento').value.trim() || null,
+    status: document.getElementById('mEmpStatus').value,
+  };
+  if(!dados.nome){ document.getElementById('mEmpStatusMsg').textContent = 'Informe o nome.'; return; }
+  const { error } = id ? await sb.from('gtt_empregados').update(dados).eq('id', id) : await sb.from('gtt_empregados').insert(dados);
+  if(error){ document.getElementById('mEmpStatusMsg').textContent = 'Erro: ' + error.message; return; }
+  EMPREGADOS = await buscarTudo('gtt_empregados', {cliente_id: CLIENTE_ID});
+  document.getElementById('overlayModal').remove();
+  renderEmpregados();
+}
+async function excluirEmpregado(id){
+  if(!confirm('Excluir este empregado?')) return;
+  const { error } = await sb.from('gtt_empregados').delete().eq('id', id);
+  if(error){ alert('Erro: ' + error.message); return; }
+  EMPREGADOS = EMPREGADOS.filter(e => e.id !== id);
+  renderEmpregados();
+}
+
+// ── Fornecedores: editar e ver detalhes ─────────────────────────────
+function abrirEditarFornecedor(id){
+  const f = FORNECEDORES.find(x=>x.id===id);
+  if(!f) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'overlayModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(11,30,45,.5);z-index:500;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-pc);padding:26px;width:100%;max-width:380px;">
+      <div style="font-weight:800;color:var(--escuro-pc);font-size:15px;margin-bottom:16px;">Editar Fornecedor</div>
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" id="mFornNome" class="form-input" value="${esc(f.empresa)}"></div>
+      <div class="form-group"><label class="form-label">CNPJ</label><input type="text" id="mFornCnpj" class="form-input" value="${esc(f.cnpj||'')}"></div>
+      <div class="form-group"><label class="form-label">Fase Atual</label><input type="text" id="mFornFase" class="form-input" value="${esc(f.fase_atual||'')}"></div>
+      <div class="form-group"><label class="form-label">Localidades</label><input type="text" id="mFornLocalidades" class="form-input" value="${esc(f.localidades||'')}"></div>
+      <div style="display:flex;gap:8px;"><button class="btn" onclick="salvarEdicaoFornecedor(${id})">Salvar</button><button class="btn-outline" onclick="document.getElementById('overlayModal').remove()">Cancelar</button></div>
+      <div class="hint" id="mFornStatusMsg" style="margin-top:10px;"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+async function salvarEdicaoFornecedor(id){
+  const dados = {
+    empresa: document.getElementById('mFornNome').value.trim().toUpperCase(),
+    cnpj: document.getElementById('mFornCnpj').value.trim() || null,
+    fase_atual: document.getElementById('mFornFase').value.trim().toUpperCase() || null,
+    localidades: document.getElementById('mFornLocalidades').value.trim() || null,
+  };
+  const { error } = await sb.from('gtt_fornecedores').update(dados).eq('id', id);
+  if(error){ document.getElementById('mFornStatusMsg').textContent = 'Erro: ' + error.message; return; }
+  Object.assign(FORNECEDORES.find(f=>f.id===id), dados);
+  document.getElementById('overlayModal').remove();
+  renderFornecedores();
+}
+
+function abrirDetalheFornecedor(empresa){
+  const f = FORNECEDORES.find(x=>x.empresa===empresa);
+  const s = scoreRisco(empresa);
+  const c = classeRisco(s.score);
+  const complHist = COMPLIANCE.filter(x=>x.empresa===empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia)).slice(0,6);
+  const processosEmp = PROCESSOS.filter(p => (p.empresa_reclamada||'').toUpperCase().includes(empresa.toUpperCase().slice(0,12)));
+  const parcelasEmp = PARCELAMENTOS.filter(p => p.empresa === empresa);
+  const overlay = document.createElement('div');
+  overlay.id = 'overlayModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(11,30,45,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-pc);padding:26px;width:100%;max-width:560px;max-height:85vh;overflow:auto;">
+      <div style="font-weight:800;color:var(--escuro-pc);font-size:16px;margin-bottom:4px;">${esc(empresa)}</div>
+      <div class="hint" style="margin-bottom:14px;">${esc(f?.cnpj||'CNPJ não informado')} · ${esc(f?.localidades||'—')}</div>
+      <div class="kpi-grid" style="margin-bottom:16px;">
+        <div class="kpi-card"><div class="kpi-label">Score de Risco</div><div class="kpi-row"><span class="badge ${c.classe}">${s.score} · ${c.texto}</span></div></div>
+        <div class="kpi-card"><div class="kpi-label">Fase Atual</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${esc(f?.fase_atual||'—')}</span></div></div>
+        <div class="kpi-card"><div class="kpi-label">Compliance Atual</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${fmtPct(s.complAtual)}</span></div></div>
+        <div class="kpi-card"><div class="kpi-label">Processos Ativos</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${s.qtdProcessosAtivos}</span></div></div>
+      </div>
+      <div style="font-weight:700;font-size:12.5px;color:var(--escuro-pc);margin-bottom:6px;">Compliance — últimos meses</div>
+      <table class="rel-table" style="margin-bottom:16px;"><tbody>
+        ${complHist.map(x=>`<tr><td>${fmtMes(x.mes_referencia)}</td><td class="mono">${fmtPct(x.compliance)}</td></tr>`).join('') || '<tr><td class="empty-state">Sem histórico de compliance.</td></tr>'}
+      </tbody></table>
+      <div style="font-weight:700;font-size:12.5px;color:var(--escuro-pc);margin-bottom:6px;">Parcelamentos (${parcelasEmp.length})</div>
+      <table class="rel-table" style="margin-bottom:16px;"><tbody>
+        ${parcelasEmp.map(p=>`<tr><td>${esc(p.tipo_parcelamento||'—')}</td><td>${esc(p.status_geral||'—')}</td></tr>`).join('') || '<tr><td class="empty-state">Sem parcelamentos.</td></tr>'}
+      </tbody></table>
+      <button class="btn-outline" onclick="document.getElementById('overlayModal').remove()">Fechar</button>
+    </div>`;
+  document.body.appendChild(overlay);
 }
 
 // ── Exportar Excel (dados prontos pra reenvio ou pra importar no Power BI) ──
