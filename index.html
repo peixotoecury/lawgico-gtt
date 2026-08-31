@@ -268,6 +268,14 @@ body{background:var(--surface2);color:var(--texto);}
         <div class="dash-card-head"><span>Comparativo Compliance por Fornecedor</span></div>
         <div class="dash-card-body" style="height:280px;"><canvas id="chartComparativoCompliance"></canvas></div>
       </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Status dos Contratos de Prestação de Serviços</span></div>
+        <div class="dash-card-body" style="height:220px;"><canvas id="chartStatusContratos"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Empregados Terceirizados por Localidade</span></div>
+        <div class="dash-card-body" style="height:220px;"><canvas id="chartEmpregadosLocalidade"></canvas></div>
+      </div>
     </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Fornecedores em Situação Crítica</span></div>
@@ -767,7 +775,7 @@ function mudarAba(aba){
 }
 
 // ── Cenário Geral ────────────────────────────────────────────────────
-let CHART_FASE=null, CHART_COMPARATIVO=null;
+let CHART_FASE=null, CHART_COMPARATIVO=null, CHART_STATUS_CONTRATOS=null, CHART_EMP_LOCALIDADE=null;
 function renderGeral(){
   const filtroFornecedor = document.getElementById('fGeralFornecedor').value;
   const filtroUF = document.getElementById('fGeralUF').value;
@@ -775,20 +783,55 @@ function renderGeral(){
   if(filtroFornecedor) fornecedores = fornecedores.filter(f => f.empresa === filtroFornecedor);
   if(filtroUF) fornecedores = fornecedores.filter(f => (f.localidades||'').includes(filtroUF));
 
-  const vencidos = fornecedores.filter(f => f.status_contrato === 'VENCIDO').length;
-  const vigentes = fornecedores.filter(f => f.status_contrato === 'VIGENTE').length;
+  // Status de contrato — 4 categorias reais (antes só olhava Vencido/Vigente
+  // e descartava "Aguardando documento" e "Vencimento Próximo" em silêncio)
+  const porStatusContrato = {};
+  fornecedores.forEach(f => { const s = (f.status_contrato||'Sem informação').trim(); porStatusContrato[s] = (porStatusContrato[s]||0)+1; });
+  const vencidos = porStatusContrato['VENCIDO']||0;
+  const vigentes = porStatusContrato['VIGENTE']||0;
 
   const scores = fornecedores.map(f => ({ f, ...scoreRisco(f.empresa) }));
   const complMedio = scores.filter(s=>s.complAtual!=null).reduce((s,x,_,arr) => s + x.complAtual/arr.length, 0);
   const criticos = scores.filter(s => classeRisco(s.score).classe === 'critico').length;
 
+  // Compliance A.A. — média dos últimos 12 meses (não só o mês corrente)
+  const complFiltrado = COMPLIANCE.filter(c => !filtroFornecedor || c.empresa===filtroFornecedor);
+  const meses12 = [...new Set(complFiltrado.map(c=>c.mes_referencia))].sort().slice(-12);
+  const valoresAno = complFiltrado.filter(c=>meses12.includes(c.mes_referencia)).map(c=>Number(c.compliance)).filter(v=>!isNaN(v));
+  const complAno = valoresAno.length ? valoresAno.reduce((a,b)=>a+b,0)/valoresAno.length : null;
+
+  // Empregados terceirizados (via localidades, com série mensal) + variação
+  const locFiltrado = LOCALIDADES.filter(l => (!filtroFornecedor || l.empresa===filtroFornecedor) && (!filtroUF || l.uf===filtroUF));
+  const mesesLoc = [...new Set(locFiltrado.map(l=>l.mes_referencia))].sort();
+  const ultimoMesLoc = mesesLoc[mesesLoc.length-1], penultimoMesLoc = mesesLoc[mesesLoc.length-2];
+  const somaEmpMes = mes => locFiltrado.filter(l=>l.mes_referencia===mes).reduce((s,l)=>s+(Number(l.qtd_funcionarios)||0),0);
+  const empAtual = ultimoMesLoc ? somaEmpMes(ultimoMesLoc) : 0;
+  const empAnterior = penultimoMesLoc ? somaEmpMes(penultimoMesLoc) : null;
+  const empDelta = empAnterior!=null ? empAtual-empAnterior : null;
+
+  // Processos de terceiros (valor de causa total) — respeitando os filtros
+  const processosFiltrados = PROCESSOS.filter(p => {
+    if(filtroFornecedor && !(p.empresa_reclamada||'').toUpperCase().includes(filtroFornecedor.toUpperCase().slice(0,12))) return false;
+    if(filtroUF && p.uf!==filtroUF) return false;
+    return true;
+  });
+  const valorCausaTotal = processosFiltrados.reduce((s,p)=>s+(Number(p.valor_causa)||0),0);
+
+  // Irregularidades de jornada do mês
+  const irregFiltrado = IRREGULARIDADES.filter(i => !filtroFornecedor || i.empresa===filtroFornecedor);
+  const ultimoMesIrreg = irregFiltrado.length ? [...new Set(irregFiltrado.map(i=>i.mes_referencia))].sort().pop() : null;
+  const irregDoMes = irregFiltrado.filter(i=>i.mes_referencia===ultimoMesIrreg);
+  const irregJornada = irregDoMes.reduce((s,i)=> s + (Number(i.cartoes_britanico)||0) + (Number(i.horas_extras_2h)||0) + (Number(i.intervalo_intrajornada)||0) + (Number(i.intervalo_interjornada)||0) + (Number(i.dsr)||0), 0);
+
   document.getElementById('kpiGeral').innerHTML = [
     { label: 'Fornecedores Ativos', val: String(fornecedores.length) },
-    { label: 'Compliance Médio', val: fmtPct(complMedio) },
-    { label: 'Contratos Vigentes', val: String(vigentes) },
+    { label: 'Compliance Médio', val: fmtPct(complMedio), sub: complAno!=null ? `A.A. ${fmtPct(complAno)}` : null },
+    { label: 'Empregados Terceirizados', val: empAtual.toLocaleString('pt-BR'), delta: empDelta!=null ? {texto:(empDelta>=0?'+':'')+empDelta+' vs. mês ant.', classe: empDelta>=0?'pos':'neg'} : null },
+    { label: 'Processos de Terceiros', val: String(processosFiltrados.length), sub: `${fmtMi(valorCausaTotal)} em causa` },
+    { label: 'Irregularidades de Jornada', val: irregJornada.toLocaleString('pt-BR'), sub: ultimoMesIrreg ? `apontadas em ${fmtMes(ultimoMesIrreg)}` : null },
     { label: 'Contratos Vencidos', val: String(vencidos), delta: vencidos>0 ? {texto:'requer atenção', classe:'neg'} : null },
     { label: 'Fornecedores em Risco Crítico', val: String(criticos), delta: criticos>0 ? {texto:'score ≥ 60', classe:'neg'} : {texto:'nenhum', classe:'pos'} },
-  ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span>${c.delta?`<span class="kpi-delta ${c.delta.classe}">${esc(c.delta.texto)}</span>`:''}</div></div>`).join('');
+  ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span>${c.delta?`<span class="kpi-delta ${c.delta.classe}">${esc(c.delta.texto)}</span>`:''}</div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
 
   // Fase de monitoramento (donut)
   const porFase = {};
@@ -834,6 +877,30 @@ function renderGeral(){
       ],
     },
     options: { maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:false}}, scales:{ y:{ max:100, ticks:{callback:v=>v+'%'}, grid:{color:'#e1e0d9'} }, x:{ ticks:{autoSkip:false,maxRotation:60}, grid:{display:false} } } },
+  });
+
+  // Status dos contratos — 4 categorias reais, cores de status (estado),
+  // não da paleta categórica (identidade) — VIGENTE/VENCIMENTO PRÓXIMO/
+  // AGUARDANDO DOCUMENTO/VENCIDO são estados, não série.
+  const CORES_STATUS_CONTRATO = { 'VIGENTE':'#0ca30c', 'VENCIMENTO PRÓXIMO':'#fab219', 'Aguardando documento':'#ec835a', 'VENCIDO':'#d03b3b', 'Sem informação':'#c3c2b7' };
+  const statusOrdenado = Object.entries(porStatusContrato).sort((a,b)=>b[1]-a[1]);
+  const totalStatus = statusOrdenado.reduce((s,[,v])=>s+v,0) || 1;
+  if(CHART_STATUS_CONTRATOS) CHART_STATUS_CONTRATOS.destroy();
+  CHART_STATUS_CONTRATOS = new Chart(document.getElementById('chartStatusContratos'), {
+    type:'bar',
+    data:{ labels: statusOrdenado.map(([k])=>k), datasets:[{ data: statusOrdenado.map(([,v])=>v), backgroundColor: statusOrdenado.map(([k])=>CORES_STATUS_CONTRATO[k]||'#7E98AA'), borderRadius:4, maxBarThickness:34 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}, datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}, formatter:v=>`${v} (${(v/totalStatus*100).toFixed(0)}%)`}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+
+  // Empregados terceirizados por localidade (UF), mês corrente
+  const porUFEmp = {};
+  locFiltrado.filter(l=>l.mes_referencia===ultimoMesLoc).forEach(l => { const uf = l.uf||'—'; porUFEmp[uf] = (porUFEmp[uf]||0) + (Number(l.qtd_funcionarios)||0); });
+  const ufsOrdenadas = Object.entries(porUFEmp).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  if(CHART_EMP_LOCALIDADE) CHART_EMP_LOCALIDADE.destroy();
+  CHART_EMP_LOCALIDADE = new Chart(document.getElementById('chartEmpregadosLocalidade'), {
+    type:'bar',
+    data:{ labels: ufsOrdenadas.map(e=>e[0]), datasets:[{ data: ufsOrdenadas.map(e=>e[1]), backgroundColor: PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:40 }] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false}, datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
   });
 
   // Tabela de críticos
