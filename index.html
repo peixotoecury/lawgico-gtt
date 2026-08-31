@@ -1361,37 +1361,143 @@ async function salvarEdicaoFornecedor(id){
   renderFornecedores();
 }
 
+// ── Detalhes do Fornecedor (modal com sub-abas, igual ao padrão do
+// Riskless: Visão Geral / Empregados / Tipo de Documento / Clientes
+// Vinculados / Usuários) ──────────────────────────────────────────────
+let DETALHE_EMPRESA_ATUAL = null, DETALHE_ABA_ATUAL = 'geral', DETALHE_DOC_CACHE = {};
+
 function abrirDetalheFornecedor(empresa){
-  const f = FORNECEDORES.find(x=>x.empresa===empresa);
-  const s = scoreRisco(empresa);
-  const c = classeRisco(s.score);
-  const complHist = COMPLIANCE.filter(x=>x.empresa===empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia)).slice(0,6);
-  const processosEmp = PROCESSOS.filter(p => (p.empresa_reclamada||'').toUpperCase().includes(empresa.toUpperCase().slice(0,12)));
-  const parcelasEmp = PARCELAMENTOS.filter(p => p.empresa === empresa);
+  DETALHE_EMPRESA_ATUAL = empresa;
+  DETALHE_ABA_ATUAL = 'geral';
   const overlay = document.createElement('div');
   overlay.id = 'overlayModal';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(11,30,45,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;';
   overlay.innerHTML = `
-    <div style="background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-pc);padding:26px;width:100%;max-width:560px;max-height:85vh;overflow:auto;">
-      <div style="font-weight:800;color:var(--escuro-pc);font-size:16px;margin-bottom:4px;">${esc(empresa)}</div>
-      <div class="hint" style="margin-bottom:14px;">${esc(f?.cnpj||'CNPJ não informado')} · ${esc(f?.localidades||'—')}</div>
-      <div class="kpi-grid" style="margin-bottom:16px;">
-        <div class="kpi-card"><div class="kpi-label">Score de Risco</div><div class="kpi-row"><span class="badge ${c.classe}">${s.score} · ${c.texto}</span></div></div>
-        <div class="kpi-card"><div class="kpi-label">Fase Atual</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${esc(f?.fase_atual||'—')}</span></div></div>
-        <div class="kpi-card"><div class="kpi-label">Compliance Atual</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${fmtPct(s.complAtual)}</span></div></div>
-        <div class="kpi-card"><div class="kpi-label">Processos Ativos</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${s.qtdProcessosAtivos}</span></div></div>
+    <div style="background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-pc);padding:26px;width:100%;max-width:640px;max-height:85vh;overflow:auto;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-weight:800;color:var(--escuro-pc);font-size:16px;">${esc(empresa)}</div>
+          <div class="hint" id="detalheSubtitulo" style="margin-bottom:0;"></div>
+        </div>
+        <button class="btn-outline" style="width:auto;padding:6px 14px;" onclick="document.getElementById('overlayModal').remove()">Fechar</button>
       </div>
-      <div style="font-weight:700;font-size:12.5px;color:var(--escuro-pc);margin-bottom:6px;">Compliance — últimos meses</div>
-      <table class="rel-table" style="margin-bottom:16px;"><tbody>
-        ${complHist.map(x=>`<tr><td>${fmtMes(x.mes_referencia)}</td><td class="mono">${fmtPct(x.compliance)}</td></tr>`).join('') || '<tr><td class="empty-state">Sem histórico de compliance.</td></tr>'}
-      </tbody></table>
-      <div style="font-weight:700;font-size:12.5px;color:var(--escuro-pc);margin-bottom:6px;">Parcelamentos (${parcelasEmp.length})</div>
-      <table class="rel-table" style="margin-bottom:16px;"><tbody>
-        ${parcelasEmp.map(p=>`<tr><td>${esc(p.tipo_parcelamento||'—')}</td><td>${esc(p.status_geral||'—')}</td></tr>`).join('') || '<tr><td class="empty-state">Sem parcelamentos.</td></tr>'}
-      </tbody></table>
-      <button class="btn-outline" onclick="document.getElementById('overlayModal').remove()">Fechar</button>
+      <div class="tabs" style="padding:0;margin:14px 0 16px;">
+        <button class="tab-btn detalhe-tab active" data-aba="geral" onclick="mudarAbaDetalhe('geral')">Visão Geral</button>
+        <button class="tab-btn detalhe-tab" data-aba="empregados" onclick="mudarAbaDetalhe('empregados')">Empregados</button>
+        <button class="tab-btn detalhe-tab" data-aba="documentos" onclick="mudarAbaDetalhe('documentos')">Tipo de Documento</button>
+        <button class="tab-btn detalhe-tab" data-aba="clientes" onclick="mudarAbaDetalhe('clientes')">Clientes Vinculados</button>
+        <button class="tab-btn detalhe-tab" data-aba="usuarios" onclick="mudarAbaDetalhe('usuarios')">Usuários</button>
+      </div>
+      <div id="detalheConteudo"></div>
     </div>`;
   document.body.appendChild(overlay);
+  const f = FORNECEDORES.find(x=>x.empresa===empresa);
+  document.getElementById('detalheSubtitulo').textContent = `${f?.cnpj||'CNPJ não informado'} · ${f?.localidades||'—'}`;
+  renderDetalheConteudo();
+}
+
+function mudarAbaDetalhe(aba){
+  DETALHE_ABA_ATUAL = aba;
+  document.querySelectorAll('.detalhe-tab').forEach(b => b.classList.toggle('active', b.dataset.aba===aba));
+  renderDetalheConteudo();
+}
+
+async function renderDetalheConteudo(){
+  const empresa = DETALHE_EMPRESA_ATUAL;
+  const el = document.getElementById('detalheConteudo');
+  if(!el) return; // modal já foi fechado
+  if(DETALHE_ABA_ATUAL === 'geral') return renderDetalheGeral(empresa, el);
+  if(DETALHE_ABA_ATUAL === 'empregados') return renderDetalheEmpregados(empresa, el);
+  if(DETALHE_ABA_ATUAL === 'documentos') return renderDetalheDocumentos(empresa, el);
+  if(DETALHE_ABA_ATUAL === 'clientes') return renderDetalheClientes(empresa, el);
+  if(DETALHE_ABA_ATUAL === 'usuarios') return renderDetalheUsuarios(empresa, el);
+}
+
+function renderDetalheGeral(empresa, el){
+  const f = FORNECEDORES.find(x=>x.empresa===empresa);
+  const s = scoreRisco(empresa);
+  const c = classeRisco(s.score);
+  const complHist = COMPLIANCE.filter(x=>x.empresa===empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia)).slice(0,6);
+  const parcelasEmp = PARCELAMENTOS.filter(p => p.empresa === empresa);
+  el.innerHTML = `
+    <div class="kpi-grid" style="margin-bottom:16px;">
+      <div class="kpi-card"><div class="kpi-label">Score de Risco</div><div class="kpi-row"><span class="badge ${c.classe}">${s.score} · ${c.texto}</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">Fase Atual</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${esc(f?.fase_atual||'—')}</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">Compliance Atual</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${fmtPct(s.complAtual)}</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">Processos Ativos</div><div class="kpi-row"><span class="kpi-num" style="font-size:16px;">${s.qtdProcessosAtivos}</span></div></div>
+    </div>
+    <div style="font-weight:700;font-size:12.5px;color:var(--escuro-pc);margin-bottom:6px;">Compliance — últimos meses</div>
+    <table class="rel-table" style="margin-bottom:16px;"><tbody>
+      ${complHist.map(x=>`<tr><td>${fmtMes(x.mes_referencia)}</td><td class="mono">${fmtPct(x.compliance)}</td></tr>`).join('') || '<tr><td class="empty-state">Sem histórico de compliance.</td></tr>'}
+    </tbody></table>
+    <div style="font-weight:700;font-size:12.5px;color:var(--escuro-pc);margin-bottom:6px;">Parcelamentos (${parcelasEmp.length})</div>
+    <table class="rel-table"><tbody>
+      ${parcelasEmp.map(p=>`<tr><td>${esc(p.tipo_parcelamento||'—')}</td><td>${esc(p.status_geral||'—')}</td></tr>`).join('') || '<tr><td class="empty-state">Sem parcelamentos.</td></tr>'}
+    </tbody></table>`;
+}
+
+function renderDetalheEmpregados(empresa, el){
+  const emps = EMPREGADOS.filter(e => e.fornecedor === empresa);
+  el.innerHTML = `
+    <div class="hint" style="margin-bottom:8px;">${emps.length} empregado(s) vinculado(s) a este fornecedor.</div>
+    <table class="rel-table"><thead><tr><th>Nome</th><th>Cargo</th><th>Status</th></tr></thead><tbody>
+      ${emps.map(e=>`<tr><td>${esc(e.nome)}</td><td>${esc(e.cargo||'—')}</td><td>${e.status==='Ativo'?'<span class="badge ok">Ativo</span>':'<span class="badge neutro">Inativo</span>'}</td></tr>`).join('') || '<tr><td colspan="3" class="empty-state">Nenhum empregado cadastrado pra este fornecedor.</td></tr>'}
+    </tbody></table>`;
+}
+
+async function renderDetalheDocumentos(empresa, el){
+  el.innerHTML = '<div class="empty-state">Carregando documentos…</div>';
+  if(!DETALHE_DOC_CACHE[empresa]){
+    const { data, error } = await sb.from('gtt_documentos').select('documento,mes_referencia,status').eq('cliente_id', CLIENTE_ID).ilike('empresa', empresa);
+    if(error){ el.innerHTML = `<div class="empty-state">Erro: ${esc(error.message)}</div>`; return; }
+    DETALHE_DOC_CACHE[empresa] = data;
+  }
+  if(DETALHE_EMPRESA_ATUAL !== empresa || DETALHE_ABA_ATUAL !== 'documentos') return; // trocou de aba/fornecedor no meio da busca
+  const docs = DETALHE_DOC_CACHE[empresa];
+  const porTipo = {};
+  docs.forEach(d => {
+    porTipo[d.documento] = porTipo[d.documento] || [];
+    porTipo[d.documento].push(d);
+  });
+  const tipos = Object.keys(porTipo).sort();
+  el.innerHTML = `
+    <div class="hint" style="margin-bottom:8px;"><span class="status-dot regular"></span> Regular &nbsp; <span class="status-dot irregular"></span> Irregular &nbsp; <span class="status-dot parcial"></span> Parcial &nbsp; <span class="status-dot dispensado"></span> Dispensado</div>
+    <table class="rel-table"><thead><tr><th>Tipo de Documento</th><th>Último status</th><th>Meses c/ dado</th></tr></thead><tbody>
+      ${tipos.map(t => {
+        const linhas = porTipo[t].sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia));
+        const ultimo = linhas[0];
+        return `<tr><td>${esc(t)}</td><td><span class="status-dot ${ultimo.status}"></span> ${esc(ultimo.status)} (${fmtMes(ultimo.mes_referencia)})</td><td class="mono">${linhas.length}</td></tr>`;
+      }).join('') || '<tr><td colspan="3" class="empty-state">Sem documentos pra este fornecedor.</td></tr>'}
+    </tbody></table>`;
+}
+
+async function renderDetalheClientes(empresa, el){
+  el.innerHTML = '<div class="empty-state">Buscando em quais clientes este fornecedor aparece…</div>';
+  const fAtual = FORNECEDORES.find(x=>x.empresa===empresa);
+  const cnpj = fAtual?.cnpj;
+  let vinculados = [{ nome: CLIENTES.find(c=>c.id===CLIENTE_ID)?.nome || '—', status: fAtual?.status||'—' }];
+  if(cnpj){
+    const { data, error } = await sb.from('gtt_fornecedores').select('cliente_id,status').eq('cnpj', cnpj).neq('cliente_id', CLIENTE_ID);
+    if(!error && data){
+      vinculados = vinculados.concat(data.map(r => ({ nome: CLIENTES.find(c=>c.id===r.cliente_id)?.nome || `Cliente #${r.cliente_id}`, status: r.status||'—' })));
+    }
+  }
+  if(DETALHE_EMPRESA_ATUAL !== empresa || DETALHE_ABA_ATUAL !== 'clientes') return;
+  el.innerHTML = `
+    <div class="hint" style="margin-bottom:8px;">Busca por CNPJ (${esc(cnpj||'sem CNPJ cadastrado — só mostra o cliente atual')}) nos demais clientes do sistema.</div>
+    <table class="rel-table"><thead><tr><th>Cliente</th><th>Status</th></tr></thead><tbody>
+      ${vinculados.map(v=>`<tr><td>${esc(v.nome)}</td><td>${esc(v.status)}</td></tr>`).join('')}
+    </tbody></table>`;
+}
+
+function renderDetalheUsuarios(empresa, el){
+  const f = FORNECEDORES.find(x=>x.empresa===empresa);
+  const email = f?.usuarios_cadastrados;
+  el.innerHTML = `
+    <div class="hint" style="margin-bottom:8px;">Contato cadastrado no controle de fornecedores (não é uma lista completa de usuários da plataforma).</div>
+    <table class="rel-table"><thead><tr><th>E-mail / Usuário</th></tr></thead><tbody>
+      ${email ? `<tr><td>${esc(email)}</td></tr>` : '<tr><td class="empty-state">Nenhum usuário/contato cadastrado.</td></tr>'}
+    </tbody></table>`;
 }
 
 // ── Exportar Excel (dados prontos pra reenvio ou pra importar no Power BI) ──
