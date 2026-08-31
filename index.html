@@ -441,6 +441,14 @@ body{background:var(--surface2);color:var(--texto);}
         <div class="dash-card-head"><span>Irregularidades por Fornecedor (Total)</span></div>
         <div class="dash-card-body" style="height:260px;"><canvas id="chartIrregEmpresa"></canvas></div>
       </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Irregularidades Documentais por Tipo</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartIrregDocTipo"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Cobertura da Auditoria por Fornecedor</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartCoberturaAuditoria"></canvas></div>
+      </div>
     </div>
   </div>
 
@@ -1158,20 +1166,24 @@ async function exportarTarefasExcel(){
 }
 
 // ── Irregularidades ──────────────────────────────────────────────────
-let CHART_IRREG_JORNADA=null, CHART_IRREG_EMPRESA=null;
+let CHART_IRREG_JORNADA=null, CHART_IRREG_EMPRESA=null, CHART_IRREG_DOC_TIPO=null, CHART_COBERTURA_AUDITORIA=null;
 function renderIrregularidades(){
   const ultimoMes = IRREGULARIDADES.length ? [...new Set(IRREGULARIDADES.map(i=>i.mes_referencia))].sort().pop() : null;
   const doMes = IRREGULARIDADES.filter(i => i.mes_referencia === ultimoMes);
   const soma = campo => doMes.reduce((s,i) => s + (Number(i[campo])||0), 0);
+  const docTipos = { 'Ficha de EPI':'irregularidades_ficha_epi', 'Contrato de trabalho':'irregularidades_contrato_trabalho', 'Ficha de registro':'irregularidades_ficha_registro', 'Recibo de férias':'irregularidades_recibo_ferias', 'FGTS':'irregularidades_fgts', 'INSS':'irregularidades_inss' };
+  const totalDocumentais = Object.values(docTipos).reduce((s,c)=>s+soma(c),0);
+  const totalAtivos = soma('qtd_terceiros_ativos'), totalAnalisados = soma('qtd_terceiros_analisados');
+  const fornecedoresComApontamento = new Set(doMes.filter(i => ['cartoes_britanico','horas_extras_2h','intervalo_intrajornada','intervalo_interjornada','dsr','irregularidades_rescisoes','irregularidades_trct','irregularidades_grrf',...Object.values(docTipos)].some(c=>Number(i[c])>0)).map(i=>i.empresa)).size;
 
   document.getElementById('kpiIrregularidades').innerHTML = [
-    { label: 'Cartões Britânico', val: soma('cartoes_britanico') },
-    { label: '>2h Extras', val: soma('horas_extras_2h') },
-    { label: 'Intervalo Intrajornada', val: soma('intervalo_intrajornada') },
-    { label: 'DSR', val: soma('dsr') },
-    { label: 'Irregularidades TRCT', val: soma('irregularidades_trct') },
-    { label: 'Irregularidades GRRF', val: soma('irregularidades_grrf') },
-  ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
+    { label: 'Irregularidades de Jornada', val: (soma('cartoes_britanico')+soma('horas_extras_2h')+soma('intervalo_intrajornada')+soma('intervalo_interjornada')+soma('dsr')).toLocaleString('pt-BR') },
+    { label: 'Irregularidades Documentais', val: totalDocumentais.toLocaleString('pt-BR'), sub: 'contratos, fichas e recibos' },
+    { label: 'Rescisões Analisadas', val: soma('total_rescisoes').toLocaleString('pt-BR'), sub: `${soma('total_docs_rescisoes')} documentos conferidos` },
+    { label: 'Irregularidades em Rescisões', val: soma('irregularidades_rescisoes').toLocaleString('pt-BR'), sub: `GRRF ${soma('irregularidades_grrf')} · TRCT ${soma('irregularidades_trct')}` },
+    { label: 'Empregados Auditados', val: Math.round(totalAnalisados).toLocaleString('pt-BR'), sub: `de ${Math.round(totalAtivos).toLocaleString('pt-BR')} na base` },
+    { label: 'Fornecedores com Apontamento', val: String(fornecedoresComApontamento), sub: `de ${doMes.length} auditados` },
+  ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
 
   if(CHART_IRREG_JORNADA) CHART_IRREG_JORNADA.destroy();
   CHART_IRREG_JORNADA = new Chart(document.getElementById('chartIrregJornada'), {
@@ -1193,6 +1205,25 @@ function renderIrregularidades(){
     data:{ labels: totalPorEmpresa.map(e=>e.empresa.length>18?e.empresa.slice(0,18)+'…':e.empresa),
       datasets:[{ data: totalPorEmpresa.map(e=>e.total), backgroundColor:'#d03b3b', borderRadius:4, maxBarThickness:26 }] },
     options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+
+  // Irregularidades documentais por tipo
+  const docTipoOrdenado = Object.entries(docTipos).map(([label,campo])=>[label,soma(campo)]).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(CHART_IRREG_DOC_TIPO) CHART_IRREG_DOC_TIPO.destroy();
+  CHART_IRREG_DOC_TIPO = new Chart(document.getElementById('chartIrregDocTipo'), {
+    type:'bar',
+    data:{ labels: docTipoOrdenado.map(e=>e[0]), datasets:[{ data: docTipoOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[7], borderRadius:4, maxBarThickness:34 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11},formatter:v=>`${v} (${totalDocumentais?(v/totalDocumentais*100).toFixed(0):0}%)`}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+
+  // Cobertura da auditoria por fornecedor (% analisado / ativo), piores primeiro
+  const cobertura = doMes.map(i => ({ empresa: i.empresa, pct: Number(i.qtd_terceiros_ativos)>0 ? Number(i.qtd_terceiros_analisados)/Number(i.qtd_terceiros_ativos)*100 : null }))
+    .filter(c => c.pct!=null).sort((a,b)=>a.pct-b.pct).slice(0,15);
+  if(CHART_COBERTURA_AUDITORIA) CHART_COBERTURA_AUDITORIA.destroy();
+  CHART_COBERTURA_AUDITORIA = new Chart(document.getElementById('chartCoberturaAuditoria'), {
+    type:'bar',
+    data:{ labels: cobertura.map(c=>c.empresa.length>22?c.empresa.slice(0,22)+'…':c.empresa), datasets:[{ data: cobertura.map(c=>c.pct.toFixed(1)), backgroundColor:PALETA_CATEGORICA[3], borderRadius:4, maxBarThickness:22 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>v+'%'}}, scales:{x:{max:100,grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
   });
 }
 
