@@ -355,6 +355,20 @@ body{background:var(--surface2);color:var(--texto);}
 
   <!-- ── Documentos ── -->
   <div id="page-documentos" class="page">
+    <div class="grid-2">
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Distribuição por Faixa de Compliance</span></div>
+        <div class="dash-card-body" style="height:220px;"><canvas id="chartFaixaCompliance"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Documentos Não Inseridos no Mês · % por Fornecedor</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartNaoInseridos"></canvas></div>
+      </div>
+      <div class="dash-card" style="grid-column:1/-1;">
+        <div class="dash-card-head"><span>Melhores Desempenhos Documentais</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartMelhoresDesempenhos"></canvas></div>
+      </div>
+    </div>
     <div class="filter-row">
       <div class="form-group"><label class="form-label">Fornecedor</label>
         <select id="fDocFornecedor" class="form-input" onchange="renderDocumentos()"><option value="">Todos</option></select>
@@ -796,7 +810,7 @@ function mudarAba(aba){
   if(aba==='fornecedores') renderFornecedores();
   if(aba==='clientes') renderClientes();
   if(aba==='empregados') renderEmpregados();
-  if(aba==='documentos') renderDocumentos();
+  if(aba==='documentos') { renderDocumentosAnalitico(); renderDocumentos(); }
   if(aba==='tarefas') renderTarefas(true);
   if(aba==='irregularidades') renderIrregularidades();
   if(aba==='processos') renderProcessos();
@@ -1003,6 +1017,39 @@ async function alterarStatusFornecedor(id, novoStatus){
 // ── Documentos ───────────────────────────────────────────────────────
 // Busca sob demanda, só do fornecedor escolhido — a tabela inteira tem
 // 66 mil+ linhas, buscar tudo de uma vez travava a entrada no sistema.
+// ── Documentos · painel analítico (distribuição de compliance, ranking) ──
+let CHART_FAIXA_COMPLIANCE=null, CHART_NAO_INSERIDOS=null, CHART_MELHORES_DESEMPENHOS=null;
+function renderDocumentosAnalitico(){
+  const ultimoMes = COMPLIANCE.length ? [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort().pop() : null;
+  const doMes = COMPLIANCE.filter(c => c.mes_referencia===ultimoMes && c.compliance!=null);
+
+  const faixas = [ [0,20], [20,40], [40,60], [60,80], [80,100.0001] ];
+  const porFaixa = faixas.map(([ini,fim]) => doMes.filter(c => Number(c.compliance)*100>=ini && Number(c.compliance)*100<fim).length);
+  if(CHART_FAIXA_COMPLIANCE) CHART_FAIXA_COMPLIANCE.destroy();
+  CHART_FAIXA_COMPLIANCE = new Chart(document.getElementById('chartFaixaCompliance'), {
+    type:'bar',
+    data:{ labels: faixas.map(([ini,fim])=>`${ini}% a ${Math.min(fim,100)}%`), datasets:[{ data: porFaixa, backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:44 }] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11},formatter:(v)=>{const t=doMes.length||1;return `${v} (${(v/t*100).toFixed(0)}%)`;}}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
+  });
+
+  const ranking = doMes.map(c => ({ empresa:c.empresa, pct: Number(c.compliance)*100 }));
+  const naoInseridos = ranking.map(r=>({empresa:r.empresa, pct: 100-r.pct})).sort((a,b)=>b.pct-a.pct).slice(0,15);
+  if(CHART_NAO_INSERIDOS) CHART_NAO_INSERIDOS.destroy();
+  CHART_NAO_INSERIDOS = new Chart(document.getElementById('chartNaoInseridos'), {
+    type:'bar',
+    data:{ labels: naoInseridos.map(r=>r.empresa.length>26?r.empresa.slice(0,26)+'…':r.empresa), datasets:[{ data: naoInseridos.map(r=>r.pct.toFixed(0)), backgroundColor:'#d03b3b', borderRadius:4, maxBarThickness:22 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>v+'%'}}, scales:{x:{max:100,grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+
+  const melhores = ranking.sort((a,b)=>b.pct-a.pct).slice(0,15);
+  if(CHART_MELHORES_DESEMPENHOS) CHART_MELHORES_DESEMPENHOS.destroy();
+  CHART_MELHORES_DESEMPENHOS = new Chart(document.getElementById('chartMelhoresDesempenhos'), {
+    type:'bar',
+    data:{ labels: melhores.map(r=>r.empresa.length>26?r.empresa.slice(0,26)+'…':r.empresa), datasets:[{ data: melhores.map(r=>r.pct.toFixed(0)), backgroundColor:'#0ca30c', borderRadius:4, maxBarThickness:22 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>v+'%'}}, scales:{x:{max:100,grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+}
+
 let DOC_CACHE = {};
 async function renderDocumentos(){
   const filtro = document.getElementById('fDocFornecedor').value;
