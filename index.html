@@ -439,7 +439,15 @@ async function carregarTudo(){
   // irregularidades x processos) bate mesmo com capitalização diferente
   // na origem.
   const maiuscula = s => s ? String(s).toUpperCase() : s;
-  FORNECEDORES.forEach(f => f.empresa = maiuscula(f.empresa));
+  FORNECEDORES.forEach(f => {
+    f.empresa = maiuscula(f.empresa);
+    f.fase_atual = maiuscula(f.fase_atual);
+    f.fase_anterior = maiuscula(f.fase_anterior);
+    f.status_contrato = maiuscula(f.status_contrato);
+    // Dado de origem: empresa inativa às vezes tem "INATIVA" no lugar do
+    // CNPJ (não é um CNPJ de verdade) — limpa pra não mostrar errado.
+    if(f.cnpj && !/^\d/.test(f.cnpj)) f.cnpj = null;
+  });
   COMPLIANCE.forEach(c => c.empresa = maiuscula(c.empresa));
   IRREGULARIDADES.forEach(i => i.empresa = maiuscula(i.empresa));
   LOCALIDADES.forEach(l => l.empresa = maiuscula(l.empresa));
