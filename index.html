@@ -238,6 +238,7 @@ body{background:var(--surface2);color:var(--texto);}
     <button class="tab-btn" onclick="mudarAba('clientes')">🏛️ Clientes</button>
     <button class="tab-btn" onclick="mudarAba('empregados')">👥 Empregados</button>
     <button class="tab-btn" onclick="mudarAba('documentos')">📋 Documentos</button>
+    <button class="tab-btn" onclick="mudarAba('tarefas')">🗂️ Lista de Tarefas</button>
     <button class="tab-btn" onclick="mudarAba('irregularidades')">⚠️ Irregularidades</button>
     <button class="tab-btn" onclick="mudarAba('processos')">⚖️ Processos de Terceiros</button>
     <button class="tab-btn" onclick="mudarAba('contratos')">📄 Gestão de Contratos</button>
@@ -363,6 +364,60 @@ body{background:var(--surface2);color:var(--texto);}
         <thead id="theadDocumentos"></thead>
         <tbody id="tbodyDocumentos"></tbody>
       </table></div>
+    </div>
+  </div>
+
+  <!-- ── Lista de Tarefas ── -->
+  <div id="page-tarefas" class="page">
+    <div class="filter-row">
+      <div class="form-group"><label class="form-label">Buscar</label>
+        <input type="text" id="fTarefaBusca" class="form-input" placeholder="Documento ou fornecedor..." oninput="renderTarefasComBusca()">
+      </div>
+      <div class="form-group"><label class="form-label">Fornecedor</label>
+        <select id="fTarefaFornecedor" class="form-input" onchange="renderTarefas(true)"><option value="">Todos</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Tipo de Documento</label>
+        <select id="fTarefaDoc" class="form-input" onchange="renderTarefas(true)"><option value="">Todos</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Competência</label>
+        <select id="fTarefaMes" class="form-input" onchange="renderTarefas(true)"><option value="">Todas</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select id="fTarefaStatus" class="form-input" onchange="renderTarefas(true)">
+          <option value="">Todos</option>
+          <option value="regular">Regular</option>
+          <option value="irregular">Irregular/Não inserido</option>
+          <option value="parcial">Parcial</option>
+          <option value="dispensado">Dispensado</option>
+        </select>
+      </div>
+      <div class="form-group" style="min-width:auto;flex:0;align-self:flex-end;">
+        <button class="btn-outline" onclick="limparFiltrosTarefas()">Limpar filtros</button>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head">
+        <span>Tarefas <span id="contagemTarefas" style="font-weight:400;"></span></span>
+        <button class="btn-present" style="background:rgba(0,59,92,.08);color:var(--escuro-pc);border-color:var(--border2);" onclick="exportarTarefasExcel()">⬇️ Baixar (Excel)</button>
+      </div>
+      <div class="table-wrap"><table class="rel-table">
+        <thead><tr>
+          <th style="cursor:pointer;" onclick="ordenarTarefas('documento')">Tipo de Documento <span id="setaTarefa-documento"></span></th>
+          <th style="cursor:pointer;" onclick="ordenarTarefas('mes_referencia')">Competência <span id="setaTarefa-mes_referencia"></span></th>
+          <th style="cursor:pointer;" onclick="ordenarTarefas('empresa')">Fornecedor <span id="setaTarefa-empresa"></span></th>
+          <th style="cursor:pointer;" onclick="ordenarTarefas('uf')">UF <span id="setaTarefa-uf"></span></th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="tbodyTarefas"></tbody>
+      </table></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border2);flex-wrap:wrap;gap:10px;">
+        <span class="hint" id="infoPaginaTarefas" style="margin:0;"></span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-outline" onclick="mudarPaginaTarefas(-1)">◄ Anterior</button>
+          <span class="hint" id="numPaginaTarefas" style="margin:0;"></span>
+          <button class="btn-outline" onclick="mudarPaginaTarefas(1)">Próxima ►</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -651,6 +706,12 @@ function popularFiltros(){
   preencher('fEmpFornecedor', nomes);
   preencher('fBiFornecedor', nomes);
   preencher('fBiUF', ufsLimpo);
+  preencher('fTarefaFornecedor', nomes);
+  const mesesTarefas = [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort().reverse();
+  const elMes = document.getElementById('fTarefaMes');
+  const mesAtual = elMes.value;
+  elMes.innerHTML = elMes.options[0].outerHTML + mesesTarefas.map(m => `<option value="${esc(m)}">${esc(fmtMes(m))}</option>`).join('');
+  elMes.value = mesAtual;
   const clienteAtivo = CLIENTES.find(c=>c.id===CLIENTE_ID);
   if(clienteAtivo) document.getElementById('biTitulo').textContent = `P&C — Relatório Gerencial — GTT — ${clienteAtivo.nome}`;
 }
@@ -688,7 +749,7 @@ function classeRisco(score){
 
 // ── Navegação ────────────────────────────────────────────────────────
 function mudarAba(aba){
-  const ordem = ['geral','fornecedores','clientes','empregados','documentos','irregularidades','processos','contratos','parcelamentos','bi'];
+  const ordem = ['geral','fornecedores','clientes','empregados','documentos','tarefas','irregularidades','processos','contratos','parcelamentos','bi'];
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ordem[i]===aba));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+aba).classList.add('active');
@@ -697,6 +758,7 @@ function mudarAba(aba){
   if(aba==='clientes') renderClientes();
   if(aba==='empregados') renderEmpregados();
   if(aba==='documentos') renderDocumentos();
+  if(aba==='tarefas') renderTarefas(true);
   if(aba==='irregularidades') renderIrregularidades();
   if(aba==='processos') renderProcessos();
   if(aba==='contratos') renderContratos();
@@ -868,6 +930,141 @@ async function renderDocumentos(){
       const r = docs.find(d => d.documento===doc && d.mes_referencia===m);
       return `<td style="text-align:center;"><span class="status-dot ${r?r.status:'neutro'}" title="${esc(r?r.status:'sem dado')}"></span></td>`;
     }).join('')}</tr>`).join('') || '<tr><td class="empty-state">Sem documentos pra esse fornecedor.</td></tr>';
+}
+
+// ── Lista de Tarefas (gtt_documentos como tarefa: 1 linha = 1 documento
+// exigido de um fornecedor numa competência) ────────────────────────
+// A tabela tem 66 mil+ linhas por cliente — nunca carregar tudo de uma
+// vez (foi exatamente isso que travava o login antes). Filtro, ordenação
+// e paginação acontecem no servidor (Supabase), só a página atual (50
+// linhas) chega pro navegador.
+const TAREFAS_POR_PAGINA = 50;
+let TAREFAS_PAGINA = 0, TAREFAS_TOTAL = 0, TAREFAS_ORDEM = { campo: 'mes_referencia', dir: 'desc' };
+let TAREFAS_TIPOS_CACHE = {}, TAREFAS_BUSCA_TIMER = null;
+
+// Roda em segundo plano (nunca é esperado pelo render principal) — 66 mil+
+// linhas em 67 páginas de 1 coluna só levam alguns segundos, e bloquear a
+// tabela de tarefas até isso terminar reproduziria o mesmo travamento de
+// ~40s que já corrigimos no login. O dropdown de tipo de documento vai de
+// "Todos" pra lista completa assim que a busca em segundo plano termina.
+async function carregarTiposDocumentoCacheEmSegundoPlano(){
+  if(TAREFAS_TIPOS_CACHE[CLIENTE_ID]) return;
+  const clienteNoInicio = CLIENTE_ID;
+  const tipos = new Set();
+  let from = 0;
+  while(true){
+    const { data, error } = await sb.from('gtt_documentos').select('documento').eq('cliente_id', clienteNoInicio).range(from, from+999);
+    if(error || !data || !data.length) break;
+    data.forEach(r => r.documento && tipos.add(r.documento));
+    if(data.length < 1000) break;
+    from += 1000;
+  }
+  if(CLIENTE_ID !== clienteNoInicio) return; // usuário trocou de cliente antes da busca terminar
+  const lista = [...tipos].sort();
+  TAREFAS_TIPOS_CACHE[clienteNoInicio] = lista;
+  const el = document.getElementById('fTarefaDoc');
+  const atual = el.value;
+  el.innerHTML = el.options[0].outerHTML + lista.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  el.value = atual;
+}
+
+function renderTarefasComBusca(){
+  clearTimeout(TAREFAS_BUSCA_TIMER);
+  TAREFAS_BUSCA_TIMER = setTimeout(() => renderTarefas(true), 350);
+}
+
+function ordenarTarefas(campo){
+  if(TAREFAS_ORDEM.campo === campo){ TAREFAS_ORDEM.dir = TAREFAS_ORDEM.dir === 'asc' ? 'desc' : 'asc'; }
+  else { TAREFAS_ORDEM = { campo, dir: 'asc' }; }
+  renderTarefas(true);
+}
+
+function mudarPaginaTarefas(delta){
+  const maxPagina = Math.max(0, Math.ceil(TAREFAS_TOTAL / TAREFAS_POR_PAGINA) - 1);
+  TAREFAS_PAGINA = Math.min(maxPagina, Math.max(0, TAREFAS_PAGINA + delta));
+  renderTarefas(false);
+}
+
+function limparFiltrosTarefas(){
+  document.getElementById('fTarefaBusca').value = '';
+  document.getElementById('fTarefaFornecedor').value = '';
+  document.getElementById('fTarefaDoc').value = '';
+  document.getElementById('fTarefaMes').value = '';
+  document.getElementById('fTarefaStatus').value = '';
+  renderTarefas(true);
+}
+
+function montarQueryTarefas(){
+  const busca = document.getElementById('fTarefaBusca').value.trim().replace(/[,()%]/g, '');
+  const fFornecedor = document.getElementById('fTarefaFornecedor').value;
+  const fDoc = document.getElementById('fTarefaDoc').value;
+  const fMes = document.getElementById('fTarefaMes').value;
+  const fStatus = document.getElementById('fTarefaStatus').value;
+  let q = sb.from('gtt_documentos').select('id,empresa,documento,mes_referencia,uf,status', { count: 'exact' }).eq('cliente_id', CLIENTE_ID);
+  if(fFornecedor) q = q.eq('empresa', fFornecedor);
+  if(fDoc) q = q.eq('documento', fDoc);
+  if(fMes) q = q.eq('mes_referencia', fMes);
+  if(fStatus) q = q.eq('status', fStatus);
+  if(busca) q = q.or(`empresa.ilike.%${busca}%,documento.ilike.%${busca}%`);
+  return q;
+}
+
+async function renderTarefas(resetPagina){
+  carregarTiposDocumentoCacheEmSegundoPlano();
+  if(resetPagina) TAREFAS_PAGINA = 0;
+  const tbody = document.getElementById('tbodyTarefas');
+  tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Carregando…</td></tr>';
+  const from = TAREFAS_PAGINA * TAREFAS_POR_PAGINA, to = from + TAREFAS_POR_PAGINA - 1;
+  const { data, count, error } = await montarQueryTarefas()
+    .order(TAREFAS_ORDEM.campo, { ascending: TAREFAS_ORDEM.dir === 'asc' })
+    .range(from, to);
+  if(error){ tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Erro: ${esc(error.message)}</td></tr>`; return; }
+  TAREFAS_TOTAL = count || 0;
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td>${esc(r.documento)}</td>
+      <td class="mono">${fmtMes(r.mes_referencia)}</td>
+      <td>${esc(r.empresa)}</td>
+      <td>${esc(r.uf||'—')}</td>
+      <td>
+        <select class="form-input" style="padding:4px 8px;font-size:12px;width:auto;" onchange="alterarStatusTarefa(${r.id}, this.value)">
+          <option value="regular"${r.status==='regular'?' selected':''}>Regular</option>
+          <option value="irregular"${r.status==='irregular'?' selected':''}>Irregular/Não inserido</option>
+          <option value="parcial"${r.status==='parcial'?' selected':''}>Parcial</option>
+          <option value="dispensado"${r.status==='dispensado'?' selected':''}>Dispensado</option>
+        </select>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="5" class="empty-state">Nenhuma tarefa encontrada com esses filtros.</td></tr>';
+  document.getElementById('contagemTarefas').textContent = `(${TAREFAS_TOTAL.toLocaleString('pt-BR')})`;
+  const totalPaginas = Math.max(1, Math.ceil(TAREFAS_TOTAL / TAREFAS_POR_PAGINA));
+  document.getElementById('numPaginaTarefas').textContent = `Página ${TAREFAS_PAGINA+1} de ${totalPaginas}`;
+  document.getElementById('infoPaginaTarefas').textContent = TAREFAS_TOTAL ? `Mostrando ${from+1}–${Math.min(to+1, TAREFAS_TOTAL)} de ${TAREFAS_TOTAL.toLocaleString('pt-BR')} tarefas` : '';
+  ['documento','mes_referencia','empresa','uf'].forEach(c => {
+    document.getElementById('setaTarefa-'+c).textContent = TAREFAS_ORDEM.campo===c ? (TAREFAS_ORDEM.dir==='asc'?'▲':'▼') : '';
+  });
+}
+
+async function alterarStatusTarefa(id, novoStatus){
+  const { error } = await sb.from('gtt_documentos').update({ status: novoStatus }).eq('id', id);
+  if(error){ alert('Erro ao salvar: ' + error.message); renderTarefas(false); return; }
+}
+
+async function exportarTarefasExcel(){
+  const LIMITE = 20000;
+  let todas = [], from = 0;
+  while(todas.length < LIMITE){
+    const { data, error } = await montarQueryTarefas().order(TAREFAS_ORDEM.campo, { ascending: TAREFAS_ORDEM.dir === 'asc' }).range(from, from+999);
+    if(error){ alert('Erro ao exportar: ' + error.message); return; }
+    if(!data || !data.length) break;
+    todas = todas.concat(data);
+    if(data.length < 1000) break;
+    from += 1000;
+  }
+  if(todas.length >= LIMITE) alert(`Só as primeiras ${LIMITE.toLocaleString('pt-BR')} tarefas foram exportadas — refine os filtros pra reduzir o total.`);
+  const linhas = todas.map(r => ({ 'Tipo de Documento': r.documento, 'Competência': fmtMes(r.mes_referencia), Fornecedor: r.empresa, UF: r.uf, Status: r.status }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(linhas), 'Tarefas');
+  XLSX.writeFile(wb, 'Lista de Tarefas.xlsx');
 }
 
 // ── Irregularidades ──────────────────────────────────────────────────
