@@ -306,6 +306,21 @@ body{background:var(--surface2);color:var(--texto);}
 
   <!-- ── Empregados ── -->
   <div id="page-empregados" class="page">
+    <div class="kpi-grid" id="kpiEmpregadosAnalitico"></div>
+    <div class="grid-2">
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Efetivo por UF · Mês Anterior vs. Atual</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartEfetivoUFComparativo"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Maiores Efetivos por Fornecedor</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartMaioresEfetivos"></canvas></div>
+      </div>
+      <div class="dash-card" style="grid-column:1/-1;">
+        <div class="dash-card-head"><span>Maiores Variações de Efetivo no Mês</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartVariacoesEfetivo"></canvas></div>
+      </div>
+    </div>
     <div class="filter-row">
       <div class="form-group"><label class="form-label">Nome</label><input type="text" id="fEmpNome" class="form-input" placeholder="Buscar..." oninput="renderEmpregados()"></div>
       <div class="form-group"><label class="form-label">Fornecedor</label>
@@ -835,7 +850,7 @@ function mudarAba(aba){
   if(aba==='geral') renderGeral();
   if(aba==='fornecedores') renderFornecedores();
   if(aba==='clientes') renderClientes();
-  if(aba==='empregados') renderEmpregados();
+  if(aba==='empregados') { renderEmpregadosAnalitico(); renderEmpregados(); }
   if(aba==='documentos') { renderDocumentosAnalitico(); renderDocumentos(); }
   if(aba==='tarefas') renderTarefas(true);
   if(aba==='irregularidades') renderIrregularidades();
@@ -1551,6 +1566,73 @@ async function salvarCliente(id){
 }
 
 // ── Empregados ───────────────────────────────────────────────────────
+// ── Empregados · painel analítico (efetivo mensal via gtt_terceiros_localidade) ──
+let CHART_EFETIVO_UF_COMP=null, CHART_MAIORES_EFETIVOS=null, CHART_VARIACOES_EFETIVO=null;
+function renderEmpregadosAnalitico(){
+  const meses = [...new Set(LOCALIDADES.map(l=>l.mes_referencia))].sort();
+  const ultimoMes = meses[meses.length-1], penultimoMes = meses[meses.length-2];
+  const somaMes = mes => LOCALIDADES.filter(l=>l.mes_referencia===mes).reduce((s,l)=>s+(Number(l.qtd_funcionarios)||0),0);
+  const atual = ultimoMes ? somaMes(ultimoMes) : 0;
+  const anterior = penultimoMes ? somaMes(penultimoMes) : null;
+
+  // qtd_terceiros_analisados/ativos vêm da mesma tabela (Irregularidades) e
+  // representam uma base própria (amostragem), diferente do efetivo mensal
+  // de gtt_terceiros_localidade — nunca dividir um pelo outro, só dentro do
+  // mesmo par (senão a % sai dobrada, artificialmente).
+  const irregUltimoMes = IRREGULARIDADES.length ? [...new Set(IRREGULARIDADES.map(i=>i.mes_referencia))].sort().pop() : null;
+  const irregDoMes = IRREGULARIDADES.filter(i=>i.mes_referencia===irregUltimoMes);
+  const analisados = irregDoMes.reduce((s,i)=>s+(Number(i.qtd_terceiros_analisados)||0),0);
+  const ativosAmostra = irregDoMes.reduce((s,i)=>s+(Number(i.qtd_terceiros_ativos)||0),0);
+  const cobertura = ativosAmostra ? analisados/ativosAmostra*100 : null;
+  const fornecedoresComEfetivo = new Set(LOCALIDADES.filter(l=>l.mes_referencia===ultimoMes && Number(l.qtd_funcionarios)>0).map(l=>l.empresa)).size;
+
+  document.getElementById('kpiEmpregadosAnalitico').innerHTML = [
+    { label:`Empregados ${ultimoMes?fmtMes(ultimoMes):''}`, val: atual.toLocaleString('pt-BR'), sub:'terceiros na seleção' },
+    { label:'Mês Anterior', val: anterior!=null?anterior.toLocaleString('pt-BR'):'—', sub:'base comparativa' },
+    { label:'Variação', val: anterior!=null?((atual-anterior>=0?'+':'')+(atual-anterior)):'—', sub: anterior?`${((atual-anterior)/anterior*100).toFixed(1)}% no mês`:'' },
+    { label:'Documentos Auditados', val: Math.round(analisados).toLocaleString('pt-BR'), sub:`de ${Math.round(ativosAmostra).toLocaleString('pt-BR')} terceiros ativos` },
+    { label:'Cobertura da Auditoria', val: cobertura!=null?cobertura.toFixed(1)+'%':'—', sub:'empregados analisados no mês' },
+    { label:'Fornecedores com Efetivo', val:String(fornecedoresComEfetivo), sub:'com pelo menos 1 empregado' },
+  ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
+
+  // Efetivo por UF — mês anterior vs atual
+  const porUFMes = (mes) => { const m={}; LOCALIDADES.filter(l=>l.mes_referencia===mes).forEach(l=>{const u=l.uf||'—'; m[u]=(m[u]||0)+(Number(l.qtd_funcionarios)||0);}); return m; };
+  const ufAtual = porUFMes(ultimoMes), ufAnterior = penultimoMes ? porUFMes(penultimoMes) : {};
+  const ufsOrdenadas = Object.entries(ufAtual).sort((a,b)=>b[1]-a[1]).slice(0,14).map(e=>e[0]);
+  if(CHART_EFETIVO_UF_COMP) CHART_EFETIVO_UF_COMP.destroy();
+  CHART_EFETIVO_UF_COMP = new Chart(document.getElementById('chartEfetivoUFComparativo'), {
+    type:'bar',
+    data:{ labels: ufsOrdenadas, datasets:[
+      { label: penultimoMes?fmtMes(penultimoMes):'Mês Anterior', data: ufsOrdenadas.map(u=>ufAnterior[u]||0), backgroundColor:'#c3c2b7', borderRadius:4, maxBarThickness:22 },
+      { label: ultimoMes?fmtMes(ultimoMes):'Mês Atual', data: ufsOrdenadas.map(u=>ufAtual[u]||0), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:22 },
+    ] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:false}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
+  });
+
+  // Maiores efetivos por fornecedor
+  const porFornecedor = {};
+  LOCALIDADES.filter(l=>l.mes_referencia===ultimoMes).forEach(l => { porFornecedor[l.empresa]=(porFornecedor[l.empresa]||0)+(Number(l.qtd_funcionarios)||0); });
+  const fornecedoresOrdenados = Object.entries(porFornecedor).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  if(CHART_MAIORES_EFETIVOS) CHART_MAIORES_EFETIVOS.destroy();
+  CHART_MAIORES_EFETIVOS = new Chart(document.getElementById('chartMaioresEfetivos'), {
+    type:'bar',
+    data:{ labels: fornecedoresOrdenados.map(e=>e[0].length>26?e[0].slice(0,26)+'…':e[0]), datasets:[{ data: fornecedoresOrdenados.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:20 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+
+  // Maiores variações de efetivo no mês
+  const porFornecedorAnterior = {};
+  if(penultimoMes) LOCALIDADES.filter(l=>l.mes_referencia===penultimoMes).forEach(l => { porFornecedorAnterior[l.empresa]=(porFornecedorAnterior[l.empresa]||0)+(Number(l.qtd_funcionarios)||0); });
+  const empresasTodas = new Set([...Object.keys(porFornecedor), ...Object.keys(porFornecedorAnterior)]);
+  const variacoes = [...empresasTodas].map(emp => ({ empresa:emp, delta:(porFornecedor[emp]||0)-(porFornecedorAnterior[emp]||0) })).filter(v=>v.delta!==0).sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta)).slice(0,12);
+  if(CHART_VARIACOES_EFETIVO) CHART_VARIACOES_EFETIVO.destroy();
+  CHART_VARIACOES_EFETIVO = new Chart(document.getElementById('chartVariacoesEfetivo'), {
+    type:'bar',
+    data:{ labels: variacoes.map(v=>v.empresa.length>26?v.empresa.slice(0,26)+'…':v.empresa), datasets:[{ data: variacoes.map(v=>v.delta), backgroundColor: variacoes.map(v=>v.delta>=0?'#0ca30c':'#d03b3b'), borderRadius:4, maxBarThickness:22 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>(v>=0?'+':'')+v}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+}
+
 function renderEmpregados(){
   const nome = document.getElementById('fEmpNome').value.toLowerCase();
   const fornecedor = document.getElementById('fEmpFornecedor').value;
