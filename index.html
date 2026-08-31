@@ -472,6 +472,10 @@ body{background:var(--surface2);color:var(--texto);}
         <div class="dash-card-body" style="height:280px;"><canvas id="chartBiCompliance"></canvas></div>
       </div>
       <div class="dash-card" style="grid-column:1/-1;">
+        <div class="dash-card-head"><span>Evolução do Compliance</span></div>
+        <div class="dash-card-body" style="height:260px;"><canvas id="chartBiEvolucao"></canvas></div>
+      </div>
+      <div class="dash-card" style="grid-column:1/-1;">
         <div class="dash-card-head"><span>Fases do Monitoramento</span></div>
         <div class="dash-card-body bi-fases-ref">
           <b>FASE 1 – ADAPTAÇÃO E ADESÃO AO PROJETO</b>
@@ -499,6 +503,20 @@ const SUPABASE_KEY = 'sb_publishable_i4wHkn0ua5zx0FdU89fr6w_7mfUXKPJ'; // publis
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 if (window.ChartDataLabels) { Chart.register(ChartDataLabels); Chart.defaults.set('plugins.datalabels', { display: false }); }
+Chart.defaults.font.family = "'Segoe UI',Arial,sans-serif";
+Chart.defaults.plugins.tooltip.backgroundColor = '#002236';
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+// Animação desligada de propósito: com várias abas trocando de chart.js
+// (canvas escondido via display:none sem destruir o chart anterior), uma
+// animação em andamento numa aba que acabou de ficar oculta quebra o
+// animador global do Chart.js (erro "this._fn is not a function") e trava
+// o desenho de TODOS os gráficos da página até recarregar. Sem animação,
+// não existe essa corrida.
+Chart.defaults.animation = false;
+// Paleta categórica validada (ordem fixa — não trocar) pra qualquer
+// gráfico com várias categorias no BI.
+const PALETA_CATEGORICA = ['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#4a3aa7','#e34948'];
 
 function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtMoney(v){ return 'R$ ' + (Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -717,8 +735,22 @@ function renderGeral(){
   if(CHART_FASE) CHART_FASE.destroy();
   CHART_FASE = new Chart(document.getElementById('chartFaseMonitoramento'), {
     type: 'doughnut',
-    data: { labels: labelsFase, datasets: [{ data: labelsFase.map(l=>porFase[l]), backgroundColor: ['#8E44AD','#B39DDB','#117A65','#E67E22','#C0392B','#7B241C'] }] },
-    options: { maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{boxWidth:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700'}} } },
+    data: { labels: labelsFase, datasets: [{ data: labelsFase.map(l=>porFase[l]), backgroundColor: PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8 }] },
+    options: { maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return v+' ('+(v/t*100).toFixed(1)+'%)';}} } },
+    plugins:[{
+      id:'centroTextoGeral',
+      afterDraw(chart){
+        const {ctx, chartArea:{width,height,left,top}} = chart;
+        const total = chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+        ctx.save();
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.font='800 26px Segoe UI'; ctx.fillStyle='#003B5C';
+        ctx.fillText(total, left+width/2, top+height/2-8);
+        ctx.font='600 10px Segoe UI'; ctx.fillStyle='#7E98AA';
+        ctx.fillText('FORNECEDORES', left+width/2, top+height/2+14);
+        ctx.restore();
+      }
+    }],
   });
 
   // Comparativo de compliance por fornecedor (top 15 por qtd de meses de dado)
@@ -735,11 +767,11 @@ function renderGeral(){
     data: {
       labels: topEmpresas.map(e => e.length>18 ? e.slice(0,18)+'…' : e),
       datasets: [
-        { label: fmtMes(penultimoMes), data: topEmpresas.map(e=>valorMes(e,penultimoMes)), backgroundColor:'#7E98AA' },
-        { label: fmtMes(ultimoMes), data: topEmpresas.map(e=>valorMes(e,ultimoMes)), backgroundColor:'#00A9E0' },
+        { label: fmtMes(penultimoMes), data: topEmpresas.map(e=>valorMes(e,penultimoMes)), backgroundColor:'#c3c2b7', borderRadius:4, maxBarThickness:28 },
+        { label: fmtMes(ultimoMes), data: topEmpresas.map(e=>valorMes(e,ultimoMes)), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:28 },
       ],
     },
-    options: { maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{ y:{ max:100, ticks:{callback:v=>v+'%'} }, x:{ ticks:{autoSkip:false,maxRotation:60} } } },
+    options: { maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:false}}, scales:{ y:{ max:100, ticks:{callback:v=>v+'%'}, grid:{color:'#e1e0d9'} }, x:{ ticks:{autoSkip:false,maxRotation:60}, grid:{display:false} } } },
   });
 
   // Tabela de críticos
@@ -859,8 +891,8 @@ function renderIrregularidades(){
     type:'doughnut',
     data:{ labels:['Cartões Britânico','>2h Extras','Intrajornada','Interjornada','DSR'],
       datasets:[{ data:['cartoes_britanico','horas_extras_2h','intervalo_intrajornada','intervalo_interjornada','dsr'].map(soma),
-        backgroundColor:['#C0392B','#00A9E0','#B85C00','#117A65','#8E44AD'] }] },
-    options:{ maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{boxWidth:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700'}} } },
+        backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8 }] },
+    options:{ maintainAspectRatio:false, cutout:'58%', plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(1)+'%)':v;}} } },
   });
 
   const totalPorEmpresa = doMes.map(i => ({
@@ -872,8 +904,8 @@ function renderIrregularidades(){
   CHART_IRREG_EMPRESA = new Chart(document.getElementById('chartIrregEmpresa'), {
     type:'bar',
     data:{ labels: totalPorEmpresa.map(e=>e.empresa.length>18?e.empresa.slice(0,18)+'…':e.empresa),
-      datasets:[{ data: totalPorEmpresa.map(e=>e.total), backgroundColor:'#C0392B', maxBarThickness:40 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',font:{weight:'700'}}} },
+      datasets:[{ data: totalPorEmpresa.map(e=>e.total), backgroundColor:'#d03b3b', borderRadius:4, maxBarThickness:26 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
   });
 }
 
@@ -892,8 +924,8 @@ function renderProcessos(){
   PROCESSOS.forEach(p => { const s = p.situacao||'—'; porSituacao[s]=(porSituacao[s]||0)+1; });
   if(CHART_SITUACAO) CHART_SITUACAO.destroy();
   CHART_SITUACAO = new Chart(document.getElementById('chartSituacaoProcessos'), {
-    type:'doughnut', data:{ labels:Object.keys(porSituacao), datasets:[{data:Object.values(porSituacao), backgroundColor:['#00A9E0','#C0392B','#B85C00','#117A65']}] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:true,color:'#fff',font:{weight:'700'}}} },
+    type:'doughnut', data:{ labels:Object.keys(porSituacao), datasets:[{data:Object.values(porSituacao), backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8}] },
+    options:{ maintainAspectRatio:false, cutout:'58%', plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12}},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(1)+'%)':v;}}} },
   });
 
   const porUF = {};
@@ -901,8 +933,8 @@ function renderProcessos(){
   const ufOrdenado = Object.entries(porUF).sort((a,b)=>b[1]-a[1]).slice(0,10);
   if(CHART_PROC_UF) CHART_PROC_UF.destroy();
   CHART_PROC_UF = new Chart(document.getElementById('chartProcessosUF'), {
-    type:'bar', data:{ labels:ufOrdenado.map(e=>e[0]), datasets:[{data:ufOrdenado.map(e=>e[1]), backgroundColor:'#00A9E0', maxBarThickness:50}] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',font:{weight:'700'}}}, scales:{x:{ticks:{autoSkip:false}}} },
+    type:'bar', data:{ labels:ufOrdenado.map(e=>e[0]), datasets:[{data:ufOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:44}] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
   });
 
   document.getElementById('tbodyProcessos').innerHTML = PROCESSOS.slice(0,200).map(p => `
@@ -1172,7 +1204,7 @@ function toggleFullscreenBI(){
   if(!document.fullscreenElement) el.requestFullscreen().catch(()=>{});
   else document.exitFullscreen();
 }
-let CHART_BI_FASE=null, CHART_BI_COMPLIANCE=null;
+let CHART_BI_FASE=null, CHART_BI_COMPLIANCE=null, CHART_BI_EVOLUCAO=null;
 function biCard(atual, anterior, formatador, deltaInvertido){
   const delta = (atual!=null && anterior!=null) ? atual - anterior : null;
   const deltaTxt = delta==null ? '' : (delta>=0?'+':'') + (formatador===fmtPct ? (delta*100).toFixed(1)+'%' : delta.toLocaleString('pt-BR'));
@@ -1219,8 +1251,22 @@ function renderBI(){
   if(CHART_BI_FASE) CHART_BI_FASE.destroy();
   CHART_BI_FASE = new Chart(document.getElementById('chartBiFase'), {
     type:'doughnut',
-    data:{ labels:labelsFase, datasets:[{ data:labelsFase.map(l=>porFase[l]), backgroundColor:['#8E44AD','#B39DDB','#117A65','#E67E22','#C0392B','#7B241C','#7E98AA'] }] },
-    options:{ maintainAspectRatio:false, plugins:{ legend:{position:'right',labels:{boxWidth:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700'},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return v+' ('+(v/t*100).toFixed(1)+'%)';}} } },
+    data:{ labels:labelsFase, datasets:[{ data:labelsFase.map(l=>porFase[l]), backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8 }] },
+    options:{ maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{position:'right',labels:{boxWidth:12,padding:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return v+' ('+(v/t*100).toFixed(1)+'%)';}} } },
+    plugins:[{
+      id:'centroTexto',
+      afterDraw(chart){
+        const {ctx, chartArea:{width,height,left,top}} = chart;
+        const total = chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+        ctx.save();
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.font='800 26px Segoe UI'; ctx.fillStyle='#003B5C';
+        ctx.fillText(total, left+width/2, top+height/2-8);
+        ctx.font='600 10px Segoe UI'; ctx.fillStyle='#7E98AA';
+        ctx.fillText('FORNECEDORES', left+width/2, top+height/2+14);
+        ctx.restore();
+      }
+    }],
   });
 
   const topEmpresas = [...new Set(COMPLIANCE.map(c=>c.empresa))].filter(e => !filtroFornecedor || e===filtroFornecedor).slice(0,15);
@@ -1234,6 +1280,21 @@ function renderBI(){
         { label: ultimoMes?fmtMes(ultimoMes):'Mês Atual', data: topEmpresas.map(e=>ultimoMes?valorMes(e,ultimoMes):0), backgroundColor:'#00A9E0' },
       ] },
     options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:false}}, scales:{ y:{max:100,ticks:{callback:v=>v+'%'}}, x:{ticks:{autoSkip:false,maxRotation:60}} } },
+  });
+
+  const evoMeses = mesesCompl.filter(m => m).slice(-12); // últimos 12 meses — janela legível
+  const evoValores = evoMeses.map(m => { const v = mediaMes(m); return v!=null ? +(v*100).toFixed(1) : null; });
+  if(CHART_BI_EVOLUCAO) CHART_BI_EVOLUCAO.destroy();
+  const ctxEvo = document.getElementById('chartBiEvolucao').getContext('2d');
+  const gradEvo = ctxEvo.createLinearGradient(0,0,0,260);
+  gradEvo.addColorStop(0, 'rgba(27,175,122,0.35)');
+  gradEvo.addColorStop(1, 'rgba(27,175,122,0.02)');
+  CHART_BI_EVOLUCAO = new Chart(ctxEvo, {
+    type:'line',
+    data:{ labels: evoMeses.map(fmtMes),
+      datasets:[{ label:'Compliance médio', data: evoValores, borderColor:'#1baf7a', backgroundColor:gradEvo, fill:true, tension:0.4, borderWidth:3, pointRadius:4, pointBackgroundColor:'#1baf7a', pointBorderColor:'#fff', pointBorderWidth:2, pointHoverRadius:6, spanGaps:true }] },
+    options:{ maintainAspectRatio:false, plugins:{ legend:{display:false}, datalabels:{display:(ctx)=>{const i=ctx.dataIndex,n=ctx.dataset.data.length;return i===0||i===n-1||i===n-1-Math.floor((n-1)/2);},align:'top',anchor:'end',color:'#003B5C',font:{weight:'700',size:11},formatter:v=>v!=null?v+'%':''} },
+      scales:{ y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#e1e0d9'}}, x:{grid:{display:false}} } },
   });
 }
 
