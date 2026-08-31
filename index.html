@@ -514,6 +514,24 @@ body{background:var(--surface2);color:var(--texto);}
   <!-- ── Contratos ── -->
   <div id="page-contratos" class="page">
     <div class="kpi-grid" id="kpiContratos"></div>
+    <div class="grid-2">
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Status dos Contratos</span></div>
+        <div class="dash-card-body" style="height:220px;"><canvas id="chartStatusContratosTab"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Contratos Vencidos por UF</span></div>
+        <div class="dash-card-body" style="height:220px;"><canvas id="chartVencidosUF"></canvas></div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head"><span>Fila de Regularização Contratual</span></div>
+      <div class="hint" style="padding:10px 16px 0;">Só fornecedores fora de "Vigente" — os que precisam de ação.</div>
+      <div class="table-wrap"><table class="rel-table">
+        <thead><tr><th>Fornecedor</th><th>UF</th><th>Status Contrato</th><th>Fase Atual</th><th>Empregados</th><th>Compl. Mês</th></tr></thead>
+        <tbody id="tbodyFilaRegularizacao"></tbody>
+      </table></div>
+    </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Gestão de Contratos de Prestação de Serviços</span></div>
       <div class="table-wrap"><table class="rel-table">
@@ -740,10 +758,18 @@ async function carregarDadosCliente(){
   mudarAba('geral');
 }
 
+// UF real de um fornecedor: o campo gtt_fornecedores.localidades quase
+// sempre vem vazio da planilha original — a UF de verdade mora na série
+// mensal gtt_terceiros_localidade (mês mais recente com dado).
+function ufDoFornecedor(empresa){
+  const loc = LOCALIDADES.filter(l=>l.empresa===empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
+  return loc?.uf || '';
+}
+
 function popularFiltros(){
   const nomes = [...new Set(FORNECEDORES.map(f=>f.empresa))].sort();
-  const ufsGeral = [...new Set(FORNECEDORES.map(f=>f.localidades).filter(Boolean))].sort();
   const ufsLimpo = [...new Set(LOCALIDADES.map(l=>l.uf).filter(Boolean))].sort();
+  const ufsGeral = ufsLimpo;
   const fases = [...new Set(FORNECEDORES.map(f=>f.fase_atual).filter(Boolean))].sort();
   const preencher = (id, valores) => {
     const el = document.getElementById(id);
@@ -826,7 +852,7 @@ function renderGeral(){
   const filtroUF = document.getElementById('fGeralUF').value;
   let fornecedores = FORNECEDORES.filter(f => f.status !== 'INATIVA');
   if(filtroFornecedor) fornecedores = fornecedores.filter(f => f.empresa === filtroFornecedor);
-  if(filtroUF) fornecedores = fornecedores.filter(f => (f.localidades||'').includes(filtroUF));
+  if(filtroUF) fornecedores = fornecedores.filter(f => ufDoFornecedor(f.empresa) === filtroUF);
 
   // Status de contrato — 4 categorias reais (antes só olhava Vencido/Vigente
   // e descartava "Aguardando documento" e "Vencimento Próximo" em silêncio)
@@ -927,7 +953,7 @@ function renderGeral(){
   // Status dos contratos — 4 categorias reais, cores de status (estado),
   // não da paleta categórica (identidade) — VIGENTE/VENCIMENTO PRÓXIMO/
   // AGUARDANDO DOCUMENTO/VENCIDO são estados, não série.
-  const CORES_STATUS_CONTRATO = { 'VIGENTE':'#0ca30c', 'VENCIMENTO PRÓXIMO':'#fab219', 'Aguardando documento':'#ec835a', 'VENCIDO':'#d03b3b', 'Sem informação':'#c3c2b7' };
+  const CORES_STATUS_CONTRATO = { 'VIGENTE':'#0ca30c', 'VENCIMENTO PRÓXIMO':'#fab219', 'AGUARDANDO DOCUMENTO':'#ec835a', 'VENCIDO':'#d03b3b', 'Sem informação':'#c3c2b7' };
   const statusOrdenado = Object.entries(porStatusContrato).sort((a,b)=>b[1]-a[1]);
   const totalStatus = statusOrdenado.reduce((s,[,v])=>s+v,0) || 1;
   if(CHART_STATUS_CONTRATOS) CHART_STATUS_CONTRATOS.destroy();
@@ -973,7 +999,7 @@ function renderFornecedores(){
   let lista = FORNECEDORES.filter(f =>
     (!nome || f.empresa.toLowerCase().includes(nome)) &&
     (!cnpj || (f.cnpj||'').replace(/\D/g,'').includes(cnpj)) &&
-    (!uf || (f.localidades||'').toUpperCase().includes(uf)) &&
+    (!uf || ufDoFornecedor(f.empresa) === uf) &&
     (!status || f.status === status) &&
     (!fase || f.fase_atual === fase)
   );
@@ -1375,19 +1401,50 @@ function renderProcessos(){
 }
 
 // ── Contratos ────────────────────────────────────────────────────────
+let CHART_STATUS_CONTRATOS_TAB=null, CHART_VENCIDOS_UF=null;
 function renderContratos(){
   const ativos = FORNECEDORES.filter(f => f.status !== 'INATIVA');
-  const vencidos = ativos.filter(f=>f.status_contrato==='VENCIDO').length;
-  const vigentes = ativos.filter(f=>f.status_contrato==='VIGENTE').length;
+  const porStatus = {};
+  ativos.forEach(f => { const s = (f.status_contrato||'Sem informação').trim(); porStatus[s]=(porStatus[s]||0)+1; });
+  const vencidos = porStatus['VENCIDO']||0;
+  const vigentes = porStatus['VIGENTE']||0;
   document.getElementById('kpiContratos').innerHTML = [
     { label:'Total de Contratos', val:String(ativos.length) },
     { label:'Vigentes', val:String(vigentes) },
     { label:'Vencidos', val:String(vencidos) },
+    { label:'Aguardando Documento', val:String(porStatus['AGUARDANDO DOCUMENTO']||0) },
+    { label:'Vencimento Próximo', val:String(porStatus['VENCIMENTO PRÓXIMO']||0) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
+
+  const CORES_STATUS_CONTRATO = { 'VIGENTE':'#0ca30c', 'VENCIMENTO PRÓXIMO':'#fab219', 'AGUARDANDO DOCUMENTO':'#ec835a', 'VENCIDO':'#d03b3b', 'Sem informação':'#c3c2b7' };
+  const statusOrdenado = Object.entries(porStatus).sort((a,b)=>b[1]-a[1]);
+  if(CHART_STATUS_CONTRATOS_TAB) CHART_STATUS_CONTRATOS_TAB.destroy();
+  CHART_STATUS_CONTRATOS_TAB = new Chart(document.getElementById('chartStatusContratosTab'), {
+    type:'bar',
+    data:{ labels: statusOrdenado.map(([k])=>k), datasets:[{ data: statusOrdenado.map(([,v])=>v), backgroundColor: statusOrdenado.map(([k])=>CORES_STATUS_CONTRATO[k]||'#7E98AA'), borderRadius:4, maxBarThickness:34 }] },
+    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
+  });
+
+  const vencidosPorUF = {};
+  ativos.filter(f=>f.status_contrato==='VENCIDO').forEach(f => { const uf=ufDoFornecedor(f.empresa)||'—'; vencidosPorUF[uf]=(vencidosPorUF[uf]||0)+1; });
+  const ufOrdenado = Object.entries(vencidosPorUF).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  if(CHART_VENCIDOS_UF) CHART_VENCIDOS_UF.destroy();
+  CHART_VENCIDOS_UF = new Chart(document.getElementById('chartVencidosUF'), {
+    type:'bar', data:{ labels: ufOrdenado.map(e=>e[0]), datasets:[{data:ufOrdenado.map(e=>e[1]), backgroundColor:'#d03b3b', borderRadius:4, maxBarThickness:40}] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
+  });
+
+  const filaRegularizacao = ativos.filter(f => f.status_contrato!=='VIGENTE').sort((a,b)=>(a.status_contrato==='VENCIDO'?0:1)-(b.status_contrato==='VENCIDO'?0:1));
+  document.getElementById('tbodyFilaRegularizacao').innerHTML = filaRegularizacao.map(f => {
+    const cor = f.status_contrato==='VENCIDO' ? 'critico' : f.status_contrato==='VENCIMENTO PRÓXIMO' ? 'atencao' : 'neutro';
+    const loc = LOCALIDADES.filter(l => l.empresa === f.empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
+    const s = scoreRisco(f.empresa);
+    return `<tr><td>${esc(f.empresa)}</td><td>${esc(loc?.uf||'—')}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'Sem informação')}</span></td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${loc?Math.round(loc.qtd_funcionarios||0):'—'}</td><td class="mono">${fmtPct(s.complAtual)}</td></tr>`;
+  }).join('') || '<tr><td colspan="6" class="empty-state">Nenhum fornecedor pendente de regularização.</td></tr>';
 
   document.getElementById('tbodyContratos').innerHTML = ativos.map(f => {
     const cor = f.status_contrato==='VENCIDO' ? 'critico' : f.status_contrato==='VIGENTE' ? 'ok' : 'atencao';
-    return `<tr><td>${esc(f.empresa)}</td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${f.vencimento_contrato||'—'}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'—')}</span></td><td>${esc(f.localidades||'—')}</td></tr>`;
+    return `<tr><td>${esc(f.empresa)}</td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${f.vencimento_contrato||'—'}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'—')}</span></td><td>${esc(ufDoFornecedor(f.empresa)||'—')}</td></tr>`;
   }).join('') || '<tr><td colspan="5" class="empty-state">Nenhum contrato.</td></tr>';
 }
 
@@ -1627,7 +1684,7 @@ function abrirDetalheFornecedor(empresa){
     </div>`;
   document.body.appendChild(overlay);
   const f = FORNECEDORES.find(x=>x.empresa===empresa);
-  document.getElementById('detalheSubtitulo').textContent = `${f?.cnpj||'CNPJ não informado'} · ${f?.localidades||'—'}`;
+  document.getElementById('detalheSubtitulo').textContent = `${f?.cnpj||'CNPJ não informado'} · ${ufDoFornecedor(empresa)||'—'}`;
   renderDetalheConteudo();
 }
 
@@ -1759,7 +1816,7 @@ function renderBI(){
   const filtroUF = document.getElementById('fBiUF').value;
   let fornecedores = FORNECEDORES.filter(f => f.status !== 'INATIVA');
   if(filtroFornecedor) fornecedores = fornecedores.filter(f => f.empresa === filtroFornecedor);
-  if(filtroUF) fornecedores = fornecedores.filter(f => (f.localidades||'').includes(filtroUF));
+  if(filtroUF) fornecedores = fornecedores.filter(f => ufDoFornecedor(f.empresa) === filtroUF);
 
   const mesesCompl = [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort();
   const ultimoMes = mesesCompl[mesesCompl.length-1], penultimoMes = mesesCompl[mesesCompl.length-2];
