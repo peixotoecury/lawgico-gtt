@@ -1,0 +1,5 @@
+*.xlsx
+*.pptx
+*.pbix
+carga_log.txt
+carregar_dados.py
