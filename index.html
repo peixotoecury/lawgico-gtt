@@ -207,6 +207,7 @@ body{background:var(--surface2);color:var(--texto);}
       <div class="topbar-gico-col"><span class="topbar-module">gtt</span><span class="topbar-gico">gico</span></div>
     </div>
     <div class="topbar-right">
+      <select id="seletorCliente" class="form-input" style="max-width:220px;font-weight:700;" onchange="trocarCliente(this.value)"></select>
       <button class="topbar-sair" onclick="exportarExcel()">⬇️ Baixar Relatório (Excel)</button>
       <span class="topbar-user" id="usuarioLogado"></span>
       <button class="topbar-sair" onclick="fazerLogout()">Sair</button>
@@ -423,7 +424,7 @@ function fmtMi(v){ const n = Number(v)||0; return Math.abs(n) >= 1e6 ? 'R$ ' + (
 function fmtPct(v){ return v == null ? '—' : (Number(v)*100).toLocaleString('pt-BR',{maximumFractionDigits:1}) + '%'; }
 function fmtMes(iso){ if(!iso) return '—'; const [a,m] = iso.split('-'); const nomes=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; return `${nomes[parseInt(m,10)-1]}/${a}`; }
 
-const CLIENTE_ID = 1;
+let CLIENTE_ID = 1;
 
 // ── Auth ─────────────────────────────────────────────────────────────
 async function fazerLogin(){
@@ -478,10 +479,26 @@ async function buscarTudo(tabela, filtros){
 }
 
 async function carregarTudo(){
+  CLIENTES = await buscarTudo('gtt_clientes', {});
+  CLIENTES.sort((a,b) => a.nome.localeCompare(b.nome));
+  const sel = document.getElementById('seletorCliente');
+  sel.innerHTML = CLIENTES.map(c => `<option value="${c.id}">${esc(c.nome)}</option>`).join('');
+  if(!CLIENTES.find(c=>c.id===CLIENTE_ID) && CLIENTES.length) CLIENTE_ID = CLIENTES[0].id;
+  sel.value = CLIENTE_ID;
+  await carregarDadosCliente();
+}
+
+async function trocarCliente(novoId){
+  CLIENTE_ID = Number(novoId);
+  DOC_CACHE = {};
+  await carregarDadosCliente();
+}
+
+async function carregarDadosCliente(){
   // gtt_documentos NÃO entra aqui — tem 66 mil+ linhas e travava a entrada
   // no sistema por ~40s. É buscada sob demanda, só do fornecedor escolhido,
   // quando a aba Documentos é aberta (ver renderDocumentos).
-  [FORNECEDORES, COMPLIANCE, IRREGULARIDADES, PROCESSOS, LOCALIDADES, PARCELAMENTOS, EMPREGADOS, PARCELAS_DETALHE, CLIENTES] = await Promise.all([
+  [FORNECEDORES, COMPLIANCE, IRREGULARIDADES, PROCESSOS, LOCALIDADES, PARCELAMENTOS, EMPREGADOS, PARCELAS_DETALHE] = await Promise.all([
     buscarTudo('gtt_fornecedores', {cliente_id: CLIENTE_ID}),
     buscarTudo('gtt_compliance_mensal', {cliente_id: CLIENTE_ID}),
     buscarTudo('gtt_irregularidades', {cliente_id: CLIENTE_ID}),
@@ -490,7 +507,6 @@ async function carregarTudo(){
     buscarTudo('gtt_parcelamentos', {cliente_id: CLIENTE_ID}),
     buscarTudo('gtt_empregados', {cliente_id: CLIENTE_ID}),
     buscarTudo('gtt_parcelas_detalhe', {cliente_id: CLIENTE_ID}),
-    buscarTudo('gtt_clientes', {}),
   ]);
   // Nomes de empresa em maiúsculas em toda a base — padroniza exibição e
   // garante que o cruzamento entre tabelas (fornecedor x compliance x
