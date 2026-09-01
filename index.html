@@ -1193,7 +1193,8 @@ async function carregarDadosCliente(){
   PROCESSOS.forEach(p => p.empresa_reclamada = maiuscula(p.empresa_reclamada));
 
   popularFiltros();
-  mudarAba('geral');
+  const btnAtivo = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
+  mudarAba(btnAtivo >= 0 ? ORDEM_ABAS[btnAtivo] : 'geral');
 }
 
 // UF real de um fornecedor: o campo gtt_fornecedores.localidades quase
@@ -2118,9 +2119,9 @@ function renderConsolidado(){
   renderConsParcelamentos();
 }
 
+const ORDEM_ABAS = ['consolidado','geral','fornecedores','clientes','empregados','documentos','tarefas','irregularidades','processos','contratos','parcelamentos','bi'];
 function mudarAba(aba){
-  const ordem = ['consolidado','geral','fornecedores','clientes','empregados','documentos','tarefas','irregularidades','processos','contratos','parcelamentos','bi'];
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ordem[i]===aba));
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ORDEM_ABAS[i]===aba));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+aba).classList.add('active');
   if(aba==='consolidado') renderConsolidado();
