@@ -583,40 +583,30 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
       </div>
     </div>
 
-    <div class="bi-kpi-row">
-      <div class="bi-kpi-grupo">
-        <div class="bi-kpi-grupo-titulo">MÉDIA COMPLIANCE</div>
-        <div class="bi-kpi-cols" id="biCompliance"></div>
-      </div>
-      <div class="bi-kpi-grupo">
-        <div class="bi-kpi-grupo-titulo">QUANTIDADE DE EMPRESAS</div>
-        <div class="bi-kpi-cols" id="biEmpresas"></div>
-      </div>
-      <div class="bi-kpi-grupo">
-        <div class="bi-kpi-grupo-titulo">CONTRATOS DE PRESTAÇÃO DE SERVIÇOS</div>
-        <div class="bi-kpi-cols" id="biContratos"></div>
-      </div>
-      <div class="bi-kpi-grupo">
-        <div class="bi-kpi-grupo-titulo">% REGULARIDADE</div>
-        <div class="bi-kpi-cols" id="biRegularidade"></div>
-      </div>
-    </div>
+    <div class="dc-grid">
+      <div style="grid-column:span 12;"><div class="kpi-grid" id="kpiBiGeral" style="grid-template-columns:repeat(6,1fr);"></div></div>
 
-    <div class="grid-2">
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Fase de Monitoramento</span></div>
-        <div class="dash-card-body" style="height:280px;"><canvas id="chartBiFase"></canvas></div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Fase de Monitoramento</span></div>
+          <div class="dc-card-body" id="painelBiFase"></div>
+        </div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Comparativo Compliance</span></div>
-        <div class="dash-card-body" style="height:280px;"><canvas id="chartBiCompliance"></canvas></div>
+      <div style="grid-column:span 8;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Compliance Documental por Fornecedor · % do Mês</span></div>
+          <div class="dc-card-body" style="max-height:330px;overflow-y:auto;" id="listaBiCompliance"></div>
+        </div>
       </div>
-      <div class="dash-card" style="grid-column:1/-1;">
-        <div class="dash-card-head"><span>Evolução do Compliance</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartBiEvolucao"></canvas></div>
+      <div style="grid-column:span 12;">
+        <div class="dc-card">
+          <div class="dash-card-head" id="tituloBiEvolucao">Evolução do Compliance Médio</div>
+          <div class="dc-card-body" id="painelBiEvolucao"></div>
+        </div>
       </div>
-      <div class="dash-card" style="grid-column:1/-1;">
-        <div class="dash-card-head"><span>Fases do Monitoramento</span></div>
+      <div style="grid-column:span 12;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Fases do Monitoramento</span></div>
         <div class="dash-card-body bi-fases-ref">
           <b>FASE 1 – ADAPTAÇÃO E ADESÃO AO PROJETO</b>
           <ul><li>Apresentação do projeto e envio do manual</li><li>Solução de dúvidas e concessão de prazo flexível</li></ul>
@@ -1813,7 +1803,6 @@ function toggleFullscreenBI(){
   if(!document.fullscreenElement) el.requestFullscreen().catch(()=>{});
   else document.exitFullscreen();
 }
-let CHART_BI_FASE=null, CHART_BI_COMPLIANCE=null, CHART_BI_EVOLUCAO=null;
 function biCard(atual, anterior, formatador, deltaInvertido){
   const delta = (atual!=null && anterior!=null) ? atual - anterior : null;
   const deltaTxt = delta==null ? '' : (delta>=0?'+':'') + (formatador===fmtPct ? (delta*100).toFixed(1)+'%' : delta.toLocaleString('pt-BR'));
@@ -1838,73 +1827,72 @@ function renderBI(){
     const vals = COMPLIANCE.filter(c => c.mes_referencia===mes && (!filtroFornecedor || c.empresa===filtroFornecedor)).map(c=>Number(c.compliance)).filter(v=>!isNaN(v));
     return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
   };
-  document.getElementById('biCompliance').innerHTML = biCard(ultimoMes?mediaMes(ultimoMes):null, penultimoMes?mediaMes(penultimoMes):null, fmtPct);
-
-  document.getElementById('biEmpresas').innerHTML = biCard(fornecedores.length, null, v=>String(v));
-
   const vencidos = fornecedores.filter(f=>f.status_contrato==='VENCIDO').length;
   const vigentes = fornecedores.filter(f=>f.status_contrato==='VIGENTE').length;
-  document.getElementById('biContratos').innerHTML = `
-    <div><div class="bi-kpi-col-label">Vigentes</div><div class="bi-kpi-col-val" style="color:var(--green);">${vigentes}</div></div>
-    <div><div class="bi-kpi-col-label">Vencidos</div><div class="bi-kpi-col-val" style="color:var(--red);">${vencidos}</div></div>
-    <div><div class="bi-kpi-col-label">Total</div><div class="bi-kpi-col-val">${fornecedores.length}</div></div>`;
-
   const scores = fornecedores.map(f => scoreRisco(f.empresa));
   const regulares = scores.filter(s => s.complAtual!=null && s.complAtual>=0.7).length;
   const pctReg = fornecedores.length ? regulares/fornecedores.length : null;
-  document.getElementById('biRegularidade').innerHTML = biCard(pctReg, null, fmtPct);
+  const complAtualBi = ultimoMes?mediaMes(ultimoMes):null;
+  const corComplBi = complAtualBi==null ? '#7E98AA' : complAtualBi>=0.7 ? '#188049' : complAtualBi>=0.4 ? '#E8A33D' : '#C9553A';
+  document.getElementById('kpiBiGeral').innerHTML = [
+    { label:'Média Compliance', val: fmtPct(complAtualBi), sub: penultimoMes?`mês anterior ${fmtPct(mediaMes(penultimoMes))}`:'', cor:corComplBi },
+    { label:'Quantidade de Empresas', val: String(fornecedores.length), sub:'na seleção', cor:'#14324E' },
+    { label:'Contratos Vigentes', val: String(vigentes), sub: `${vencidos} vencidos de ${fornecedores.length}`, cor:'#188049' },
+    { label:'% Regularidade', val: fmtPct(pctReg), sub:'compliance ≥ 70%', cor: pctReg==null?'#7E98AA':pctReg>=0.7?'#188049':pctReg>=0.4?'#E8A33D':'#C9553A' },
+  ].map(c => `<div class="kpi-card" style="border-left-color:${c.cor};"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num" style="color:${c.cor};">${c.val}</span></div><div class="kpi-sub">${esc(c.sub)}</div></div>`).join('');
 
+  const CORES_FASE_BI = { 'FASE 3':'#00A9E0', 'FASE 4':'#4FA8E0', 'FASE 5':'#E8A33D', 'FASE 6':'#188049' };
   const porFase = {};
   fornecedores.forEach(f => { const fase = f.fase_atual || 'Sem fase'; porFase[fase] = (porFase[fase]||0)+1; });
   const labelsFase = Object.keys(porFase).sort();
-  if(CHART_BI_FASE) CHART_BI_FASE.destroy();
-  CHART_BI_FASE = new Chart(document.getElementById('chartBiFase'), {
-    type:'doughnut',
-    data:{ labels:labelsFase, datasets:[{ data:labelsFase.map(l=>porFase[l]), backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8 }] },
-    options:{ maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{position:'right',labels:{boxWidth:12,padding:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return v+' ('+(v/t*100).toFixed(1)+'%)';}} } },
-    plugins:[{
-      id:'centroTexto',
-      afterDraw(chart){
-        const {ctx, chartArea:{width,height,left,top}} = chart;
-        const total = chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
-        ctx.save();
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.font='800 26px Figtree,Segoe UI'; ctx.fillStyle='#14324E';
-        ctx.fillText(total, left+width/2, top+height/2-8);
-        ctx.font='600 10px Segoe UI'; ctx.fillStyle='#7E98AA';
-        ctx.fillText('FORNECEDORES', left+width/2, top+height/2+14);
-        ctx.restore();
-      }
-    }],
-  });
+  const totalFaseBi = labelsFase.reduce((s,l)=>s+porFase[l],0) || 1;
+  let anguloBi = 0;
+  const stopsBi = labelsFase.map(l => { const cor=CORES_FASE_BI[l]||'#7E98AA'; const ini=anguloBi; anguloBi+=porFase[l]/totalFaseBi*360; return `${cor} ${ini.toFixed(2)}deg, ${cor} ${anguloBi.toFixed(2)}deg`; }).join(', ');
+  document.getElementById('painelBiFase').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;">
+      <div style="position:relative;width:150px;height:150px;border-radius:50%;flex:0 0 auto;background:conic-gradient(${stopsBi || '#e2e8f0 0deg 360deg'});">
+        <div style="position:absolute;inset:27px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--escuro-pc);line-height:1;">${fornecedores.length}</div>
+          <div style="font-size:9px;font-weight:800;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;margin-top:3px;">fornecedores</div>
+        </div>
+      </div>
+      <div style="flex:1 1 0;min-width:150px;">
+        ${labelsFase.map(l => `
+          <div class="fase-donut-legenda">
+            <div class="fase-donut-cor" style="background:${CORES_FASE_BI[l]||'#7E98AA'};"></div>
+            <div class="fase-donut-nome">${esc(l)}</div>
+            <div class="fase-donut-num">${porFase[l]}</div>
+            <div class="fase-donut-pct">${(porFase[l]/totalFaseBi*100).toFixed(1).replace('.',',')}%</div>
+          </div>`).join('') || '<span class="hint">Sem fornecedores na seleção.</span>'}
+      </div>
+    </div>`;
 
-  const topEmpresas = [...new Set(COMPLIANCE.map(c=>c.empresa))].filter(e => !filtroFornecedor || e===filtroFornecedor).slice(0,15);
-  const valorMes = (emp,mes) => { const r = COMPLIANCE.find(c=>c.empresa===emp && c.mes_referencia===mes); return r ? Number(r.compliance)*100 : 0; };
-  if(CHART_BI_COMPLIANCE) CHART_BI_COMPLIANCE.destroy();
-  CHART_BI_COMPLIANCE = new Chart(document.getElementById('chartBiCompliance'), {
-    type:'bar',
-    data:{ labels: topEmpresas.map(e=>e.length>16?e.slice(0,16)+'…':e),
-      datasets:[
-        { label: penultimoMes?fmtMes(penultimoMes):'Mês Anterior', data: topEmpresas.map(e=>penultimoMes?valorMes(e,penultimoMes):0), backgroundColor:'#14324E' },
-        { label: ultimoMes?fmtMes(ultimoMes):'Mês Atual', data: topEmpresas.map(e=>ultimoMes?valorMes(e,ultimoMes):0), backgroundColor:'#00A9E0' },
-      ] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:false}}, scales:{ y:{max:100,ticks:{callback:v=>v+'%'}}, x:{ticks:{autoSkip:false,maxRotation:60}} } },
-  });
+  const complMesAtualBi = COMPLIANCE.filter(c => c.mes_referencia===ultimoMes && (!filtroFornecedor||c.empresa===filtroFornecedor))
+    .map(c => ({ empresa:c.empresa, pct: Number(c.compliance)*100 })).filter(c=>!isNaN(c.pct)).sort((a,b)=>b.pct-a.pct);
+  const maxComplBi = complMesAtualBi.length ? complMesAtualBi[0].pct : 1;
+  document.getElementById('listaBiCompliance').innerHTML = complMesAtualBi.map(c => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxComplBi?(c.pct/maxComplBi*100):0}%;background:#00A9E0;"></div>
+      <span class="barra-nome" title="${esc(c.empresa)}">${esc(c.empresa)}</span>
+      <span class="barra-valor">${Math.round(c.pct)}</span>
+      <span class="barra-pct">${c.pct.toFixed(1).replace('.',',')}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de compliance na competência.</div>';
 
-  const evoMeses = mesesCompl.filter(m => m).slice(-12); // últimos 12 meses — janela legível
-  const evoValores = evoMeses.map(m => { const v = mediaMes(m); return v!=null ? +(v*100).toFixed(1) : null; });
-  if(CHART_BI_EVOLUCAO) CHART_BI_EVOLUCAO.destroy();
-  const ctxEvo = document.getElementById('chartBiEvolucao').getContext('2d');
-  const gradEvo = ctxEvo.createLinearGradient(0,0,0,260);
-  gradEvo.addColorStop(0, 'rgba(27,175,122,0.35)');
-  gradEvo.addColorStop(1, 'rgba(27,175,122,0.02)');
-  CHART_BI_EVOLUCAO = new Chart(ctxEvo, {
-    type:'line',
-    data:{ labels: evoMeses.map(fmtMes),
-      datasets:[{ label:'Compliance médio', data: evoValores, borderColor:'#1baf7a', backgroundColor:gradEvo, fill:true, tension:0.4, borderWidth:3, pointRadius:4, pointBackgroundColor:'#1baf7a', pointBorderColor:'#fff', pointBorderWidth:2, pointHoverRadius:6, spanGaps:true }] },
-    options:{ maintainAspectRatio:false, plugins:{ legend:{display:false}, datalabels:{display:(ctx)=>{const i=ctx.dataIndex,n=ctx.dataset.data.length;return i===0||i===n-1||i===n-1-Math.floor((n-1)/2);},align:'top',anchor:'end',color:'#14324E',font:{weight:'700',size:11},formatter:v=>v!=null?v+'%':''} },
-      scales:{ y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#e1e0d9'}}, x:{grid:{display:false}} } },
-  });
+  const evoMeses = mesesCompl.filter(m => m).slice(-14);
+  const evoValores = evoMeses.map(m => { const v = mediaMes(m); return v!=null ? v*100 : null; });
+  document.getElementById('tituloBiEvolucao').innerHTML = `<span>Evolução do Compliance Médio${evoMeses.length?' · '+fmtMes(evoMeses[0])+' a '+fmtMes(evoMeses.at(-1)):''}</span>`;
+  const maxEvoBi = Math.max(...evoValores.filter(v=>v!=null), 1);
+  document.getElementById('painelBiEvolucao').innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:5px;height:150px;">
+      ${evoMeses.map((m,i) => {
+        const v = evoValores[i];
+        return `<div class="evo-barra-col">
+          <div class="evo-barra-num">${v!=null?Math.round(v):'—'}</div>
+          <div style="width:100%;border-radius:3px 3px 0 0;height:${v!=null?Math.max(v/maxEvoBi*100,2):2}%;background:#00A9E0;"></div>
+          <div class="evo-barra-mes">${fmtMes(m)}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 async function exportarExcel(){
