@@ -272,15 +272,15 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
     <div class="filter-row" style="align-items:flex-end;">
       <div class="form-group">
         <label class="form-label">Fornecedor</label>
-        <select id="fConsFornecedor" class="form-input" onchange="renderConsGeral()"><option value="">Todos</option></select>
+        <select id="fConsFornecedor" class="form-input" onchange="renderConsolidado()"><option value="">Todos</option></select>
       </div>
       <div class="form-group">
         <label class="form-label">Localidade (UF)</label>
-        <select id="fConsUF" class="form-input" onchange="renderConsGeral()"><option value="">Todas</option></select>
+        <select id="fConsUF" class="form-input" onchange="renderConsolidado()"><option value="">Todas</option></select>
       </div>
       <div class="form-group">
         <label class="form-label">Fase</label>
-        <select id="fConsFase" class="form-input" onchange="renderConsGeral()"><option value="">Todas</option></select>
+        <select id="fConsFase" class="form-input" onchange="renderConsolidado()"><option value="">Todas</option></select>
       </div>
       <div class="form-group" style="flex:1 1 auto;min-width:auto;text-align:right;">
         <span class="hint" id="resumoSelecaoCons" style="margin:0;"></span>
@@ -333,13 +333,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
       </div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-head"><span>Fornecedores em Situação Crítica</span></div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Fornecedor</th><th>Fase</th><th>Compliance Atual</th><th>Score de Risco</th><th>Processos Ativos</th><th>Contrato</th></tr></thead>
-        <tbody id="tbodyCriticosCons"></tbody>
-      </table></div>
-    </div>
-    <div class="dash-card">
       <div class="dash-card-head"><span>Panorama por Localidade (UF)</span></div>
       <div class="table-wrap"><table class="rel-table">
         <thead><tr><th>UF</th><th>Fornecedores</th><th>Empregados</th><th>Compliance Médio</th><th>Contratos Vencidos</th><th>Em Fase 6</th></tr></thead>
@@ -360,16 +353,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
         <div class="dc-card-body" id="listaMenorComplianceFornCons"></div>
       </div>
     </div>
-    <div class="dash-card">
-      <div class="dash-card-head">
-        <span>Fornecedores <span id="contagemFornecedoresCons"></span></span>
-      </div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Nome</th><th>CNPJ</th><th>Score de Risco</th><th>Fase Atual</th><th>Empregados</th><th>Compl. Mês</th><th>Compl. Ano</th><th>Irreg.</th><th>Status</th><th>Contrato</th><th>Ações</th></tr></thead>
-        <tbody id="tbodyFornecedoresCons"></tbody>
-      </table></div>
-    </div>
-
     <div class="secao-header">
       <span class="secao-numero">03</span>
       <span class="secao-titulo">Clientes</span>
@@ -449,16 +432,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
         </div>
       </div>
     </div>
-    
-    <div class="dash-card">
-      <div class="dash-card-head">
-        <span>Empregados <span id="contagemEmpregadosCons"></span></span>
-      </div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Nome</th><th>Fornecedor</th><th>Cargo</th><th>Departamento</th><th>Status</th><th>Ações</th></tr></thead>
-        <tbody id="tbodyEmpregadosCons"></tbody>
-      </table></div>
-    </div>
 
     <div class="secao-header">
       <span class="secao-numero">05</span>
@@ -491,20 +464,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
           <div class="dc-card-body" id="listaMelhoresDocumentaisCons"></div>
         </div>
       </div>
-    </div>
-    
-    <div class="hint" style="margin-bottom:14px;">
-      <span class="status-dot regular"></span> Regular &nbsp;
-      <span class="status-dot irregular"></span> Irregular/Não inserido &nbsp;
-      <span class="status-dot parcial"></span> Parcial &nbsp;
-      <span class="status-dot dispensado"></span> Dispensado
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-head"><span>Análise de Documentos por Mês</span></div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead id="theadDocumentosCons"></thead>
-        <tbody id="tbodyDocumentosCons"></tbody>
-      </table></div>
     </div>
 
     <div class="secao-header">
@@ -628,14 +587,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
         </div>
       </div>
     </div>
-    <div class="dash-card">
-      <div class="dash-card-head"><span>Processos</span></div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Processo</th><th>Fornecedor</th><th>Situação</th><th>Fase</th><th>UF</th><th>Vínculo GTT</th><th>Desfecho</th><th>Valor da Causa</th></tr></thead>
-        <tbody id="tbodyProcessosCons"></tbody>
-      </table></div>
-    </div>
-
     <div class="secao-header">
       <span class="secao-numero">08</span>
       <span class="secao-titulo">Gestão de Contratos</span>
@@ -662,22 +613,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
           <div class="dc-card-body" id="listaContratosVencidosUFCons"></div>
         </div>
       </div>
-      <div style="grid-column:span 12;">
-        <div class="dc-card">
-          <div class="dash-card-head"><span>Fila de Regularização Contratual</span></div>
-          <div class="table-wrap"><table class="rel-table">
-            <thead><tr><th>Fornecedor</th><th>Fase Atual</th><th>Vencimento</th><th>Status Contrato</th><th>UF</th></tr></thead>
-            <tbody id="tbodyFilaRegularizacaoCons"></tbody>
-          </table></div>
-        </div>
-      </div>
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-head"><span>Gestão de Contratos de Prestação de Serviços</span></div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Fornecedor</th><th>Fase Atual</th><th>Vencimento</th><th>Status Contrato</th><th>Localidades</th></tr></thead>
-        <tbody id="tbodyContratosCons"></tbody>
-      </table></div>
     </div>
 
     <div class="secao-header">
@@ -706,14 +641,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
           <div class="dc-card-body" id="listaParcEmpresaCons"></div>
         </div>
       </div>
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-head"><span>Parcelamentos por Fornecedor</span></div>
-      <div class="hint" style="padding:10px 16px 0;">Clique numa linha pra ver as parcelas individuais.</div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th></th><th>Fornecedor</th><th>Tipo</th><th>Nº Parcelamento</th><th>Total Parcelas</th><th>Pagas</th><th>Pendentes</th><th>Vencidas</th><th>Status</th></tr></thead>
-        <tbody id="tbodyParcelamentosCons"></tbody>
-      </table></div>
     </div>
   </div>
 
@@ -1204,6 +1131,7 @@ function classeRisco(score){
 }
 
 // ── Navegação ────────────────────────────────────────────────────────
+let CONS_FORNECEDORES_FILTRADOS = null, CONS_NOMES_FILTRADOS = null, CONS_FILTRO_ATIVO = false;
 function renderConsGeral(){
   const filtroFornecedor = document.getElementById('fConsFornecedor').value;
   const filtroUF = document.getElementById('fConsUF').value;
@@ -1216,6 +1144,12 @@ function renderConsGeral(){
   // usa este mesmo conjunto — senão fornecedor/UF/fase filtram a lista mas
   // os KPIs continuam somando dado de fora da seleção.
   const nomesFiltrados = new Set(fornecedores.map(f=>f.empresa));
+  // Expostos globalmente pra as demais seções do Consolidado (02-09)
+  // respeitarem o mesmo filtro Fornecedor/UF/Fase do topo — sem isso o
+  // filtro só afetava a seção 01, dando a impressão de relatório estático.
+  CONS_FORNECEDORES_FILTRADOS = fornecedores;
+  CONS_NOMES_FILTRADOS = nomesFiltrados;
+  CONS_FILTRO_ATIVO = !!(filtroFornecedor || filtroUF || filtroFase);
 
   // Status de contrato — 4 categorias reais (antes só olhava Vencido/Vigente
   // e descartava "Aguardando documento" e "Vencimento Próximo" em silêncio)
@@ -1298,7 +1232,7 @@ function renderConsGeral(){
       </div>
       <div style="flex:1 1 0;min-width:150px;">
         ${labelsFase.map(l => `
-          <div class="fase-donut-legenda">
+          <div class="fase-donut-legenda" onclick="filtrarConsolidadoPorFase('${esc(l)}')">
             <div class="fase-donut-cor" style="background:${CORES_FASE[l]||'#7E98AA'};"></div>
             <div class="fase-donut-nome">${esc(l)}</div>
             <div class="fase-donut-num">${porFase[l]}</div>
@@ -1376,20 +1310,6 @@ function renderConsGeral(){
       <span class="barra-pct">${v} emp.</span>
     </div>`).join('') || '<div class="empty-state">Sem dado de localidade.</div>';
 
-  // Tabela de críticos
-  const criticosOrdenados = scores.filter(s => classeRisco(s.score).classe !== 'ok').sort((a,b)=>b.score-a.score).slice(0,20);
-  document.getElementById('tbodyCriticosCons').innerHTML = criticosOrdenados.map(s => {
-    const c = classeRisco(s.score);
-    return `<tr>
-      <td>${esc(s.f.empresa)}</td>
-      <td>${esc(s.f.fase_atual||'—')}</td>
-      <td class="mono">${fmtPct(s.complAtual)}</td>
-      <td><span class="badge ${c.classe}">${s.score} · ${c.texto}</span></td>
-      <td class="mono">${s.qtdProcessosAtivos}</td>
-      <td>${esc(s.f.status_contrato||'—')}</td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="6" class="empty-state">Nenhum fornecedor em atenção/crítico.</td></tr>';
-
   // Panorama por localidade (UF) — equivalente ao "por unidade cliente" do
   // relatório modelo, mas usando a UF real (gtt_terceiros_localidade), já
   // que aqui uma "unidade" da BAT é geográfica, não um cliente à parte.
@@ -1413,46 +1333,7 @@ function renderConsGeral(){
 }
 
 function renderConsFornecedores(){
-  const nome='', cnpj='', uf='', status='', fase='';
-  let lista = FORNECEDORES.filter(f =>
-    (!nome || f.empresa.toLowerCase().includes(nome)) &&
-    (!cnpj || (f.cnpj||'').replace(/\D/g,'').includes(cnpj)) &&
-    (!uf || ufDoFornecedor(f.empresa) === uf) &&
-    (!status || f.status === status) &&
-    (!fase || f.fase_atual === fase)
-  );
-  document.getElementById('tbodyFornecedoresCons').innerHTML = lista.map(f => {
-    const s = scoreRisco(f.empresa);
-    const c = classeRisco(s.score);
-    const loc = LOCALIDADES.filter(l => l.empresa === f.empresa);
-    const ultimoMes = loc.length ? loc.sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0] : null;
-    const complHistFornecedor = COMPLIANCE.filter(x=>x.empresa===f.empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia));
-    const meses12Forn = complHistFornecedor.slice(0,12).map(x=>Number(x.compliance)).filter(v=>!isNaN(v));
-    const complAnoForn = meses12Forn.length ? meses12Forn.reduce((a,b)=>a+b,0)/meses12Forn.length : null;
-    const irregTotalForn = s.irreg ? ['cartoes_britanico','horas_extras_2h','intervalo_intrajornada','intervalo_interjornada','dsr','irregularidades_rescisoes','irregularidades_trct','irregularidades_grrf','irregularidades_contrato_trabalho','irregularidades_ficha_registro','irregularidades_ficha_epi','irregularidades_recibo_ferias'].reduce((s2,c2)=>s2+(Number(s.irreg[c2])||0),0) : 0;
-    return `<tr>
-      <td>${esc(f.empresa)}</td>
-      <td class="mono">${esc(f.cnpj||'—')}</td>
-      <td><span class="badge ${c.classe}">${s.score} · ${c.texto}</span></td>
-      <td>${esc(f.fase_atual||'—')}</td>
-      <td class="mono">${ultimoMes ? Math.round(ultimoMes.qtd_funcionarios||0) : '—'}</td>
-      <td class="mono">${fmtPct(s.complAtual)}</td>
-      <td class="mono">${fmtPct(complAnoForn)}</td>
-      <td class="mono">${irregTotalForn}</td>
-      <td>
-        <select class="form-input" style="padding:4px 8px;font-size:12px;width:auto;" onchange="alterarStatusFornecedor(${f.id}, this.value)">
-          <option value="ATIVO"${f.status==='ATIVO'?' selected':''}>Ativo</option>
-          <option value="INATIVA"${f.status!=='ATIVO'?' selected':''}>Inativa</option>
-        </select>
-      </td>
-      <td>${esc(f.status_contrato||'—')}</td>
-      <td style="white-space:nowrap;">
-        <button class="icon-btn" title="Editar" onclick="abrirEditarFornecedor(${f.id})">✎</button>
-        <button class="icon-btn" title="Ver detalhes" onclick="abrirDetalheFornecedor('${esc(f.empresa)}')">👁</button>
-      </td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="10" class="empty-state">Nenhum fornecedor encontrado.</td></tr>';
-
+  const lista = CONS_FORNECEDORES_FILTRADOS || FORNECEDORES.filter(f=>f.status!=='INATIVA');
   const piores = lista.filter(f=>f.status==='ATIVO').map(f=>{
     const s = scoreRisco(f.empresa);
     return { empresa:f.empresa, pct: s.complAtual!=null ? s.complAtual*100 : null };
@@ -1468,7 +1349,7 @@ function renderConsFornecedores(){
 }
 
 function renderConsPanoramaUnidadeCliente(){
-  const fornecedores = FORNECEDORES.filter(f => f.status !== 'INATIVA');
+  const fornecedores = CONS_FORNECEDORES_FILTRADOS || FORNECEDORES.filter(f => f.status !== 'INATIVA');
   const filialDoFornecedor = (empresa) => {
     const loc = LOCALIDADES.filter(l=>l.empresa===empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
     return loc && loc.filial ? loc.filial : '—';
@@ -1525,27 +1406,15 @@ function renderConsPanoramaUnidadeCliente(){
 }
 
 function renderConsClientes(){
-  const nome='';
   renderConsPanoramaUnidadeCliente();
-  const lista = CLIENTES.filter(c => !nome || c.nome.toLowerCase().includes(nome));
-  document.getElementById('tbodyClientesCons').innerHTML = lista.map(c => {
-    const qtdFornecedores = c.id === CLIENTE_ID ? FORNECEDORES.length : 0;
-    return `<tr>
-      <td>${esc(c.nome)}</td><td class="mono">${esc(c.cnpj||'—')}</td><td>${esc(c.segmento||'—')}</td>
-      <td class="mono">${qtdFornecedores}</td>
-      <td>${(c.status||'Ativo')==='Ativo' ? '<span class="badge ok">Ativo</span>' : '<span class="badge neutro">Inativo</span>'}</td>
-      <td style="white-space:nowrap;">
-        <button class="icon-btn" title="Editar" onclick="abrirEditarCliente(${c.id})">✎</button>
-        <button class="icon-btn" title="Ver detalhes" onclick="alert('Cliente: ${esc(c.nome)}\\nSlug: ${esc(c.slug)}\\nCriado em: ${c.criado_em?c.criado_em.slice(0,10):'—'}')">👁</button>
-      </td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="6" class="empty-state">Nenhum cliente.</td></tr>';
 }
 
 function renderConsEmpregados(){
-  const meses = [...new Set(LOCALIDADES.map(l=>l.mes_referencia))].sort();
+  const LOC = CONS_NOMES_FILTRADOS ? LOCALIDADES.filter(l=>CONS_NOMES_FILTRADOS.has(l.empresa)) : LOCALIDADES;
+  const IRR = CONS_NOMES_FILTRADOS ? IRREGULARIDADES.filter(i=>CONS_NOMES_FILTRADOS.has(i.empresa)) : IRREGULARIDADES;
+  const meses = [...new Set(LOC.map(l=>l.mes_referencia))].sort();
   const ultimoMes = meses[meses.length-1], penultimoMes = meses[meses.length-2];
-  const somaMes = mes => LOCALIDADES.filter(l=>l.mes_referencia===mes).reduce((s,l)=>s+(Number(l.qtd_funcionarios)||0),0);
+  const somaMes = mes => LOC.filter(l=>l.mes_referencia===mes).reduce((s,l)=>s+(Number(l.qtd_funcionarios)||0),0);
   const atual = ultimoMes ? somaMes(ultimoMes) : 0;
   const anterior = penultimoMes ? somaMes(penultimoMes) : null;
 
@@ -1553,12 +1422,12 @@ function renderConsEmpregados(){
   // representam uma base própria (amostragem), diferente do efetivo mensal
   // de gtt_terceiros_localidade — nunca dividir um pelo outro, só dentro do
   // mesmo par (senão a % sai dobrada, artificialmente).
-  const irregUltimoMes = IRREGULARIDADES.length ? [...new Set(IRREGULARIDADES.map(i=>i.mes_referencia))].sort().pop() : null;
-  const irregDoMes = IRREGULARIDADES.filter(i=>i.mes_referencia===irregUltimoMes);
+  const irregUltimoMes = IRR.length ? [...new Set(IRR.map(i=>i.mes_referencia))].sort().pop() : null;
+  const irregDoMes = IRR.filter(i=>i.mes_referencia===irregUltimoMes);
   const analisados = irregDoMes.reduce((s,i)=>s+(Number(i.qtd_terceiros_analisados)||0),0);
   const ativosAmostra = irregDoMes.reduce((s,i)=>s+(Number(i.qtd_terceiros_ativos)||0),0);
   const cobertura = ativosAmostra ? analisados/ativosAmostra*100 : null;
-  const fornecedoresComEfetivo = new Set(LOCALIDADES.filter(l=>l.mes_referencia===ultimoMes && Number(l.qtd_funcionarios)>0).map(l=>l.empresa)).size;
+  const fornecedoresComEfetivo = new Set(LOC.filter(l=>l.mes_referencia===ultimoMes && Number(l.qtd_funcionarios)>0).map(l=>l.empresa)).size;
 
   document.getElementById('kpiEmpregadosAnaliticoCons').innerHTML = [
     { label:`Empregados ${ultimoMes?fmtMes(ultimoMes):''}`, val: atual.toLocaleString('pt-BR'), sub:'terceiros na seleção' },
@@ -1570,7 +1439,7 @@ function renderConsEmpregados(){
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
 
   // Efetivo por UF — mês anterior vs atual (barras verticais pareadas HTML/CSS)
-  const porUFMes = (mes) => { const m={}; LOCALIDADES.filter(l=>l.mes_referencia===mes).forEach(l=>{const u=l.uf||'—'; m[u]=(m[u]||0)+(Number(l.qtd_funcionarios)||0);}); return m; };
+  const porUFMes = (mes) => { const m={}; LOC.filter(l=>l.mes_referencia===mes).forEach(l=>{const u=l.uf||'—'; m[u]=(m[u]||0)+(Number(l.qtd_funcionarios)||0);}); return m; };
   const ufAtual = porUFMes(ultimoMes), ufAnterior = penultimoMes ? porUFMes(penultimoMes) : {};
   const ufsOrdenadas = Object.entries(ufAtual).sort((a,b)=>b[1]-a[1]).slice(0,14).map(e=>e[0]);
   const maxUF = ufsOrdenadas.length ? Math.max(...ufsOrdenadas.map(u=>Math.max(ufAtual[u]||0, ufAnterior[u]||0))) : 1;
@@ -1581,7 +1450,7 @@ function renderConsEmpregados(){
     </div>
     <div style="display:flex;align-items:flex-end;gap:6px;height:150px;">
     ${ufsOrdenadas.map(u => `
-      <div style="flex:1 1 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;">
+      <div style="flex:1 1 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;cursor:pointer;" onclick="filtrarConsolidadoPorUF('${esc(u)}')">
         <div style="font-size:10px;font-weight:800;color:var(--escuro-pc);">${Math.round(ufAtual[u]||0)}</div>
         <div style="display:flex;align-items:flex-end;gap:2px;width:100%;justify-content:center;flex:1 1 0;min-height:0;">
           <div style="width:44%;border-radius:3px 3px 0 0;background:#C9D3DE;height:${maxUF?(ufAnterior[u]||0)/maxUF*100:0}%;"></div>
@@ -1593,7 +1462,7 @@ function renderConsEmpregados(){
 
   // Efetivo por Unidade Cliente (filial) — último mês
   const porUnidadeMes = {};
-  LOCALIDADES.filter(l=>l.mes_referencia===ultimoMes).forEach(l => { const un = l.filial||'—'; porUnidadeMes[un]=(porUnidadeMes[un]||0)+(Number(l.qtd_funcionarios)||0); });
+  LOC.filter(l=>l.mes_referencia===ultimoMes).forEach(l => { const un = l.filial||'—'; porUnidadeMes[un]=(porUnidadeMes[un]||0)+(Number(l.qtd_funcionarios)||0); });
   const unidadesOrdenadas = Object.entries(porUnidadeMes).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const maxUnidade = unidadesOrdenadas.length ? unidadesOrdenadas[0][1] : 1;
   document.getElementById('listaEfetivoUnidadeCons').innerHTML = unidadesOrdenadas.map(([un,v]) => `
@@ -1606,7 +1475,7 @@ function renderConsEmpregados(){
 
   // Maiores efetivos por fornecedor
   const porFornecedor = {};
-  LOCALIDADES.filter(l=>l.mes_referencia===ultimoMes).forEach(l => { porFornecedor[l.empresa]=(porFornecedor[l.empresa]||0)+(Number(l.qtd_funcionarios)||0); });
+  LOC.filter(l=>l.mes_referencia===ultimoMes).forEach(l => { porFornecedor[l.empresa]=(porFornecedor[l.empresa]||0)+(Number(l.qtd_funcionarios)||0); });
   const fornecedoresOrdenados = Object.entries(porFornecedor).sort((a,b)=>b[1]-a[1]).slice(0,15);
   const maxForn = fornecedoresOrdenados.length ? fornecedoresOrdenados[0][1] : 1;
   document.getElementById('listaMaioresEfetivosCons').innerHTML = fornecedoresOrdenados.map(([emp,v]) => `
@@ -1619,7 +1488,7 @@ function renderConsEmpregados(){
 
   // Maiores variações de efetivo no mês
   const porFornecedorAnterior = {};
-  if(penultimoMes) LOCALIDADES.filter(l=>l.mes_referencia===penultimoMes).forEach(l => { porFornecedorAnterior[l.empresa]=(porFornecedorAnterior[l.empresa]||0)+(Number(l.qtd_funcionarios)||0); });
+  if(penultimoMes) LOC.filter(l=>l.mes_referencia===penultimoMes).forEach(l => { porFornecedorAnterior[l.empresa]=(porFornecedorAnterior[l.empresa]||0)+(Number(l.qtd_funcionarios)||0); });
   const empresasTodas = new Set([...Object.keys(porFornecedor), ...Object.keys(porFornecedorAnterior)]);
   const variacoes = [...empresasTodas].map(emp => ({ empresa:emp, delta:(porFornecedor[emp]||0)-(porFornecedorAnterior[emp]||0) })).filter(v=>v.delta!==0).sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta)).slice(0,12);
   const maxVar = variacoes.length ? Math.max(...variacoes.map(v=>Math.abs(v.delta))) : 1;
@@ -1633,7 +1502,7 @@ function renderConsEmpregados(){
 }
 
 function renderConsDocumentos(){
-  const fornecedoresAtivos = FORNECEDORES.filter(f=>f.status!=='INATIVA').map(f=>f.empresa);
+  const fornecedoresAtivos = (CONS_FORNECEDORES_FILTRADOS || FORNECEDORES.filter(f=>f.status!=='INATIVA')).map(f=>f.empresa);
   const nomesAtivos = new Set(fornecedoresAtivos);
   const mesesOrdenados = [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort();
   const ultimoMes = mesesOrdenados[mesesOrdenados.length-1];
@@ -1706,8 +1575,9 @@ function renderConsDocumentos(){
 }
 
 function renderConsIrregularidades(){
-  const ultimoMes = IRREGULARIDADES.length ? [...new Set(IRREGULARIDADES.map(i=>i.mes_referencia))].sort().pop() : null;
-  const doMes = IRREGULARIDADES.filter(i => i.mes_referencia === ultimoMes);
+  const IRR = CONS_NOMES_FILTRADOS ? IRREGULARIDADES.filter(i=>CONS_NOMES_FILTRADOS.has(i.empresa)) : IRREGULARIDADES;
+  const ultimoMes = IRR.length ? [...new Set(IRR.map(i=>i.mes_referencia))].sort().pop() : null;
+  const doMes = IRR.filter(i => i.mes_referencia === ultimoMes);
   const soma = campo => doMes.reduce((s,i) => s + (Number(i[campo])||0), 0);
   const docTipos = { 'Ficha de EPI':'irregularidades_ficha_epi', 'Contrato de trabalho':'irregularidades_contrato_trabalho', 'Ficha de registro':'irregularidades_ficha_registro', 'Recibo de férias':'irregularidades_recibo_ferias', 'FGTS':'irregularidades_fgts', 'INSS':'irregularidades_inss' };
   const totalDocumentais = Object.values(docTipos).reduce((s,c)=>s+soma(c),0);
@@ -1814,14 +1684,15 @@ function renderConsIrregularidades(){
 }
 
 function renderConsProcessos(){
-  const totalCausa = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_causa)||0),0);
-  const totalDeposito = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_deposito)||0),0);
-  const totalCondenacao = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_condenacao)||0),0);
-  const totalAcordo = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_acordo)||0),0);
+  const PROCESSOS_BASE = (CONS_FILTRO_ATIVO && CONS_NOMES_FILTRADOS) ? PROCESSOS.filter(p => [...CONS_NOMES_FILTRADOS].some(nome => (p.empresa_reclamada||'').toUpperCase().includes(nome.toUpperCase().slice(0,12)))) : PROCESSOS;
+  const totalCausa = PROCESSOS_BASE.reduce((s,p)=>s+(Number(p.valor_causa)||0),0);
+  const totalDeposito = PROCESSOS_BASE.reduce((s,p)=>s+(Number(p.valor_deposito)||0),0);
+  const totalCondenacao = PROCESSOS_BASE.reduce((s,p)=>s+(Number(p.valor_condenacao)||0),0);
+  const totalAcordo = PROCESSOS_BASE.reduce((s,p)=>s+(Number(p.valor_acordo)||0),0);
   document.getElementById('kpiProcessosCons').innerHTML = [
-    { label:'Total de Processos', val:String(PROCESSOS.length) },
+    { label:'Total de Processos', val:String(PROCESSOS_BASE.length) },
     { label:'Total Valor da Causa', val:fmtMi(totalCausa) },
-    { label:'Ticket Médio', val:fmtMi(totalCausa/(PROCESSOS.length||1)) },
+    { label:'Ticket Médio', val:fmtMi(totalCausa/(PROCESSOS_BASE.length||1)) },
     { label:'Depósitos Judiciais', val:fmtMi(totalDeposito) },
     { label:'Condenações', val:fmtMi(totalCondenacao) },
     { label:'Acordos', val:fmtMi(totalAcordo) },
@@ -1830,9 +1701,9 @@ function renderConsProcessos(){
   // Listas rankeadas (barra-linha) — Situação, Fase, Classe, Desfecho
   const listaRankeada = (elId, campo, cor) => {
     const cont = {};
-    PROCESSOS.forEach(p => { const v = p[campo]||'—'; cont[v]=(cont[v]||0)+1; });
+    PROCESSOS_BASE.forEach(p => { const v = p[campo]||'—'; cont[v]=(cont[v]||0)+1; });
     const ordenado = Object.entries(cont).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const total = PROCESSOS.length || 1;
+    const total = PROCESSOS_BASE.length || 1;
     const max = ordenado.length ? ordenado[0][1] : 1;
     document.getElementById(elId).innerHTML = ordenado.map(([nome,qtd]) => `
       <div class="barra-linha">
@@ -1849,7 +1720,7 @@ function renderConsProcessos(){
 
   // Distribuição por ano de ajuizamento — barras verticais
   const porAno = {};
-  PROCESSOS.forEach(p => { if(p.ano_distribuicao) porAno[p.ano_distribuicao] = (porAno[p.ano_distribuicao]||0)+1; });
+  PROCESSOS_BASE.forEach(p => { if(p.ano_distribuicao) porAno[p.ano_distribuicao] = (porAno[p.ano_distribuicao]||0)+1; });
   const anosOrdenados = Object.keys(porAno).sort();
   const maxAno = anosOrdenados.length ? Math.max(...anosOrdenados.map(a=>porAno[a])) : 1;
   document.getElementById('painelProcAnoCons').innerHTML = `
@@ -1864,7 +1735,7 @@ function renderConsProcessos(){
 
   // Exposição por UF — em valor de causa
   const causaPorUF = {};
-  PROCESSOS.forEach(p => { const u = p.uf||'—'; causaPorUF[u] = (causaPorUF[u]||0) + (Number(p.valor_causa)||0); });
+  PROCESSOS_BASE.forEach(p => { const u = p.uf||'—'; causaPorUF[u] = (causaPorUF[u]||0) + (Number(p.valor_causa)||0); });
   const ufOrdenado = Object.entries(causaPorUF).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const maxUFCausa = ufOrdenado.length ? ufOrdenado[0][1] : 1;
   document.getElementById('listaProcUFCons').innerHTML = ufOrdenado.map(([uf,v]) => `
@@ -1877,10 +1748,10 @@ function renderConsProcessos(){
 
   // Vínculo com o GTT
   const porVinculo = {};
-  PROCESSOS.forEach(p => { const v = p.terceira_ativa_no_gtt||'Não informado'; porVinculo[v]=(porVinculo[v]||0)+1; });
+  PROCESSOS_BASE.forEach(p => { const v = p.terceira_ativa_no_gtt||'Não informado'; porVinculo[v]=(porVinculo[v]||0)+1; });
   const CORES_VINCULO = { 'Ativa':'#188049', 'Inativa':'#E8A33D', 'Nunca esteve no GTT':'#C9553A' };
   const vinculoOrdenado = Object.entries(porVinculo).sort((a,b)=>b[1]-a[1]);
-  const totalVinculo = PROCESSOS.length || 1;
+  const totalVinculo = PROCESSOS_BASE.length || 1;
   const maxVinculo = vinculoOrdenado.length ? vinculoOrdenado[0][1] : 1;
   document.getElementById('listaProcVinculoCons').innerHTML = vinculoOrdenado.map(([v,qtd]) => `
     <div class="barra-linha">
@@ -1892,7 +1763,7 @@ function renderConsProcessos(){
 
   // Comarcas com maior litigiosidade
   const porComarca = {};
-  PROCESSOS.forEach(p => { const c = p.comarca||'—'; porComarca[c]=(porComarca[c]||0)+1; });
+  PROCESSOS_BASE.forEach(p => { const c = p.comarca||'—'; porComarca[c]=(porComarca[c]||0)+1; });
   const comarcasOrdenadas = Object.entries(porComarca).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const maxComarca = comarcasOrdenadas.length ? comarcasOrdenadas[0][1] : 1;
   document.getElementById('listaProcComarcaCons').innerHTML = comarcasOrdenadas.map(([c,qtd]) => `
@@ -1905,7 +1776,7 @@ function renderConsProcessos(){
 
   // Assuntos mais pleiteados
   const porAssunto = {};
-  PROCESSOS.forEach(p => { (p.assunto||'—').split(';').map(a=>a.trim()).filter(Boolean).forEach(a => { porAssunto[a]=(porAssunto[a]||0)+1; }); });
+  PROCESSOS_BASE.forEach(p => { (p.assunto||'—').split(';').map(a=>a.trim()).filter(Boolean).forEach(a => { porAssunto[a]=(porAssunto[a]||0)+1; }); });
   const assuntosOrdenados = Object.entries(porAssunto).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const maxAssunto = assuntosOrdenados.length ? assuntosOrdenados[0][1] : 1;
   document.getElementById('listaProcAssuntoCons').innerHTML = assuntosOrdenados.map(([a,qtd]) => `
@@ -1918,19 +1789,15 @@ function renderConsProcessos(){
 
   // Principais reclamadas · empresa empregadora
   const porReclamada = {};
-  PROCESSOS.forEach(p => { const r = p.empresa_reclamada||'—'; porReclamada[r] = porReclamada[r] || { qtd:0, causa:0 }; porReclamada[r].qtd++; porReclamada[r].causa += Number(p.valor_causa)||0; });
+  PROCESSOS_BASE.forEach(p => { const r = p.empresa_reclamada||'—'; porReclamada[r] = porReclamada[r] || { qtd:0, causa:0 }; porReclamada[r].qtd++; porReclamada[r].causa += Number(p.valor_causa)||0; });
   const reclamadasOrdenadas = Object.entries(porReclamada).sort((a,b)=>b[1].qtd-a[1].qtd).slice(0,20);
   document.getElementById('tbodyProcReclamadasCons').innerHTML = reclamadasOrdenadas.map(([r,g]) => `
     <tr><td>${esc(r)}</td><td class="mono">${g.qtd}</td><td class="mono">${fmtMoney(g.causa)}</td></tr>
   `).join('') || '<tr><td colspan="3" class="empty-state">Sem dado.</td></tr>';
-
-  document.getElementById('tbodyProcessosCons').innerHTML = PROCESSOS.slice(0,200).map(p => `
-    <tr><td class="mono">${esc(p.numero_processo)}</td><td>${esc(p.empresa_reclamada||'—')}</td><td>${esc(p.situacao||'—')}</td><td>${esc(p.fase||'—')}</td><td>${esc(p.uf||'—')}</td><td>${esc(p.terceira_ativa_no_gtt||'—')}</td><td>${esc(p.tipo_desfecho||'—')}</td><td class="mono">${fmtMoney(p.valor_causa)}</td></tr>
-  `).join('') || '<tr><td colspan="8" class="empty-state">Nenhum processo.</td></tr>';
 }
 
 function renderConsContratos(){
-  const ativos = FORNECEDORES.filter(f => f.status !== 'INATIVA');
+  const ativos = CONS_FORNECEDORES_FILTRADOS || FORNECEDORES.filter(f => f.status !== 'INATIVA');
   const porStatus = {};
   ativos.forEach(f => { const s = (f.status_contrato||'Sem informação').trim(); porStatus[s]=(porStatus[s]||0)+1; });
   const vencidos = porStatus['VENCIDO']||0;
@@ -1983,32 +1850,22 @@ function renderConsContratos(){
       <span class="barra-valor">${v}</span>
       <span class="barra-pct">${v} contr.</span>
     </div>`).join('') || '<div class="empty-state">Nenhum contrato vencido.</div>';
-
-  const filaRegularizacao = ativos.filter(f => f.status_contrato==='VENCIDO' || f.status_contrato==='AGUARDANDO DOCUMENTO' || f.status_contrato==='VENCIMENTO PRÓXIMO').sort((a,b)=>(a.status_contrato||'').localeCompare(b.status_contrato||''));
-  document.getElementById('tbodyFilaRegularizacaoCons').innerHTML = filaRegularizacao.map(f => {
-    const cor = f.status_contrato==='VENCIDO' ? 'critico' : 'atencao';
-    return `<tr><td>${esc(f.empresa)}</td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${f.vencimento_contrato||'—'}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'—')}</span></td><td>${esc(ufDoFornecedor(f.empresa)||'—')}</td></tr>`;
-  }).join('') || '<tr><td colspan="5" class="empty-state">Nenhum contrato pendente de regularização.</td></tr>';
-
-  document.getElementById('tbodyContratosCons').innerHTML = ativos.map(f => {
-    const cor = f.status_contrato==='VENCIDO' ? 'critico' : f.status_contrato==='VIGENTE' ? 'ok' : 'atencao';
-    return `<tr><td>${esc(f.empresa)}</td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${f.vencimento_contrato||'—'}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'—')}</span></td><td>${esc(ufDoFornecedor(f.empresa)||'—')}</td></tr>`;
-  }).join('') || '<tr><td colspan="5" class="empty-state">Nenhum contrato.</td></tr>';
 }
 
 function renderConsParcelamentos(){
-  const quitados = PARCELAMENTOS.filter(p => p.status_geral === 'QUITADO').length;
-  const vencidos = PARCELAMENTOS.filter(p => (p.parcelas_vencidas||0) > 0).length;
+  const PARC = (CONS_FILTRO_ATIVO && CONS_NOMES_FILTRADOS) ? PARCELAMENTOS.filter(p=>CONS_NOMES_FILTRADOS.has(p.empresa)) : PARCELAMENTOS;
+  const quitados = PARC.filter(p => p.status_geral === 'QUITADO').length;
+  const vencidos = PARC.filter(p => (p.parcelas_vencidas||0) > 0).length;
   document.getElementById('kpiParcelamentosCons').innerHTML = [
-    { label: 'Total de Parcelamentos', val: String(PARCELAMENTOS.length) },
+    { label: 'Total de Parcelamentos', val: String(PARC.length) },
     { label: 'Quitados', val: String(quitados) },
     { label: 'Com Parcelas Vencidas', val: String(vencidos) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
 
   const porTipo = {};
-  PARCELAMENTOS.forEach(p => { const t = p.tipo_parcelamento||'—'; porTipo[t]=(porTipo[t]||0)+1; });
+  PARC.forEach(p => { const t = p.tipo_parcelamento||'—'; porTipo[t]=(porTipo[t]||0)+1; });
   const tipoOrdenado = Object.entries(porTipo).sort((a,b)=>b[1]-a[1]);
-  const totalTipo = PARCELAMENTOS.length || 1;
+  const totalTipo = PARC.length || 1;
   const maxTipo = tipoOrdenado.length ? tipoOrdenado[0][1] : 1;
   document.getElementById('listaParcTipoCons').innerHTML = tipoOrdenado.map(([t,v]) => `
     <div class="barra-linha">
@@ -2020,7 +1877,7 @@ function renderConsParcelamentos(){
 
   const CORES_STATUS_PARC = { 'QUITADO':'#188049', 'VIGENTE':'#00A9E0', 'VENCIDO':'#C9553A', 'PAGO':'#188049' };
   const porStatusParc = {};
-  PARCELAMENTOS.forEach(p => { const s = p.status_geral||'—'; porStatusParc[s]=(porStatusParc[s]||0)+1; });
+  PARC.forEach(p => { const s = p.status_geral||'—'; porStatusParc[s]=(porStatusParc[s]||0)+1; });
   const statusParcOrdenado = Object.entries(porStatusParc).sort((a,b)=>b[1]-a[1]);
   const maxStatusParc = statusParcOrdenado.length ? statusParcOrdenado[0][1] : 1;
   document.getElementById('listaParcStatusCons').innerHTML = statusParcOrdenado.map(([s,v]) => `
@@ -2032,7 +1889,7 @@ function renderConsParcelamentos(){
     </div>`).join('') || '<div class="empty-state">Sem parcelamento.</div>';
 
   const porEmpresaParc = {};
-  PARCELAMENTOS.forEach(p => { const e = p.empresa||'—'; porEmpresaParc[e]=(porEmpresaParc[e]||0)+1; });
+  PARC.forEach(p => { const e = p.empresa||'—'; porEmpresaParc[e]=(porEmpresaParc[e]||0)+1; });
   const empresaParcOrdenado = Object.entries(porEmpresaParc).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const maxEmpresaParc = empresaParcOrdenado.length ? empresaParcOrdenado[0][1] : 1;
   document.getElementById('listaParcEmpresaCons').innerHTML = empresaParcOrdenado.map(([e,v]) => `
@@ -2042,19 +1899,20 @@ function renderConsParcelamentos(){
       <span class="barra-valor">${v}</span>
       <span class="barra-pct">${v} acordos</span>
     </div>`).join('') || '<div class="empty-state">Sem parcelamento.</div>';
+}
 
-  document.getElementById('tbodyParcelamentosCons').innerHTML = PARCELAMENTOS.map((p,i) => {
-    const cor = p.status_geral==='QUITADO' ? 'ok' : (p.parcelas_vencidas>0 ? 'critico' : 'atencao');
-    const idDetalhe = `parcDetCons${i}`;
-    return `<tr style="cursor:pointer;" onclick="toggleParcelaDetalhe('${idDetalhe}','${esc(p.empresa)}','${esc(p.numero_parcelamento||'')}')">
-      <td>▸</td>
-      <td>${esc(p.empresa)}</td><td>${esc(p.tipo_parcelamento||'—')}</td><td class="mono">${esc(p.numero_parcelamento||'—')}</td>
-      <td class="mono">${p.total_parcelas??'—'}</td><td class="mono">${p.parcelas_pagas??'—'}</td>
-      <td class="mono">${p.parcelas_pendentes??'—'}</td><td class="mono">${p.parcelas_vencidas??'—'}</td>
-      <td><span class="badge ${cor}">${esc(p.status_geral||'—')}</span></td>
-    </tr>
-    <tr id="${idDetalhe}" class="hidden"><td colspan="9" style="padding:0;"><div style="padding:10px 16px;background:var(--surface2);" id="${idDetalhe}_conteudo"></div></td></tr>`;
-  }).join('') || '<tr><td colspan="9" class="empty-state">Nenhum parcelamento.</td></tr>';
+// Clique nos gráficos do Consolidado filtra o relatório inteiro — igual ao
+// relatório modelo ("clique para filtrar todo o relatório"). Clicar de novo
+// no mesmo valor já selecionado limpa o filtro (toggle).
+function filtrarConsolidadoPorFase(fase){
+  const el = document.getElementById('fConsFase');
+  el.value = el.value === fase ? '' : fase;
+  renderConsolidado();
+}
+function filtrarConsolidadoPorUF(uf){
+  const el = document.getElementById('fConsUF');
+  el.value = el.value === uf ? '' : uf;
+  renderConsolidado();
 }
 
 function renderConsolidado(){
