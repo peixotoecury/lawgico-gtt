@@ -284,6 +284,13 @@ body{background:var(--surface2);color:var(--texto);}
         <tbody id="tbodyCriticos"></tbody>
       </table></div>
     </div>
+    <div class="dash-card">
+      <div class="dash-card-head"><span>Panorama por Localidade (UF)</span></div>
+      <div class="table-wrap"><table class="rel-table">
+        <thead><tr><th>UF</th><th>Fornecedores</th><th>Empregados</th><th>Compliance Médio</th><th>Contratos Vencidos</th><th>Em Fase 6</th></tr></thead>
+        <tbody id="tbodyPanoramaUF"></tbody>
+      </table></div>
+    </div>
   </div>
 
   <!-- ── Fornecedores ── -->
@@ -1016,6 +1023,27 @@ function renderGeral(){
       <td>${esc(s.f.status_contrato||'—')}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="6" class="empty-state">Nenhum fornecedor em atenção/crítico.</td></tr>';
+
+  // Panorama por localidade (UF) — equivalente ao "por unidade cliente" do
+  // relatório modelo, mas usando a UF real (gtt_terceiros_localidade), já
+  // que aqui uma "unidade" da BAT é geográfica, não um cliente à parte.
+  const porUFPanorama = {};
+  fornecedores.forEach(f => {
+    const uf = ufDoFornecedor(f.empresa) || '—';
+    porUFPanorama[uf] = porUFPanorama[uf] || { fornecedores:0, empregados:0, complSoma:0, complN:0, vencidos:0, fase6:0 };
+    const g = porUFPanorama[uf];
+    g.fornecedores++;
+    const loc = LOCALIDADES.filter(l=>l.empresa===f.empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
+    g.empregados += loc ? Math.round(loc.qtd_funcionarios||0) : 0;
+    const sc = scoreRisco(f.empresa);
+    if(sc.complAtual!=null){ g.complSoma += sc.complAtual; g.complN++; }
+    if(f.status_contrato==='VENCIDO') g.vencidos++;
+    if((f.fase_atual||'').includes('6')) g.fase6++;
+  });
+  const panoramaOrdenado = Object.entries(porUFPanorama).sort((a,b)=>b[1].empregados-a[1].empregados);
+  document.getElementById('tbodyPanoramaUF').innerHTML = panoramaOrdenado.map(([uf,g]) => `
+    <tr><td>${esc(uf)}</td><td class="mono">${g.fornecedores}</td><td class="mono">${g.empregados.toLocaleString('pt-BR')}</td><td class="mono">${g.complN?fmtPct(g.complSoma/g.complN):'—'}</td><td class="mono">${g.vencidos}</td><td class="mono">${g.fase6}</td></tr>
+  `).join('') || '<tr><td colspan="6" class="empty-state">Sem dados de localidade.</td></tr>';
 }
 
 // ── Fornecedores ─────────────────────────────────────────────────────
