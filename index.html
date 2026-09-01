@@ -628,14 +628,69 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   <!-- ── Processos ── -->
   <div id="page-processos" class="page">
     <div class="kpi-grid" id="kpiProcessos"></div>
-    <div class="grid-2">
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Situação dos Processos</span></div>
-        <div class="dash-card-body" style="height:240px;"><canvas id="chartSituacaoProcessos"></canvas></div>
+    <div class="dc-grid" style="margin-top:16px;">
+      <div style="grid-column:span 3;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Situação</span></div>
+          <div class="dc-card-body" id="listaProcSituacao"></div>
+        </div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Exposição por UF (Valor de Causa)</span></div>
-        <div class="dash-card-body" style="height:240px;"><canvas id="chartProcessosUF"></canvas></div>
+      <div style="grid-column:span 3;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Fase Processual</span></div>
+          <div class="dc-card-body" id="listaProcFase"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 3;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Classe Processual</span></div>
+          <div class="dc-card-body" id="listaProcClasse"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 3;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Desfecho</span></div>
+          <div class="dc-card-body" id="listaProcDesfecho"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Distribuição por Ano de Ajuizamento</span></div>
+          <div class="dc-card-body" id="painelProcAno" style="padding:16px 12px;"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Exposição por UF · Valor de Causa</span></div>
+          <div class="dc-card-body" id="listaProcUF"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Vínculo com o GTT</span></div>
+          <div class="dc-card-body" id="listaProcVinculo"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Comarcas com Maior Litigiosidade</span></div>
+          <div class="dc-card-body" id="listaProcComarca"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Assuntos Mais Pleiteados</span></div>
+          <div class="dc-card-body" id="listaProcAssunto"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 12;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Principais Reclamadas · Empresa Empregadora</span></div>
+          <div class="table-wrap"><table class="rel-table">
+            <thead><tr><th>Empresa Empregadora</th><th>Processos</th><th>Valor de Causa</th></tr></thead>
+            <tbody id="tbodyProcReclamadas"></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
     <div class="dash-card">
@@ -650,6 +705,35 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   <!-- ── Contratos ── -->
   <div id="page-contratos" class="page">
     <div class="kpi-grid" id="kpiContratos"></div>
+    <div class="dc-grid" style="margin-top:16px;">
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Status dos Contratos</span></div>
+          <div class="dc-card-body" id="listaContratosStatus"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Contratos Vencidos por Unidade Cliente</span></div>
+          <div class="dc-card-body" id="listaContratosVencidosUnidade"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Contratos Vencidos por UF</span></div>
+          <div class="dc-card-body" id="listaContratosVencidosUF"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 12;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Fila de Regularização Contratual</span></div>
+          <div class="table-wrap"><table class="rel-table">
+            <thead><tr><th>Fornecedor</th><th>Fase Atual</th><th>Vencimento</th><th>Status Contrato</th><th>UF</th></tr></thead>
+            <tbody id="tbodyFilaRegularizacao"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Gestão de Contratos de Prestação de Serviços</span></div>
       <div class="table-wrap"><table class="rel-table">
@@ -662,6 +746,26 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   <!-- ── Parcelamentos ── -->
   <div id="page-parcelamentos" class="page">
     <div class="kpi-grid" id="kpiParcelamentos"></div>
+    <div class="dc-grid" style="margin-top:16px;">
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Parcelamentos por Tipo de Débito</span></div>
+          <div class="dc-card-body" id="listaParcTipo"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Status Geral dos Acordos</span></div>
+          <div class="dc-card-body" id="listaParcStatus"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Parcelamentos por Empresa</span></div>
+          <div class="dc-card-body" id="listaParcEmpresa"></div>
+        </div>
+      </div>
+    </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Parcelamentos por Fornecedor</span></div>
       <div class="hint" style="padding:10px 16px 0;">Clique numa linha pra ver as parcelas individuais.</div>
@@ -1581,7 +1685,6 @@ function renderIrregularidades(){
 }
 
 // ── Processos ────────────────────────────────────────────────────────
-let CHART_SITUACAO=null, CHART_PROC_UF=null;
 function renderProcessos(){
   const totalCausa = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_causa)||0),0);
   const totalDeposito = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_deposito)||0),0);
@@ -1596,23 +1699,102 @@ function renderProcessos(){
     { label:'Acordos', val:fmtMi(totalAcordo) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
 
-  const porSituacao = {};
-  PROCESSOS.forEach(p => { const s = p.situacao||'—'; porSituacao[s]=(porSituacao[s]||0)+1; });
-  if(CHART_SITUACAO) CHART_SITUACAO.destroy();
-  CHART_SITUACAO = new Chart(document.getElementById('chartSituacaoProcessos'), {
-    type:'doughnut', data:{ labels:Object.keys(porSituacao), datasets:[{data:Object.values(porSituacao), backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8}] },
-    options:{ maintainAspectRatio:false, cutout:'58%', plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12}},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(1)+'%)':v;}}} },
-  });
+  // Listas rankeadas (barra-linha) — Situação, Fase, Classe, Desfecho
+  const listaRankeada = (elId, campo, cor) => {
+    const cont = {};
+    PROCESSOS.forEach(p => { const v = p[campo]||'—'; cont[v]=(cont[v]||0)+1; });
+    const ordenado = Object.entries(cont).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const total = PROCESSOS.length || 1;
+    const max = ordenado.length ? ordenado[0][1] : 1;
+    document.getElementById(elId).innerHTML = ordenado.map(([nome,qtd]) => `
+      <div class="barra-linha">
+        <div class="barra-fill" style="width:${max?(qtd/max*100):0}%;background:${cor};"></div>
+        <span class="barra-nome" title="${esc(nome)}">${esc(nome)}</span>
+        <span class="barra-valor">${qtd}</span>
+        <span class="barra-pct">${(qtd/total*100).toFixed(0)}%</span>
+      </div>`).join('') || '<div class="empty-state">Sem dado.</div>';
+  };
+  listaRankeada('listaProcSituacao', 'situacao', '#00A9E0');
+  listaRankeada('listaProcFase', 'fase', '#14324E');
+  listaRankeada('listaProcClasse', 'classe', '#E8A33D');
+  listaRankeada('listaProcDesfecho', 'tipo_desfecho', '#188049');
 
-  // Exposição por UF — agora em valor de causa, não em contagem
+  // Distribuição por ano de ajuizamento — barras verticais
+  const porAno = {};
+  PROCESSOS.forEach(p => { if(p.ano_distribuicao) porAno[p.ano_distribuicao] = (porAno[p.ano_distribuicao]||0)+1; });
+  const anosOrdenados = Object.keys(porAno).sort();
+  const maxAno = anosOrdenados.length ? Math.max(...anosOrdenados.map(a=>porAno[a])) : 1;
+  document.getElementById('painelProcAno').innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:5px;height:150px;overflow-x:auto;">
+      ${anosOrdenados.map(a => `
+        <div class="evo-barra-col">
+          <div class="evo-barra-num">${porAno[a]}</div>
+          <div style="width:100%;border-radius:3px 3px 0 0;height:${Math.max(porAno[a]/maxAno*100,2)}%;background:#00A9E0;"></div>
+          <div class="evo-barra-mes">${esc(a)}</div>
+        </div>`).join('')}
+    </div>` || '<div class="empty-state">Sem dado de ano.</div>';
+
+  // Exposição por UF — em valor de causa
   const causaPorUF = {};
   PROCESSOS.forEach(p => { const u = p.uf||'—'; causaPorUF[u] = (causaPorUF[u]||0) + (Number(p.valor_causa)||0); });
   const ufOrdenado = Object.entries(causaPorUF).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  if(CHART_PROC_UF) CHART_PROC_UF.destroy();
-  CHART_PROC_UF = new Chart(document.getElementById('chartProcessosUF'), {
-    type:'bar', data:{ labels:ufOrdenado.map(e=>e[0]), datasets:[{data:ufOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:44}] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>fmtMi(v)}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'},ticks:{callback:v=>fmtMi(v)}}} },
-  });
+  const maxUFCausa = ufOrdenado.length ? ufOrdenado[0][1] : 1;
+  document.getElementById('listaProcUF').innerHTML = ufOrdenado.map(([uf,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxUFCausa?(v/maxUFCausa*100):0}%;background:#E67E22;"></div>
+      <span class="barra-nome">${esc(uf)}</span>
+      <span class="barra-valor">${fmtMi(v)}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de UF.</div>';
+
+  // Vínculo com o GTT
+  const porVinculo = {};
+  PROCESSOS.forEach(p => { const v = p.terceira_ativa_no_gtt||'Não informado'; porVinculo[v]=(porVinculo[v]||0)+1; });
+  const CORES_VINCULO = { 'Ativa':'#188049', 'Inativa':'#E8A33D', 'Nunca esteve no GTT':'#C9553A' };
+  const vinculoOrdenado = Object.entries(porVinculo).sort((a,b)=>b[1]-a[1]);
+  const totalVinculo = PROCESSOS.length || 1;
+  const maxVinculo = vinculoOrdenado.length ? vinculoOrdenado[0][1] : 1;
+  document.getElementById('listaProcVinculo').innerHTML = vinculoOrdenado.map(([v,qtd]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxVinculo?(qtd/maxVinculo*100):0}%;background:${CORES_VINCULO[v]||'#7E98AA'};"></div>
+      <span class="barra-nome" title="${esc(v)}">${esc(v)}</span>
+      <span class="barra-valor">${qtd}</span>
+      <span class="barra-pct">${(qtd/totalVinculo*100).toFixed(0)}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de vínculo.</div>';
+
+  // Comarcas com maior litigiosidade
+  const porComarca = {};
+  PROCESSOS.forEach(p => { const c = p.comarca||'—'; porComarca[c]=(porComarca[c]||0)+1; });
+  const comarcasOrdenadas = Object.entries(porComarca).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxComarca = comarcasOrdenadas.length ? comarcasOrdenadas[0][1] : 1;
+  document.getElementById('listaProcComarca').innerHTML = comarcasOrdenadas.map(([c,qtd]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxComarca?(qtd/maxComarca*100):0}%;background:#C9553A;"></div>
+      <span class="barra-nome" title="${esc(c)}">${esc(c)}</span>
+      <span class="barra-valor">${qtd}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de comarca.</div>';
+
+  // Assuntos mais pleiteados
+  const porAssunto = {};
+  PROCESSOS.forEach(p => { (p.assunto||'—').split(';').map(a=>a.trim()).filter(Boolean).forEach(a => { porAssunto[a]=(porAssunto[a]||0)+1; }); });
+  const assuntosOrdenados = Object.entries(porAssunto).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxAssunto = assuntosOrdenados.length ? assuntosOrdenados[0][1] : 1;
+  document.getElementById('listaProcAssunto').innerHTML = assuntosOrdenados.map(([a,qtd]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxAssunto?(qtd/maxAssunto*100):0}%;background:#00A9E0;"></div>
+      <span class="barra-nome" title="${esc(a)}">${esc(a)}</span>
+      <span class="barra-valor">${qtd}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de assunto.</div>';
+
+  // Principais reclamadas · empresa empregadora
+  const porReclamada = {};
+  PROCESSOS.forEach(p => { const r = p.empresa_reclamada||'—'; porReclamada[r] = porReclamada[r] || { qtd:0, causa:0 }; porReclamada[r].qtd++; porReclamada[r].causa += Number(p.valor_causa)||0; });
+  const reclamadasOrdenadas = Object.entries(porReclamada).sort((a,b)=>b[1].qtd-a[1].qtd).slice(0,20);
+  document.getElementById('tbodyProcReclamadas').innerHTML = reclamadasOrdenadas.map(([r,g]) => `
+    <tr><td>${esc(r)}</td><td class="mono">${g.qtd}</td><td class="mono">${fmtMoney(g.causa)}</td></tr>
+  `).join('') || '<tr><td colspan="3" class="empty-state">Sem dado.</td></tr>';
 
   document.getElementById('tbodyProcessos').innerHTML = PROCESSOS.slice(0,200).map(p => `
     <tr><td class="mono">${esc(p.numero_processo)}</td><td>${esc(p.empresa_reclamada||'—')}</td><td>${esc(p.situacao||'—')}</td><td>${esc(p.fase||'—')}</td><td>${esc(p.uf||'—')}</td><td>${esc(p.terceira_ativa_no_gtt||'—')}</td><td>${esc(p.tipo_desfecho||'—')}</td><td class="mono">${fmtMoney(p.valor_causa)}</td></tr>
@@ -1634,6 +1816,53 @@ function renderContratos(){
     { label:'Vencimento Próximo', val:String(porStatus['VENCIMENTO PRÓXIMO']||0) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
 
+  const CORES_STATUS_CONTRATO = { 'VIGENTE':'#188049', 'VENCIMENTO PRÓXIMO':'#E8A33D', 'AGUARDANDO DOCUMENTO':'#C9D3DE', 'VENCIDO':'#C9553A', 'Sem informação':'#c3c2b7' };
+  const statusOrdenado = Object.entries(porStatus).sort((a,b)=>b[1]-a[1]);
+  const totalStatus = statusOrdenado.reduce((s,[,v])=>s+v,0) || 1;
+  const maxStatus = statusOrdenado.length ? statusOrdenado[0][1] : 1;
+  document.getElementById('listaContratosStatus').innerHTML = statusOrdenado.map(([k,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxStatus?(v/maxStatus*100):0}%;background:${CORES_STATUS_CONTRATO[k]||'#7E98AA'};"></div>
+      <span class="barra-nome">${esc(k)}</span>
+      <span class="barra-valor">${v}</span>
+      <span class="barra-pct">${(v/totalStatus*100).toFixed(0)}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem contrato na seleção.</div>';
+
+  const filialDoFornecedor = (empresa) => {
+    const loc = LOCALIDADES.filter(l=>l.empresa===empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
+    return loc && loc.filial ? loc.filial : '—';
+  };
+  const vencidosPorUnidade = {}, vencidosPorUF = {};
+  ativos.filter(f=>f.status_contrato==='VENCIDO').forEach(f => {
+    const un = filialDoFornecedor(f.empresa); vencidosPorUnidade[un]=(vencidosPorUnidade[un]||0)+1;
+    const uf = ufDoFornecedor(f.empresa)||'—'; vencidosPorUF[uf]=(vencidosPorUF[uf]||0)+1;
+  });
+  const unidadeOrdenado = Object.entries(vencidosPorUnidade).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxUnidadeVenc = unidadeOrdenado.length ? unidadeOrdenado[0][1] : 1;
+  document.getElementById('listaContratosVencidosUnidade').innerHTML = unidadeOrdenado.map(([un,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxUnidadeVenc?(v/maxUnidadeVenc*100):0}%;background:#C9553A;"></div>
+      <span class="barra-nome" title="${esc(un)}">${esc(un)}</span>
+      <span class="barra-valor">${v}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Nenhum contrato vencido.</div>';
+
+  const ufOrdenadoVenc = Object.entries(vencidosPorUF).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxUFVenc = ufOrdenadoVenc.length ? ufOrdenadoVenc[0][1] : 1;
+  document.getElementById('listaContratosVencidosUF').innerHTML = ufOrdenadoVenc.map(([uf,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxUFVenc?(v/maxUFVenc*100):0}%;background:#C9553A;"></div>
+      <span class="barra-nome">${esc(uf)}</span>
+      <span class="barra-valor">${v}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Nenhum contrato vencido.</div>';
+
+  const filaRegularizacao = ativos.filter(f => f.status_contrato==='VENCIDO' || f.status_contrato==='AGUARDANDO DOCUMENTO' || f.status_contrato==='VENCIMENTO PRÓXIMO').sort((a,b)=>(a.status_contrato||'').localeCompare(b.status_contrato||''));
+  document.getElementById('tbodyFilaRegularizacao').innerHTML = filaRegularizacao.map(f => {
+    const cor = f.status_contrato==='VENCIDO' ? 'critico' : 'atencao';
+    return `<tr><td>${esc(f.empresa)}</td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${f.vencimento_contrato||'—'}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'—')}</span></td><td>${esc(ufDoFornecedor(f.empresa)||'—')}</td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty-state">Nenhum contrato pendente de regularização.</td></tr>';
+
   document.getElementById('tbodyContratos').innerHTML = ativos.map(f => {
     const cor = f.status_contrato==='VENCIDO' ? 'critico' : f.status_contrato==='VIGENTE' ? 'ok' : 'atencao';
     return `<tr><td>${esc(f.empresa)}</td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${f.vencimento_contrato||'—'}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'—')}</span></td><td>${esc(ufDoFornecedor(f.empresa)||'—')}</td></tr>`;
@@ -1650,6 +1879,44 @@ function renderParcelamentos(){
     { label: 'Quitados', val: String(quitados) },
     { label: 'Com Parcelas Vencidas', val: String(vencidos) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
+
+  const porTipo = {};
+  PARCELAMENTOS.forEach(p => { const t = p.tipo_parcelamento||'—'; porTipo[t]=(porTipo[t]||0)+1; });
+  const tipoOrdenado = Object.entries(porTipo).sort((a,b)=>b[1]-a[1]);
+  const totalTipo = PARCELAMENTOS.length || 1;
+  const maxTipo = tipoOrdenado.length ? tipoOrdenado[0][1] : 1;
+  document.getElementById('listaParcTipo').innerHTML = tipoOrdenado.map(([t,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxTipo?(v/maxTipo*100):0}%;background:#00A9E0;"></div>
+      <span class="barra-nome" title="${esc(t)}">${esc(t)}</span>
+      <span class="barra-valor">${v}</span>
+      <span class="barra-pct">${(v/totalTipo*100).toFixed(0)}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem parcelamento.</div>';
+
+  const CORES_STATUS_PARC = { 'QUITADO':'#188049', 'VIGENTE':'#00A9E0', 'VENCIDO':'#C9553A', 'PAGO':'#188049' };
+  const porStatusParc = {};
+  PARCELAMENTOS.forEach(p => { const s = p.status_geral||'—'; porStatusParc[s]=(porStatusParc[s]||0)+1; });
+  const statusParcOrdenado = Object.entries(porStatusParc).sort((a,b)=>b[1]-a[1]);
+  const maxStatusParc = statusParcOrdenado.length ? statusParcOrdenado[0][1] : 1;
+  document.getElementById('listaParcStatus').innerHTML = statusParcOrdenado.map(([s,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxStatusParc?(v/maxStatusParc*100):0}%;background:${CORES_STATUS_PARC[s]||'#7E98AA'};"></div>
+      <span class="barra-nome">${esc(s)}</span>
+      <span class="barra-valor">${v}</span>
+      <span class="barra-pct">${(v/totalTipo*100).toFixed(0)}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem parcelamento.</div>';
+
+  const porEmpresaParc = {};
+  PARCELAMENTOS.forEach(p => { const e = p.empresa||'—'; porEmpresaParc[e]=(porEmpresaParc[e]||0)+1; });
+  const empresaParcOrdenado = Object.entries(porEmpresaParc).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxEmpresaParc = empresaParcOrdenado.length ? empresaParcOrdenado[0][1] : 1;
+  document.getElementById('listaParcEmpresa').innerHTML = empresaParcOrdenado.map(([e,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxEmpresaParc?(v/maxEmpresaParc*100):0}%;background:#14324E;"></div>
+      <span class="barra-nome" title="${esc(e)}">${esc(e)}</span>
+      <span class="barra-valor">${v}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem parcelamento.</div>';
 
   document.getElementById('tbodyParcelamentos').innerHTML = PARCELAMENTOS.map((p,i) => {
     const cor = p.status_geral==='QUITADO' ? 'ok' : (p.parcelas_vencidas>0 ? 'critico' : 'atencao');
