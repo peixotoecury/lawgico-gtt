@@ -106,6 +106,14 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
 .dash-card-head{background:var(--card-head-grad);color:#fff;padding:8px 10px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:2px solid var(--azul-pc2);text-align:center;}
 .dash-card-head:has(button),.dash-card-head:has(select){justify-content:space-between;text-align:left;}
 .dash-card-body{padding:14px 16px;}
+.card-caption{font-size:10.5px;color:var(--muted2);padding:0 16px 12px;line-height:1.4;}
+
+.compl-linha{display:flex;align-items:center;gap:10px;padding:5px 0;}
+.compl-nome{flex:0 0 46%;font-size:11px;color:var(--texto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.compl-barra-wrap{flex:1;background:#EEF2F7;border-radius:4px;height:18px;overflow:hidden;}
+.compl-barra{height:100%;background:var(--azul-pc2);border-radius:4px;}
+.compl-score{flex:0 0 28px;text-align:right;font-size:12px;font-weight:800;color:var(--escuro-pc);}
+.compl-pct{flex:0 0 52px;text-align:right;font-size:11px;font-weight:700;color:var(--muted2);}
 
 .secao-header{display:flex;align-items:center;gap:12px;margin:16px 0 14px;}
 .secao-numero{font-size:11px;font-weight:800;letter-spacing:1.6px;color:var(--azul-pc2);text-transform:uppercase;white-space:nowrap;}
@@ -248,13 +256,7 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
 
   <!-- ── Cenário Geral ── -->
   <div id="page-geral" class="page active">
-    <div class="secao-header">
-      <span class="secao-numero">01</span>
-      <span class="secao-titulo">Cenário geral</span>
-      <span class="secao-linha"></span>
-      <span class="secao-desc">Visão consolidada da base GTT na competência</span>
-    </div>
-    <div class="filter-row">
+    <div class="filter-row" style="align-items:flex-end;">
       <div class="form-group">
         <label class="form-label">Fornecedor</label>
         <select id="fGeralFornecedor" class="form-input" onchange="renderGeral()"><option value="">Todos</option></select>
@@ -263,25 +265,47 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
         <label class="form-label">Localidade (UF)</label>
         <select id="fGeralUF" class="form-input" onchange="renderGeral()"><option value="">Todas</option></select>
       </div>
+      <div class="form-group">
+        <label class="form-label">Fase</label>
+        <select id="fGeralFase" class="form-input" onchange="renderGeral()"><option value="">Todas</option></select>
+      </div>
+      <div class="form-group" style="flex:1 1 auto;min-width:auto;text-align:right;">
+        <span class="hint" id="resumoSelecaoGeral" style="margin:0;"></span>
+      </div>
+    </div>
+    <div class="secao-header">
+      <span class="secao-numero">01</span>
+      <span class="secao-titulo">Cenário geral</span>
+      <span class="secao-linha"></span>
+      <span class="secao-desc">Visão consolidada da base GTT na competência</span>
     </div>
     <div class="kpi-grid" id="kpiGeral"></div>
-    <div class="grid-2">
+    <div class="grid-2" style="grid-template-columns:340px 1fr;">
       <div class="dash-card">
         <div class="dash-card-head"><span>Fase de Monitoramento</span></div>
         <div class="dash-card-body" style="height:280px;"><canvas id="chartFaseMonitoramento"></canvas></div>
+        <div class="card-caption">Fase 3 a 6 conforme manual GTT.</div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-head"><span>Comparativo Compliance por Fornecedor</span></div>
-        <div class="dash-card-body" style="height:280px;"><canvas id="chartComparativoCompliance"></canvas></div>
+        <div class="dash-card-head"><span>Compliance Documental por Fornecedor · % do Mês</span></div>
+        <div class="dash-card-body" style="max-height:400px;overflow-y:auto;padding:10px 16px;" id="listaComplianceFornecedor"></div>
+        <div class="card-caption">Percentual de documentos regulares sobre os exigíveis no mês. Meta interna 60%.</div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Status dos Contratos de Prestação de Serviços</span></div>
-        <div class="dash-card-body" style="height:220px;"><canvas id="chartStatusContratos"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Empregados Terceirizados por Localidade</span></div>
-        <div class="dash-card-body" style="height:220px;"><canvas id="chartEmpregadosLocalidade"></canvas></div>
-      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head"><span>Status dos Contratos de Prestação de Serviços</span></div>
+      <div class="dash-card-body" style="height:220px;"><canvas id="chartStatusContratos"></canvas></div>
+      <div class="card-caption">Vencidos e aguardando documento concentram o risco contratual.</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head"><span>Evolução do Compliance Médio</span></div>
+      <div class="dash-card-body" style="height:240px;"><canvas id="chartEvolucaoComplianceGeral"></canvas></div>
+      <div class="card-caption">Média simples do compliance documental dos fornecedores da seleção.</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-head"><span>Empregados Terceirizados por Localidade</span></div>
+      <div class="dash-card-body" style="height:220px;"><canvas id="chartEmpregadosLocalidade"></canvas></div>
+      <div class="card-caption" id="captionEmpLocalidade"></div>
     </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Fornecedores em Situação Crítica</span></div>
@@ -744,6 +768,7 @@ function popularFiltros(){
   };
   preencher('fGeralFornecedor', nomes);
   preencher('fGeralUF', ufsGeral);
+  preencher('fGeralFase', fases);
   preencher('fDocFornecedor', nomes);
   preencher('fFornFase', fases);
   preencher('fFornUF', ufsLimpo);
@@ -811,13 +836,19 @@ function mudarAba(aba){
 }
 
 // ── Cenário Geral ────────────────────────────────────────────────────
-let CHART_FASE=null, CHART_COMPARATIVO=null, CHART_STATUS_CONTRATOS=null, CHART_EMP_LOCALIDADE=null;
+let CHART_FASE=null, CHART_STATUS_CONTRATOS=null, CHART_EMP_LOCALIDADE=null, CHART_EVOLUCAO_GERAL=null;
 function renderGeral(){
   const filtroFornecedor = document.getElementById('fGeralFornecedor').value;
   const filtroUF = document.getElementById('fGeralUF').value;
+  const filtroFase = document.getElementById('fGeralFase').value;
   let fornecedores = FORNECEDORES.filter(f => f.status !== 'INATIVA');
   if(filtroFornecedor) fornecedores = fornecedores.filter(f => f.empresa === filtroFornecedor);
   if(filtroUF) fornecedores = fornecedores.filter(f => ufDoFornecedor(f.empresa) === filtroUF);
+  if(filtroFase) fornecedores = fornecedores.filter(f => f.fase_atual === filtroFase);
+  // Todo cálculo derivado (compliance, empregados, processos, irregularidades)
+  // usa este mesmo conjunto — senão fornecedor/UF/fase filtram a lista mas
+  // os KPIs continuam somando dado de fora da seleção.
+  const nomesFiltrados = new Set(fornecedores.map(f=>f.empresa));
 
   // Status de contrato — 4 categorias reais (antes só olhava Vencido/Vigente
   // e descartava "Aguardando documento" e "Vencimento Próximo" em silêncio)
@@ -831,13 +862,13 @@ function renderGeral(){
   const criticos = scores.filter(s => classeRisco(s.score).classe === 'critico').length;
 
   // Compliance A.A. — média dos últimos 12 meses (não só o mês corrente)
-  const complFiltrado = COMPLIANCE.filter(c => !filtroFornecedor || c.empresa===filtroFornecedor);
+  const complFiltrado = COMPLIANCE.filter(c => nomesFiltrados.has(c.empresa));
   const meses12 = [...new Set(complFiltrado.map(c=>c.mes_referencia))].sort().slice(-12);
   const valoresAno = complFiltrado.filter(c=>meses12.includes(c.mes_referencia)).map(c=>Number(c.compliance)).filter(v=>!isNaN(v));
   const complAno = valoresAno.length ? valoresAno.reduce((a,b)=>a+b,0)/valoresAno.length : null;
 
   // Empregados terceirizados (via localidades, com série mensal) + variação
-  const locFiltrado = LOCALIDADES.filter(l => (!filtroFornecedor || l.empresa===filtroFornecedor) && (!filtroUF || l.uf===filtroUF));
+  const locFiltrado = LOCALIDADES.filter(l => nomesFiltrados.has(l.empresa));
   const mesesLoc = [...new Set(locFiltrado.map(l=>l.mes_referencia))].sort();
   const ultimoMesLoc = mesesLoc[mesesLoc.length-1], penultimoMesLoc = mesesLoc[mesesLoc.length-2];
   const somaEmpMes = mes => locFiltrado.filter(l=>l.mes_referencia===mes).reduce((s,l)=>s+(Number(l.qtd_funcionarios)||0),0);
@@ -845,29 +876,31 @@ function renderGeral(){
   const empAnterior = penultimoMesLoc ? somaEmpMes(penultimoMesLoc) : null;
   const empDelta = empAnterior!=null ? empAtual-empAnterior : null;
 
-  // Processos de terceiros (valor de causa total) — respeitando os filtros
-  const processosFiltrados = PROCESSOS.filter(p => {
-    if(filtroFornecedor && !(p.empresa_reclamada||'').toUpperCase().includes(filtroFornecedor.toUpperCase().slice(0,12))) return false;
-    if(filtroUF && p.uf!==filtroUF) return false;
-    return true;
-  });
+  // Processos de terceiros (valor de causa total) — respeitando os filtros.
+  // Sem filtro nenhum mostra todos os processos (inclusive de fornecedores
+  // inativos/fora da carteira atual) — só restringe por nome quando algum
+  // filtro de verdade está ativo, senão o casamento por substring (nome
+  // truncado) descarta processos legítimos de fora da lista de ativos.
+  const semFiltroAlgum = !filtroFornecedor && !filtroUF && !filtroFase;
+  const processosFiltrados = semFiltroAlgum ? PROCESSOS : PROCESSOS.filter(p => [...nomesFiltrados].some(nome => (p.empresa_reclamada||'').toUpperCase().includes(nome.toUpperCase().slice(0,12))));
   const valorCausaTotal = processosFiltrados.reduce((s,p)=>s+(Number(p.valor_causa)||0),0);
 
   // Irregularidades de jornada do mês
-  const irregFiltrado = IRREGULARIDADES.filter(i => !filtroFornecedor || i.empresa===filtroFornecedor);
+  const irregFiltrado = IRREGULARIDADES.filter(i => nomesFiltrados.has(i.empresa));
   const ultimoMesIrreg = irregFiltrado.length ? [...new Set(irregFiltrado.map(i=>i.mes_referencia))].sort().pop() : null;
   const irregDoMes = irregFiltrado.filter(i=>i.mes_referencia===ultimoMesIrreg);
   const irregJornada = irregDoMes.reduce((s,i)=> s + (Number(i.cartoes_britanico)||0) + (Number(i.horas_extras_2h)||0) + (Number(i.intervalo_intrajornada)||0) + (Number(i.intervalo_interjornada)||0) + (Number(i.dsr)||0), 0);
 
   document.getElementById('kpiGeral').innerHTML = [
-    { label: 'Fornecedores Ativos', val: String(fornecedores.length) },
-    { label: 'Compliance Médio', val: fmtPct(complMedio), sub: complAno!=null ? `A.A. ${fmtPct(complAno)}` : null },
-    { label: 'Empregados Terceirizados', val: empAtual.toLocaleString('pt-BR'), delta: empDelta!=null ? {texto:(empDelta>=0?'+':'')+empDelta+' vs. mês ant.', classe: empDelta>=0?'pos':'neg'} : null },
+    { label: 'Fornecedores', val: String(fornecedores.length), sub: 'ativos no GTT' },
+    { label: 'Compliance Médio', val: fmtPct(complMedio), sub: `documental do mês${complAno!=null ? ' · A.A. '+fmtPct(complAno) : ''}` },
+    { label: 'Empregados Terceirizados', val: empAtual.toLocaleString('pt-BR'), delta: empDelta!=null ? {texto:(empDelta>=0?'+':'')+empDelta+' vs. mês anterior', classe: empDelta>=0?'pos':'neg'} : null },
+    { label: 'Contratos Vigentes', val: String(vigentes), sub: vencidos>0 ? `${vencidos} vencidos requerem ação` : 'nenhum vencido' },
+    { label: 'Irregularidades de Jornada', val: irregJornada.toLocaleString('pt-BR'), sub: 'apontadas no mês' },
     { label: 'Processos de Terceiros', val: String(processosFiltrados.length), sub: `${fmtMi(valorCausaTotal)} em causa` },
-    { label: 'Irregularidades de Jornada', val: irregJornada.toLocaleString('pt-BR'), sub: ultimoMesIrreg ? `apontadas em ${fmtMes(ultimoMesIrreg)}` : null },
-    { label: 'Contratos Vencidos', val: String(vencidos), delta: vencidos>0 ? {texto:'requer atenção', classe:'neg'} : null },
-    { label: 'Fornecedores em Risco Crítico', val: String(criticos), delta: criticos>0 ? {texto:'score ≥ 60', classe:'neg'} : {texto:'nenhum', classe:'pos'} },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span>${c.delta?`<span class="kpi-delta ${c.delta.classe}">${esc(c.delta.texto)}</span>`:''}</div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
+
+  document.getElementById('resumoSelecaoGeral').textContent = `${fornecedores.length} fornecedores · ${empAtual.toLocaleString('pt-BR')} empregados · ${processosFiltrados.length} processos na seleção`;
 
   // Fase de monitoramento (donut)
   const porFase = {};
@@ -894,26 +927,21 @@ function renderGeral(){
     }],
   });
 
-  // Comparativo de compliance por fornecedor (top 15 por qtd de meses de dado)
-  const topEmpresas = [...new Set(COMPLIANCE.map(c=>c.empresa))]
-    .filter(e => !filtroFornecedor || e === filtroFornecedor)
-    .slice(0, 15);
+  // Compliance documental por fornecedor — lista rankeada com barra inline,
+  // igual ao relatório modelo (não é gráfico Chart.js).
   const mesesOrdenados = [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort();
   const ultimoMes = mesesOrdenados[mesesOrdenados.length-1];
-  const penultimoMes = mesesOrdenados[mesesOrdenados.length-2];
-  const valorMes = (emp, mes) => { const r = COMPLIANCE.find(c=>c.empresa===emp && c.mes_referencia===mes); return r ? Number(r.compliance)*100 : 0; };
-  if(CHART_COMPARATIVO) CHART_COMPARATIVO.destroy();
-  CHART_COMPARATIVO = new Chart(document.getElementById('chartComparativoCompliance'), {
-    type: 'bar',
-    data: {
-      labels: topEmpresas.map(e => e.length>18 ? e.slice(0,18)+'…' : e),
-      datasets: [
-        { label: fmtMes(penultimoMes), data: topEmpresas.map(e=>valorMes(e,penultimoMes)), backgroundColor:'#c3c2b7', borderRadius:4, maxBarThickness:28 },
-        { label: fmtMes(ultimoMes), data: topEmpresas.map(e=>valorMes(e,ultimoMes)), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:28 },
-      ],
-    },
-    options: { maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:false}}, scales:{ y:{ max:100, ticks:{callback:v=>v+'%'}, grid:{color:'#e1e0d9'} }, x:{ ticks:{autoSkip:false,maxRotation:60}, grid:{display:false} } } },
-  });
+  const complMesAtual = COMPLIANCE.filter(c => c.mes_referencia===ultimoMes && nomesFiltrados.has(c.empresa))
+    .map(c => ({ empresa:c.empresa, pct: Number(c.compliance)*100 }))
+    .filter(c => !isNaN(c.pct))
+    .sort((a,b) => b.pct-a.pct);
+  document.getElementById('listaComplianceFornecedor').innerHTML = complMesAtual.map(c => `
+    <div class="compl-linha">
+      <span class="compl-nome" title="${esc(c.empresa)}">${esc(c.empresa)}</span>
+      <div class="compl-barra-wrap"><div class="compl-barra" style="width:${Math.max(c.pct,1)}%"></div></div>
+      <span class="compl-score">${Math.round(c.pct)}</span>
+      <span class="compl-pct">${c.pct.toFixed(1).replace('.',',')}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de compliance na competência.</div>';
 
   // Status dos contratos — 4 categorias reais, cores de status (estado),
   // não da paleta categórica (identidade) — VIGENTE/VENCIMENTO PRÓXIMO/
@@ -928,7 +956,28 @@ function renderGeral(){
     options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}, datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}, formatter:v=>`${v} (${(v/totalStatus*100).toFixed(0)}%)`}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
   });
 
+  // Evolução do compliance médio — série mensal completa (não só 12 meses),
+  // igual ao relatório modelo ("jun/25 a jul/26").
+  const evoMesesGeral = mesesOrdenados.filter(m=>m);
+  const evoValoresGeral = evoMesesGeral.map(m => {
+    const vals = COMPLIANCE.filter(c=>c.mes_referencia===m && nomesFiltrados.has(c.empresa)).map(c=>Number(c.compliance)).filter(v=>!isNaN(v));
+    return vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length*100).toFixed(1) : null;
+  });
+  if(CHART_EVOLUCAO_GERAL) CHART_EVOLUCAO_GERAL.destroy();
+  const ctxEvoGeral = document.getElementById('chartEvolucaoComplianceGeral').getContext('2d');
+  const gradEvoGeral = ctxEvoGeral.createLinearGradient(0,0,0,240);
+  gradEvoGeral.addColorStop(0, 'rgba(27,175,122,0.35)');
+  gradEvoGeral.addColorStop(1, 'rgba(27,175,122,0.02)');
+  CHART_EVOLUCAO_GERAL = new Chart(ctxEvoGeral, {
+    type:'line',
+    data:{ labels: evoMesesGeral.map(fmtMes),
+      datasets:[{ label:'Compliance médio', data: evoValoresGeral, borderColor:'#1baf7a', backgroundColor:gradEvoGeral, fill:true, tension:0.4, borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#1baf7a', pointBorderColor:'#fff', pointBorderWidth:1.5, pointHoverRadius:6, spanGaps:true }] },
+    options:{ maintainAspectRatio:false, plugins:{ legend:{display:false}, datalabels:{display:false} },
+      scales:{ y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#e1e0d9'}}, x:{ticks:{autoSkip:true,maxRotation:60},grid:{display:false}} } },
+  });
+
   // Empregados terceirizados por localidade (UF), mês corrente
+  document.getElementById('captionEmpLocalidade').textContent = ultimoMesLoc ? `Quantidade de empregados na competência ${fmtMes(ultimoMesLoc)}.` : '';
   const porUFEmp = {};
   locFiltrado.filter(l=>l.mes_referencia===ultimoMesLoc).forEach(l => { const uf = l.uf||'—'; porUFEmp[uf] = (porUFEmp[uf]||0) + (Number(l.qtd_funcionarios)||0); });
   const ufsOrdenadas = Object.entries(porUFEmp).sort((a,b)=>b[1]-a[1]).slice(0,12);
