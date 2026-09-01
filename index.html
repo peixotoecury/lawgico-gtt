@@ -559,6 +559,20 @@ body{background:var(--surface2);color:var(--texto);}
   <!-- ── Parcelamentos ── -->
   <div id="page-parcelamentos" class="page">
     <div class="kpi-grid" id="kpiParcelamentos"></div>
+    <div class="grid-2">
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Parcelamentos por Tipo de Débito</span></div>
+        <div class="dash-card-body" style="height:220px;"><canvas id="chartParcTipo"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><span>Status Geral dos Acordos</span></div>
+        <div class="dash-card-body" style="height:220px;"><canvas id="chartParcStatus"></canvas></div>
+      </div>
+      <div class="dash-card" style="grid-column:1/-1;">
+        <div class="dash-card-head"><span>Parcelamentos por Empresa</span></div>
+        <div class="dash-card-body" style="height:200px;"><canvas id="chartParcEmpresa"></canvas></div>
+      </div>
+    </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Parcelamentos por Fornecedor</span></div>
       <div class="hint" style="padding:10px 16px 0;">Clique numa linha pra ver as parcelas individuais.</div>
@@ -1465,6 +1479,7 @@ function renderContratos(){
 
 // ── Parcelamentos ────────────────────────────────────────────────────
 let PARCELAS_ABERTAS = {};
+let CHART_PARC_TIPO=null, CHART_PARC_STATUS=null, CHART_PARC_EMPRESA=null;
 function renderParcelamentos(){
   const quitados = PARCELAMENTOS.filter(p => p.status_geral === 'QUITADO').length;
   const vencidos = PARCELAMENTOS.filter(p => (p.parcelas_vencidas||0) > 0).length;
@@ -1473,6 +1488,34 @@ function renderParcelamentos(){
     { label: 'Quitados', val: String(quitados) },
     { label: 'Com Parcelas Vencidas', val: String(vencidos) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
+
+  const porTipo = {};
+  PARCELAMENTOS.forEach(p => { const t = p.tipo_parcelamento||'—'; porTipo[t]=(porTipo[t]||0)+1; });
+  const tipoOrdenado = Object.entries(porTipo).sort((a,b)=>b[1]-a[1]);
+  if(CHART_PARC_TIPO) CHART_PARC_TIPO.destroy();
+  CHART_PARC_TIPO = new Chart(document.getElementById('chartParcTipo'), {
+    type:'doughnut', data:{ labels:tipoOrdenado.map(e=>e[0]), datasets:[{data:tipoOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8}] },
+    options:{ maintainAspectRatio:false, cutout:'58%', plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12}},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(0)+'%)':v;}}} },
+  });
+
+  const CORES_STATUS_PARC = { 'QUITADO':'#0ca30c', 'PAGO':'#2a78d6', 'VENCIDO':'#d03b3b', 'PENDENTE DE INFORMAÇÃO':'#c3c2b7' };
+  const porStatusParc = {};
+  PARCELAMENTOS.forEach(p => { const s = p.status_geral||'—'; porStatusParc[s]=(porStatusParc[s]||0)+1; });
+  const statusParcOrdenado = Object.entries(porStatusParc).sort((a,b)=>b[1]-a[1]);
+  if(CHART_PARC_STATUS) CHART_PARC_STATUS.destroy();
+  CHART_PARC_STATUS = new Chart(document.getElementById('chartParcStatus'), {
+    type:'bar', data:{ labels:statusParcOrdenado.map(e=>e[0]), datasets:[{data:statusParcOrdenado.map(e=>e[1]), backgroundColor:statusParcOrdenado.map(e=>CORES_STATUS_PARC[e[0]]||'#7E98AA'), borderRadius:4, maxBarThickness:34}] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
+  });
+
+  const porEmpresaParc = {};
+  PARCELAMENTOS.forEach(p => { const e = p.empresa||'—'; porEmpresaParc[e]=(porEmpresaParc[e]||0)+1; });
+  const empresaParcOrdenado = Object.entries(porEmpresaParc).sort((a,b)=>b[1]-a[1]);
+  if(CHART_PARC_EMPRESA) CHART_PARC_EMPRESA.destroy();
+  CHART_PARC_EMPRESA = new Chart(document.getElementById('chartParcEmpresa'), {
+    type:'bar', data:{ labels:empresaParcOrdenado.map(e=>e[0]), datasets:[{data:empresaParcOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:40}] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
+  });
 
   document.getElementById('tbodyParcelamentos').innerHTML = PARCELAMENTOS.map((p,i) => {
     const cor = p.status_geral==='QUITADO' ? 'ok' : (p.parcelas_vencidas>0 ? 'critico' : 'atencao');
