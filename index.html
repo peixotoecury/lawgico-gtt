@@ -254,8 +254,7 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   </div>
 
   <div class="tabs">
-    <button class="tab-btn" onclick="mudarAba('consolidado')">🗞️ Consolidado</button>
-    <button class="tab-btn" onclick="mudarAba('geral')">📊 Cenário Geral</button>
+    <button class="tab-btn" onclick="mudarAba('consolidado')">📊 Consolidado</button>
     <button class="tab-btn" onclick="mudarAba('fornecedores')">🏢 Fornecedores</button>
     <button class="tab-btn" onclick="mudarAba('clientes')">🏛️ Clientes</button>
     <button class="tab-btn" onclick="mudarAba('empregados')">👥 Empregados</button>
@@ -269,7 +268,7 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   </div>
 
   <!-- ── Cenário Geral ── -->
-  <div id="page-consolidado" class="page">
+  <div id="page-consolidado" class="page active">
     <div class="filter-row" style="align-items:flex-end;">
       <div class="form-group">
         <label class="form-label">Fornecedor</label>
@@ -428,7 +427,7 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
       <div style="grid-column:span 6;">
         <div class="dc-card">
           <div class="dash-card-head"><span>Efetivo por UF · Mês Anterior vs. Atual</span></div>
-          <div class="dc-card-body" id="painelEfetivoUFComparativoCons" style="display:flex;align-items:flex-end;gap:10px;height:220px;padding:16px 12px;overflow-x:auto;"></div>
+          <div class="dc-card-body" id="painelEfetivoUFComparativoCons" style="padding:10px 12px;"></div>
         </div>
       </div>
       <div style="grid-column:span 6;">
@@ -518,8 +517,8 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
     <div class="dc-grid" style="margin-top:16px;">
       <div style="grid-column:span 4;">
         <div class="dc-card">
-          <div class="dash-card-head"><span>Irregularidades de Jornada</span></div>
-          <div class="dc-card-body" style="display:flex;align-items:center;gap:18px;padding:16px;" id="painelIrregJornadaCons"></div>
+          <div class="dash-card-head"><span>Irregularidades de Jornada Constatadas no Mês</span></div>
+          <div class="dc-card-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;padding:10px 12px;" id="painelIrregJornadaCons"></div>
         </div>
       </div>
       <div style="grid-column:span 8;">
@@ -718,85 +717,7 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
     </div>
   </div>
 
-  <div id="page-geral" class="page active">
-    <div class="filter-row" style="align-items:flex-end;">
-      <div class="form-group">
-        <label class="form-label">Fornecedor</label>
-        <select id="fGeralFornecedor" class="form-input" onchange="renderGeral()"><option value="">Todos</option></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Localidade (UF)</label>
-        <select id="fGeralUF" class="form-input" onchange="renderGeral()"><option value="">Todas</option></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Fase</label>
-        <select id="fGeralFase" class="form-input" onchange="renderGeral()"><option value="">Todas</option></select>
-      </div>
-      <div class="form-group" style="flex:1 1 auto;min-width:auto;text-align:right;">
-        <span class="hint" id="resumoSelecaoGeral" style="margin:0;"></span>
-      </div>
-    </div>
-    <div class="secao-header">
-      <span class="secao-numero">01</span>
-      <span class="secao-titulo">Cenário geral</span>
-      <span class="secao-linha"></span>
-      <span class="secao-desc">Visão consolidada da base GTT na competência</span>
-    </div>
-    <div class="dc-grid">
-      <div style="grid-column:span 12;"><div class="kpi-grid" id="kpiGeral" style="grid-template-columns:repeat(6,1fr);"></div></div>
-
-      <div style="grid-column:span 4;">
-        <div class="dc-card">
-          <div class="dash-card-head"><span>Fase de Monitoramento</span></div>
-          <div class="dc-card-body" id="painelFaseMonitoramento"></div>
-          <div class="card-caption">Fase 3 a 6 conforme manual GTT · clique para filtrar todo o relatório.</div>
-        </div>
-      </div>
-      <div style="grid-column:span 8;">
-        <div class="dc-card">
-          <div class="dash-card-head"><span>Compliance Documental por Fornecedor · % do Mês</span></div>
-          <div class="dc-card-body" style="max-height:330px;overflow-y:auto;" id="listaComplianceFornecedor"></div>
-          <div class="card-caption">Percentual de documentos regulares sobre os exigíveis no mês. Meta interna 60%.</div>
-        </div>
-      </div>
-
-      <div style="grid-column:span 4;">
-        <div class="dc-card">
-          <div class="dash-card-head"><span>Status dos Contratos de Prestação de Serviços</span></div>
-          <div class="dc-card-body" id="listaStatusContratos"></div>
-          <div class="card-caption">Vencidos e aguardando documento concentram o risco contratual.</div>
-        </div>
-      </div>
-      <div style="grid-column:span 4;">
-        <div class="dc-card">
-          <div class="dash-card-head" id="tituloEvolucaoGeral">Evolução do Compliance Médio</div>
-          <div class="dc-card-body" id="painelEvolucaoGeral"></div>
-          <div class="card-caption">Média simples do compliance documental dos fornecedores da seleção.</div>
-        </div>
-      </div>
-      <div style="grid-column:span 4;">
-        <div class="dc-card">
-          <div class="dash-card-head"><span>Empregados Terceirizados por Localidade</span></div>
-          <div class="dc-card-body" id="listaEmpLocalidade"></div>
-          <div class="card-caption" id="captionEmpLocalidade"></div>
-        </div>
-      </div>
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-head"><span>Fornecedores em Situação Crítica</span></div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Fornecedor</th><th>Fase</th><th>Compliance Atual</th><th>Score de Risco</th><th>Processos Ativos</th><th>Contrato</th></tr></thead>
-        <tbody id="tbodyCriticos"></tbody>
-      </table></div>
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-head"><span>Panorama por Localidade (UF)</span></div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>UF</th><th>Fornecedores</th><th>Empregados</th><th>Compliance Médio</th><th>Contratos Vencidos</th><th>Em Fase 6</th></tr></thead>
-        <tbody id="tbodyPanoramaUF"></tbody>
-      </table></div>
-    </div>
-  </div>
+  
 
   <!-- ── Fornecedores ── -->
   <!-- ── Clientes ── -->
@@ -1210,7 +1131,7 @@ async function carregarDadosCliente(){
 
   popularFiltros();
   const btnAtivo = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
-  mudarAba(btnAtivo >= 0 ? ORDEM_ABAS[btnAtivo] : 'geral');
+  mudarAba(btnAtivo >= 0 ? ORDEM_ABAS[btnAtivo] : 'consolidado');
 }
 
 // UF real de um fornecedor: o campo gtt_fornecedores.localidades quase
@@ -1232,9 +1153,6 @@ function popularFiltros(){
     el.innerHTML = el.options[0].outerHTML + valores.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
     el.value = atual;
   };
-  preencher('fGeralFornecedor', nomes);
-  preencher('fGeralUF', ufsGeral);
-  preencher('fGeralFase', fases);
   preencher('fConsFornecedor', nomes);
   preencher('fConsUF', ufsGeral);
   preencher('fConsFase', fases);
@@ -1579,7 +1497,7 @@ function renderConsPanoramaUnidadeCliente(){
       <div class="barra-fill" style="width:${maxForn?(g.fornecedores/maxForn*100):0}%;background:#00A9E0;"></div>
       <span class="barra-nome" title="${esc(un)}">${esc(un)}</span>
       <span class="barra-valor">${g.fornecedores}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${g.fornecedores} forn.</span>
     </div>`).join('') || '<div class="empty-state">Sem dado de unidade.</div>';
 
   const ordenadoEmp = [...ordenado].sort((a,b)=>b[1].empregados-a[1].empregados);
@@ -1589,7 +1507,7 @@ function renderConsPanoramaUnidadeCliente(){
       <div class="barra-fill" style="width:${maxEmp?(g.empregados/maxEmp*100):0}%;background:#14324E;"></div>
       <span class="barra-nome" title="${esc(un)}">${esc(un)}</span>
       <span class="barra-valor">${g.empregados}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${g.empregados} emp.</span>
     </div>`).join('') || '<div class="empty-state">Sem dado de unidade.</div>';
 
   const ultimoMesLoc = [...new Set(LOCALIDADES.map(l=>l.mes_referencia))].sort().slice(-1)[0];
@@ -1602,7 +1520,7 @@ function renderConsPanoramaUnidadeCliente(){
       <div class="barra-fill" style="width:${maxCidade?(v/maxCidade*100):0}%;background:#00A9E0;"></div>
       <span class="barra-nome" title="${esc(cid)}">${esc(cid)}</span>
       <span class="barra-valor">${Math.round(v)}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${Math.round(v)} emp.</span>
     </div>`).join('') || '<div class="empty-state">Sem dado de cidade.</div>';
 }
 
@@ -1656,14 +1574,22 @@ function renderConsEmpregados(){
   const ufAtual = porUFMes(ultimoMes), ufAnterior = penultimoMes ? porUFMes(penultimoMes) : {};
   const ufsOrdenadas = Object.entries(ufAtual).sort((a,b)=>b[1]-a[1]).slice(0,14).map(e=>e[0]);
   const maxUF = ufsOrdenadas.length ? Math.max(...ufsOrdenadas.map(u=>Math.max(ufAtual[u]||0, ufAnterior[u]||0))) : 1;
-  document.getElementById('painelEfetivoUFComparativoCons').innerHTML = ufsOrdenadas.map(u => `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:44px;flex:1;">
-      <div style="display:flex;align-items:flex-end;gap:2px;height:100%;">
-        <div title="${penultimoMes?fmtMes(penultimoMes):'Mês anterior'}: ${ufAnterior[u]||0}" style="width:12px;height:${maxUF?(ufAnterior[u]||0)/maxUF*100:0}%;background:#C9D3DE;border-radius:2px 2px 0 0;"></div>
-        <div title="${ultimoMes?fmtMes(ultimoMes):'Mês atual'}: ${ufAtual[u]||0}" style="width:12px;height:${maxUF?(ufAtual[u]||0)/maxUF*100:0}%;background:#00A9E0;border-radius:2px 2px 0 0;"></div>
-      </div>
-      <div style="font-size:10.5px;font-weight:700;color:var(--muted2);margin-top:6px;">${esc(u)}</div>
-    </div>`).join('') || '<div class="empty-state">Sem dado de UF.</div>';
+  document.getElementById('painelEfetivoUFComparativoCons').innerHTML = `
+    <div style="display:flex;gap:14px;font-size:10px;font-weight:700;color:#5B6675;margin-bottom:8px;justify-content:center;">
+      <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#C9D3DE;margin-right:4px;"></span>${penultimoMes?esc(fmtMes(penultimoMes)):'Mês anterior'}</span>
+      <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#00A9E0;margin-right:4px;"></span>${ultimoMes?esc(fmtMes(ultimoMes)):'Mês atual'}</span>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:6px;height:150px;">
+    ${ufsOrdenadas.map(u => `
+      <div style="flex:1 1 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;">
+        <div style="font-size:10px;font-weight:800;color:var(--escuro-pc);">${Math.round(ufAtual[u]||0)}</div>
+        <div style="display:flex;align-items:flex-end;gap:2px;width:100%;justify-content:center;flex:1 1 0;min-height:0;">
+          <div style="width:44%;border-radius:3px 3px 0 0;background:#C9D3DE;height:${maxUF?(ufAnterior[u]||0)/maxUF*100:0}%;"></div>
+          <div style="width:44%;border-radius:3px 3px 0 0;background:#00A9E0;height:${maxUF?(ufAtual[u]||0)/maxUF*100:0}%;"></div>
+        </div>
+        <div style="font-size:9.5px;font-weight:700;color:#7C8A9B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${esc(u)}</div>
+      </div>`).join('')}
+    </div>` || '<div class="empty-state">Sem dado de UF.</div>';
 
   // Efetivo por Unidade Cliente (filial) — último mês
   const porUnidadeMes = {};
@@ -1675,7 +1601,7 @@ function renderConsEmpregados(){
       <div class="barra-fill" style="width:${maxUnidade?(v/maxUnidade*100):0}%;background:#14324E;"></div>
       <span class="barra-nome" title="${esc(un)}">${esc(un)}</span>
       <span class="barra-valor">${Math.round(v)}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${Math.round(v)} emp.</span>
     </div>`).join('') || '<div class="empty-state">Sem dado de unidade.</div>';
 
   // Maiores efetivos por fornecedor
@@ -1688,7 +1614,7 @@ function renderConsEmpregados(){
       <div class="barra-fill" style="width:${maxForn?(v/maxForn*100):0}%;background:#00A9E0;"></div>
       <span class="barra-nome" title="${esc(emp)}">${esc(emp)}</span>
       <span class="barra-valor">${Math.round(v)}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${Math.round(v)} emp.</span>
     </div>`).join('') || '<div class="empty-state">Sem dado de efetivo.</div>';
 
   // Maiores variações de efetivo no mês
@@ -1797,33 +1723,35 @@ function renderConsIrregularidades(){
     { label: 'Fornecedores com Apontamento', val: String(fornecedoresComApontamento), sub: `de ${doMes.length} auditados` },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
 
-  // Irregularidades de jornada — donut CSS (conic-gradient) + legenda
-  const CORES_JORNADA = ['#00A9E0','#14324E','#E8A33D','#C9553A','#7C8A9B'];
+  // Irregularidades de jornada — donut CSS (conic-gradient) + legenda,
+  // ranking por severidade (maior contagem = cor mais crítica), categorias
+  // zeradas ficam de fora (igual ao relatório modelo).
+  const RAMP_SEVERIDADE = ['#C9553A','#E67E22','#E8A33D','#00A9E0','#7C8A9B'];
   const catsJornada = [
-    { nome:'Cartões Britânico', campo:'cartoes_britanico' },
-    { nome:'>2h Extras', campo:'horas_extras_2h' },
-    { nome:'Intrajornada', campo:'intervalo_intrajornada' },
-    { nome:'Interjornada', campo:'intervalo_interjornada' },
+    { nome:'Cartões britânico', campo:'cartoes_britanico' },
+    { nome:'Mais de 2 horas extras', campo:'horas_extras_2h' },
+    { nome:'Intervalo intrajornada', campo:'intervalo_intrajornada' },
+    { nome:'Intervalo interjornada', campo:'intervalo_interjornada' },
     { nome:'DSR', campo:'dsr' },
-  ].map((c,i) => ({ ...c, cor: CORES_JORNADA[i], qtd: soma(c.campo) }));
+  ].map(c => ({ ...c, qtd: soma(c.campo) })).filter(c=>c.qtd>0).sort((a,b)=>b.qtd-a.qtd).map((c,i) => ({ ...c, cor: RAMP_SEVERIDADE[i]||'#7C8A9B' }));
   const totalJornada = catsJornada.reduce((s,c)=>s+c.qtd,0) || 1;
   let anguloJornada = 0;
   const stopsJornada = catsJornada.map(c => { const ini=anguloJornada; anguloJornada+=c.qtd/totalJornada*360; return `${c.cor} ${ini.toFixed(2)}deg, ${c.cor} ${anguloJornada.toFixed(2)}deg`; }).join(', ');
   document.getElementById('painelIrregJornadaCons').innerHTML = `
-    <div style="position:relative;width:120px;height:120px;border-radius:50%;flex:0 0 auto;background:conic-gradient(${stopsJornada || '#e2e8f0 0deg 360deg'});">
-      <div style="position:absolute;inset:22px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-        <div style="font-size:22px;font-weight:800;color:var(--escuro-pc);line-height:1;">${totalJornada===1&&!catsJornada.some(c=>c.qtd)?0:Math.round(catsJornada.reduce((s,c)=>s+c.qtd,0))}</div>
-        <div style="font-size:8px;font-weight:800;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;margin-top:3px;">total</div>
+    <div style="position:relative;width:150px;height:150px;border-radius:50%;flex:0 0 auto;background:conic-gradient(${stopsJornada || '#e2e8f0 0deg 360deg'});">
+      <div style="position:absolute;inset:27px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="font-size:26px;font-weight:800;color:var(--escuro-pc);line-height:1;">${Math.round(totalJornada===1&&!catsJornada.length?0:catsJornada.reduce((s,c)=>s+c.qtd,0))}</div>
+        <div style="font-size:9px;font-weight:800;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;margin-top:3px;">apontamentos</div>
       </div>
     </div>
-    <div style="flex:1 1 0;min-width:140px;">
+    <div style="flex:1 1 0;min-width:150px;">
       ${catsJornada.map(c => `
         <div class="fase-donut-legenda">
           <div class="fase-donut-cor" style="background:${c.cor};"></div>
           <div class="fase-donut-nome">${esc(c.nome)}</div>
           <div class="fase-donut-num">${Math.round(c.qtd)}</div>
           <div class="fase-donut-pct">${(c.qtd/totalJornada*100).toFixed(1).replace('.',',')}%</div>
-        </div>`).join('')}
+        </div>`).join('') || '<span class="hint">Sem apontamento na competência.</span>'}
     </div>`;
 
   const totalPorEmpresa = doMes.map(i => ({
@@ -1837,7 +1765,7 @@ function renderConsIrregularidades(){
       <div class="barra-fill" style="width:${maxTotalEmp?(e.total/maxTotalEmp*100):0}%;background:#C9553A;"></div>
       <span class="barra-nome" title="${esc(e.empresa)}">${esc(e.empresa)}</span>
       <span class="barra-valor">${Math.round(e.total)}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${Math.round(e.total)} apont.</span>
     </div>`).join('') || '<div class="empty-state">Sem irregularidade na competência.</div>';
 
   // Irregularidades documentais por tipo
@@ -1859,7 +1787,7 @@ function renderConsIrregularidades(){
       <div class="barra-fill" style="width:${maxDocEmp?(e.total/maxDocEmp*100):0}%;background:#E8A33D;"></div>
       <span class="barra-nome" title="${esc(e.empresa)}">${esc(e.empresa)}</span>
       <span class="barra-valor">${Math.round(e.total)}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${Math.round(e.total)} apont.</span>
     </div>`).join('') || '<div class="empty-state">Sem irregularidade documental na competência.</div>';
 
   // Rescisões · pontos de atenção
@@ -1972,7 +1900,7 @@ function renderConsProcessos(){
       <div class="barra-fill" style="width:${maxComarca?(qtd/maxComarca*100):0}%;background:#C9553A;"></div>
       <span class="barra-nome" title="${esc(c)}">${esc(c)}</span>
       <span class="barra-valor">${qtd}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${qtd} proc.</span>
     </div>`).join('') || '<div class="empty-state">Sem dado de comarca.</div>';
 
   // Assuntos mais pleiteados
@@ -1985,7 +1913,7 @@ function renderConsProcessos(){
       <div class="barra-fill" style="width:${maxAssunto?(qtd/maxAssunto*100):0}%;background:#00A9E0;"></div>
       <span class="barra-nome" title="${esc(a)}">${esc(a)}</span>
       <span class="barra-valor">${qtd}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${qtd} proc.</span>
     </div>`).join('') || '<div class="empty-state">Sem dado de assunto.</div>';
 
   // Principais reclamadas · empresa empregadora
@@ -2043,7 +1971,7 @@ function renderConsContratos(){
       <div class="barra-fill" style="width:${maxUnidadeVenc?(v/maxUnidadeVenc*100):0}%;background:#C9553A;"></div>
       <span class="barra-nome" title="${esc(un)}">${esc(un)}</span>
       <span class="barra-valor">${v}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${v} contr.</span>
     </div>`).join('') || '<div class="empty-state">Nenhum contrato vencido.</div>';
 
   const ufOrdenadoVenc = Object.entries(vencidosPorUF).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -2053,7 +1981,7 @@ function renderConsContratos(){
       <div class="barra-fill" style="width:${maxUFVenc?(v/maxUFVenc*100):0}%;background:#C9553A;"></div>
       <span class="barra-nome">${esc(uf)}</span>
       <span class="barra-valor">${v}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${v} contr.</span>
     </div>`).join('') || '<div class="empty-state">Nenhum contrato vencido.</div>';
 
   const filaRegularizacao = ativos.filter(f => f.status_contrato==='VENCIDO' || f.status_contrato==='AGUARDANDO DOCUMENTO' || f.status_contrato==='VENCIMENTO PRÓXIMO').sort((a,b)=>(a.status_contrato||'').localeCompare(b.status_contrato||''));
@@ -2112,7 +2040,7 @@ function renderConsParcelamentos(){
       <div class="barra-fill" style="width:${maxEmpresaParc?(v/maxEmpresaParc*100):0}%;background:#14324E;"></div>
       <span class="barra-nome" title="${esc(e)}">${esc(e)}</span>
       <span class="barra-valor">${v}</span>
-      <span class="barra-pct"></span>
+      <span class="barra-pct">${v} acordos</span>
     </div>`).join('') || '<div class="empty-state">Sem parcelamento.</div>';
 
   document.getElementById('tbodyParcelamentosCons').innerHTML = PARCELAMENTOS.map((p,i) => {
@@ -2141,13 +2069,12 @@ function renderConsolidado(){
   renderConsParcelamentos();
 }
 
-const ORDEM_ABAS = ['consolidado','geral','fornecedores','clientes','empregados','documentos','tarefas','irregularidades','processos','contratos','parcelamentos','bi'];
+const ORDEM_ABAS = ['consolidado','fornecedores','clientes','empregados','documentos','tarefas','irregularidades','processos','contratos','parcelamentos','bi'];
 function mudarAba(aba){
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ORDEM_ABAS[i]===aba));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+aba).classList.add('active');
   if(aba==='consolidado') renderConsolidado();
-  if(aba==='geral') renderGeral();
   if(aba==='fornecedores') renderFornecedores();
   if(aba==='clientes') renderClientes();
   if(aba==='empregados') { renderEmpregadosAnalitico(); renderEmpregados(); }
@@ -2161,213 +2088,7 @@ function mudarAba(aba){
 }
 
 // ── Cenário Geral ────────────────────────────────────────────────────
-function renderGeral(){
-  const filtroFornecedor = document.getElementById('fGeralFornecedor').value;
-  const filtroUF = document.getElementById('fGeralUF').value;
-  const filtroFase = document.getElementById('fGeralFase').value;
-  let fornecedores = FORNECEDORES.filter(f => f.status !== 'INATIVA');
-  if(filtroFornecedor) fornecedores = fornecedores.filter(f => f.empresa === filtroFornecedor);
-  if(filtroUF) fornecedores = fornecedores.filter(f => ufDoFornecedor(f.empresa) === filtroUF);
-  if(filtroFase) fornecedores = fornecedores.filter(f => f.fase_atual === filtroFase);
-  // Todo cálculo derivado (compliance, empregados, processos, irregularidades)
-  // usa este mesmo conjunto — senão fornecedor/UF/fase filtram a lista mas
-  // os KPIs continuam somando dado de fora da seleção.
-  const nomesFiltrados = new Set(fornecedores.map(f=>f.empresa));
 
-  // Status de contrato — 4 categorias reais (antes só olhava Vencido/Vigente
-  // e descartava "Aguardando documento" e "Vencimento Próximo" em silêncio)
-  const porStatusContrato = {};
-  fornecedores.forEach(f => { const s = (f.status_contrato||'Sem informação').trim(); porStatusContrato[s] = (porStatusContrato[s]||0)+1; });
-  const vencidos = porStatusContrato['VENCIDO']||0;
-  const vigentes = porStatusContrato['VIGENTE']||0;
-
-  const scores = fornecedores.map(f => ({ f, ...scoreRisco(f.empresa) }));
-  const complMedio = scores.filter(s=>s.complAtual!=null).reduce((s,x,_,arr) => s + x.complAtual/arr.length, 0);
-  const criticos = scores.filter(s => classeRisco(s.score).classe === 'critico').length;
-
-  // Compliance A.A. — média dos últimos 12 meses (não só o mês corrente)
-  const complFiltrado = COMPLIANCE.filter(c => nomesFiltrados.has(c.empresa));
-  const meses12 = [...new Set(complFiltrado.map(c=>c.mes_referencia))].sort().slice(-12);
-  const valoresAno = complFiltrado.filter(c=>meses12.includes(c.mes_referencia)).map(c=>Number(c.compliance)).filter(v=>!isNaN(v));
-  const complAno = valoresAno.length ? valoresAno.reduce((a,b)=>a+b,0)/valoresAno.length : null;
-
-  // Empregados terceirizados (via localidades, com série mensal) + variação
-  const locFiltrado = LOCALIDADES.filter(l => nomesFiltrados.has(l.empresa));
-  const mesesLoc = [...new Set(locFiltrado.map(l=>l.mes_referencia))].sort();
-  const ultimoMesLoc = mesesLoc[mesesLoc.length-1], penultimoMesLoc = mesesLoc[mesesLoc.length-2];
-  const somaEmpMes = mes => locFiltrado.filter(l=>l.mes_referencia===mes).reduce((s,l)=>s+(Number(l.qtd_funcionarios)||0),0);
-  const empAtual = ultimoMesLoc ? somaEmpMes(ultimoMesLoc) : 0;
-  const empAnterior = penultimoMesLoc ? somaEmpMes(penultimoMesLoc) : null;
-  const empDelta = empAnterior!=null ? empAtual-empAnterior : null;
-
-  // Processos de terceiros (valor de causa total) — respeitando os filtros.
-  // Sem filtro nenhum mostra todos os processos (inclusive de fornecedores
-  // inativos/fora da carteira atual) — só restringe por nome quando algum
-  // filtro de verdade está ativo, senão o casamento por substring (nome
-  // truncado) descarta processos legítimos de fora da lista de ativos.
-  const semFiltroAlgum = !filtroFornecedor && !filtroUF && !filtroFase;
-  const processosFiltrados = semFiltroAlgum ? PROCESSOS : PROCESSOS.filter(p => [...nomesFiltrados].some(nome => (p.empresa_reclamada||'').toUpperCase().includes(nome.toUpperCase().slice(0,12))));
-  const valorCausaTotal = processosFiltrados.reduce((s,p)=>s+(Number(p.valor_causa)||0),0);
-
-  // Irregularidades de jornada do mês
-  const irregFiltrado = IRREGULARIDADES.filter(i => nomesFiltrados.has(i.empresa));
-  const ultimoMesIrreg = irregFiltrado.length ? [...new Set(irregFiltrado.map(i=>i.mes_referencia))].sort().pop() : null;
-  const irregDoMes = irregFiltrado.filter(i=>i.mes_referencia===ultimoMesIrreg);
-  const irregJornada = irregDoMes.reduce((s,i)=> s + (Number(i.cartoes_britanico)||0) + (Number(i.horas_extras_2h)||0) + (Number(i.intervalo_intrajornada)||0) + (Number(i.intervalo_interjornada)||0) + (Number(i.dsr)||0), 0);
-
-  // Cor de destaque por KPI, igual ao relatório modelo — cada card tem uma
-  // cor própria (não é sempre navy): identidade fixa pra Fornecedores/
-  // Empregados/Processos; semáforo de status pra Compliance/Irregularidades.
-  const corComplMedio = complMedio>=0.7 ? '#188049' : complMedio>=0.4 ? '#E8A33D' : '#C9553A';
-  const corIrreg = irregJornada>0 ? '#C9553A' : '#188049';
-  document.getElementById('kpiGeral').innerHTML = [
-    { label: 'Fornecedores', val: String(fornecedores.length), sub: 'ativos no GTT', cor:'#14324E' },
-    { label: 'Compliance Médio', val: fmtPct(complMedio), sub: `documental do mês${complAno!=null ? ' · A.A. '+fmtPct(complAno) : ''}`, cor:corComplMedio },
-    { label: 'Empregados Terceirizados', val: empAtual.toLocaleString('pt-BR'), delta: empDelta!=null ? {texto:(empDelta>=0?'+':'')+empDelta+' vs. mês anterior', classe: empDelta>=0?'pos':'neg'} : null, cor:'#00A9E0' },
-    { label: 'Contratos Vigentes', val: String(vigentes), sub: vencidos>0 ? `${vencidos} vencidos requerem ação` : 'nenhum vencido', cor:'#188049' },
-    { label: 'Irregularidades de Jornada', val: irregJornada.toLocaleString('pt-BR'), sub: 'apontadas no mês', cor:corIrreg },
-    { label: 'Processos de Terceiros', val: String(processosFiltrados.length), sub: `${fmtMi(valorCausaTotal)} em causa`, cor:'#E67E22' },
-  ].map(c => `<div class="kpi-card" style="border-left-color:${c.cor};"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num" style="color:${c.cor};">${c.val}</span>${c.delta?`<span class="kpi-delta ${c.delta.classe}">${esc(c.delta.texto)}</span>`:''}</div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
-
-  document.getElementById('resumoSelecaoGeral').textContent = `${fornecedores.length} fornecedores · ${empAtual.toLocaleString('pt-BR')} empregados · ${processosFiltrados.length} processos na seleção`;
-
-  // Fase de monitoramento — donut CSS (conic-gradient) + legenda, igual ao
-  // relatório modelo (não é gráfico Chart.js).
-  const CORES_FASE = { 'FASE 3':'#00A9E0', 'FASE 4':'#4FA8E0', 'FASE 5':'#E8A33D', 'FASE 6':'#188049' };
-  const porFase = {};
-  fornecedores.forEach(f => { const fase = f.fase_atual || 'Sem fase'; porFase[fase] = (porFase[fase]||0)+1; });
-  const labelsFase = Object.keys(porFase).sort();
-  const totalFase = labelsFase.reduce((s,l)=>s+porFase[l],0) || 1;
-  let anguloAcum = 0;
-  const stops = labelsFase.map(l => {
-    const cor = CORES_FASE[l] || '#7E98AA';
-    const grausIni = anguloAcum;
-    anguloAcum += porFase[l]/totalFase*360;
-    return `${cor} ${grausIni.toFixed(2)}deg, ${cor} ${anguloAcum.toFixed(2)}deg`;
-  }).join(', ');
-  document.getElementById('painelFaseMonitoramento').innerHTML = `
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;">
-      <div style="position:relative;width:150px;height:150px;border-radius:50%;flex:0 0 auto;background:conic-gradient(${stops || '#e2e8f0 0deg 360deg'});">
-        <div style="position:absolute;inset:27px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-          <div style="font-size:26px;font-weight:800;color:var(--escuro-pc);line-height:1;">${totalFase===1&&!labelsFase.length?0:fornecedores.length}</div>
-          <div style="font-size:9px;font-weight:800;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;margin-top:3px;">fornecedores</div>
-        </div>
-      </div>
-      <div style="flex:1 1 0;min-width:150px;">
-        ${labelsFase.map(l => `
-          <div class="fase-donut-legenda">
-            <div class="fase-donut-cor" style="background:${CORES_FASE[l]||'#7E98AA'};"></div>
-            <div class="fase-donut-nome">${esc(l)}</div>
-            <div class="fase-donut-num">${porFase[l]}</div>
-            <div class="fase-donut-pct">${(porFase[l]/totalFase*100).toFixed(1).replace('.',',')}%</div>
-          </div>`).join('') || '<span class="hint">Sem fornecedores na seleção.</span>'}
-      </div>
-    </div>`;
-
-  // Compliance documental por fornecedor — lista rankeada com barra inline,
-  // igual ao relatório modelo (não é gráfico Chart.js). Largura da barra
-  // normalizada pelo maior valor da lista (não é % literal do compliance).
-  const mesesOrdenados = [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort();
-  const ultimoMes = mesesOrdenados[mesesOrdenados.length-1];
-  const complMesAtual = COMPLIANCE.filter(c => c.mes_referencia===ultimoMes && nomesFiltrados.has(c.empresa))
-    .map(c => ({ empresa:c.empresa, pct: Number(c.compliance)*100 }))
-    .filter(c => !isNaN(c.pct))
-    .sort((a,b) => b.pct-a.pct);
-  const maxCompl = complMesAtual.length ? complMesAtual[0].pct : 1;
-  document.getElementById('listaComplianceFornecedor').innerHTML = complMesAtual.map(c => `
-    <div class="barra-linha">
-      <div class="barra-fill" style="width:${maxCompl?(c.pct/maxCompl*100):0}%;background:#00A9E0;"></div>
-      <span class="barra-nome" title="${esc(c.empresa)}">${esc(c.empresa)}</span>
-      <span class="barra-valor">${Math.round(c.pct)}</span>
-      <span class="barra-pct">${c.pct.toFixed(1).replace('.',',')}%</span>
-    </div>`).join('') || '<div class="empty-state">Sem dado de compliance na competência.</div>';
-
-  // Status dos contratos — 4 categorias reais, cores de status (estado),
-  // não da paleta categórica (identidade). Barra normalizada pelo maior
-  // valor da lista, igual ao relatório modelo.
-  const CORES_STATUS_CONTRATO = { 'VIGENTE':'#188049', 'VENCIMENTO PRÓXIMO':'#E8A33D', 'AGUARDANDO DOCUMENTO':'#C9D3DE', 'VENCIDO':'#C9553A', 'Sem informação':'#c3c2b7' };
-  const statusOrdenado = Object.entries(porStatusContrato).sort((a,b)=>b[1]-a[1]);
-  const totalStatus = statusOrdenado.reduce((s,[,v])=>s+v,0) || 1;
-  const maxStatus = statusOrdenado.length ? statusOrdenado[0][1] : 1;
-  document.getElementById('listaStatusContratos').innerHTML = statusOrdenado.map(([k,v]) => `
-    <div class="barra-linha">
-      <div class="barra-fill" style="width:${maxStatus?(v/maxStatus*100):0}%;background:${CORES_STATUS_CONTRATO[k]||'#7E98AA'};"></div>
-      <span class="barra-nome">${esc(k)}</span>
-      <span class="barra-valor">${v}</span>
-      <span class="barra-pct">${(v/totalStatus*100).toFixed(0)}%</span>
-    </div>`).join('') || '<div class="empty-state">Sem contratos na seleção.</div>';
-
-  // Evolução do compliance médio — janela de 14 meses (últimos 14 com
-  // dado), barras verticais CSS igual ao relatório modelo.
-  const evoMesesGeral = mesesOrdenados.filter(m=>m).slice(-14);
-  const evoValoresGeral = evoMesesGeral.map(m => {
-    const vals = COMPLIANCE.filter(c=>c.mes_referencia===m && nomesFiltrados.has(c.empresa)).map(c=>Number(c.compliance)*100).filter(v=>!isNaN(v));
-    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
-  });
-  document.getElementById('tituloEvolucaoGeral').innerHTML = `<span>Evolução do Compliance Médio${evoMesesGeral.length?' · '+fmtMes(evoMesesGeral[0])+' a '+fmtMes(evoMesesGeral.at(-1)):''}</span>`;
-  const maxEvo = Math.max(...evoValoresGeral.filter(v=>v!=null), 1);
-  document.getElementById('painelEvolucaoGeral').innerHTML = `
-    <div style="display:flex;align-items:flex-end;gap:5px;height:150px;">
-      ${evoMesesGeral.map((m,i) => {
-        const v = evoValoresGeral[i];
-        return `<div class="evo-barra-col">
-          <div class="evo-barra-num">${v!=null?Math.round(v):'—'}</div>
-          <div style="width:100%;border-radius:3px 3px 0 0;height:${v!=null?Math.max(v/maxEvo*100,2):2}%;background:#00A9E0;"></div>
-          <div class="evo-barra-mes">${fmtMes(m)}</div>
-        </div>`;
-      }).join('')}
-    </div>`;
-
-  // Empregados terceirizados por localidade (UF), mês corrente — barra
-  // normalizada pelo maior valor, igual ao relatório modelo.
-  document.getElementById('captionEmpLocalidade').textContent = ultimoMesLoc ? `Quantidade de empregados na competência ${fmtMes(ultimoMesLoc)}.` : '';
-  const porUFEmp = {};
-  locFiltrado.filter(l=>l.mes_referencia===ultimoMesLoc).forEach(l => { const uf = l.uf||'—'; porUFEmp[uf] = (porUFEmp[uf]||0) + (Number(l.qtd_funcionarios)||0); });
-  const ufsOrdenadas = Object.entries(porUFEmp).sort((a,b)=>b[1]-a[1]);
-  const maxUFEmp = ufsOrdenadas.length ? ufsOrdenadas[0][1] : 1;
-  document.getElementById('listaEmpLocalidade').innerHTML = ufsOrdenadas.map(([uf,v]) => `
-    <div class="barra-linha">
-      <div class="barra-fill" style="width:${maxUFEmp?(v/maxUFEmp*100):0}%;background:#7FD4EF;"></div>
-      <span class="barra-nome">${esc(uf)}</span>
-      <span class="barra-valor">${v}</span>
-      <span class="barra-pct">${v} emp.</span>
-    </div>`).join('') || '<div class="empty-state">Sem dado de localidade.</div>';
-
-  // Tabela de críticos
-  const criticosOrdenados = scores.filter(s => classeRisco(s.score).classe !== 'ok').sort((a,b)=>b.score-a.score).slice(0,20);
-  document.getElementById('tbodyCriticos').innerHTML = criticosOrdenados.map(s => {
-    const c = classeRisco(s.score);
-    return `<tr>
-      <td>${esc(s.f.empresa)}</td>
-      <td>${esc(s.f.fase_atual||'—')}</td>
-      <td class="mono">${fmtPct(s.complAtual)}</td>
-      <td><span class="badge ${c.classe}">${s.score} · ${c.texto}</span></td>
-      <td class="mono">${s.qtdProcessosAtivos}</td>
-      <td>${esc(s.f.status_contrato||'—')}</td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="6" class="empty-state">Nenhum fornecedor em atenção/crítico.</td></tr>';
-
-  // Panorama por localidade (UF) — equivalente ao "por unidade cliente" do
-  // relatório modelo, mas usando a UF real (gtt_terceiros_localidade), já
-  // que aqui uma "unidade" da BAT é geográfica, não um cliente à parte.
-  const porUFPanorama = {};
-  fornecedores.forEach(f => {
-    const uf = ufDoFornecedor(f.empresa) || '—';
-    porUFPanorama[uf] = porUFPanorama[uf] || { fornecedores:0, empregados:0, complSoma:0, complN:0, vencidos:0, fase6:0 };
-    const g = porUFPanorama[uf];
-    g.fornecedores++;
-    const loc = LOCALIDADES.filter(l=>l.empresa===f.empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
-    g.empregados += loc ? Math.round(loc.qtd_funcionarios||0) : 0;
-    const sc = scoreRisco(f.empresa);
-    if(sc.complAtual!=null){ g.complSoma += sc.complAtual; g.complN++; }
-    if(f.status_contrato==='VENCIDO') g.vencidos++;
-    if((f.fase_atual||'').includes('6')) g.fase6++;
-  });
-  const panoramaOrdenado = Object.entries(porUFPanorama).sort((a,b)=>b[1].empregados-a[1].empregados);
-  document.getElementById('tbodyPanoramaUF').innerHTML = panoramaOrdenado.map(([uf,g]) => `
-    <tr><td>${esc(uf)}</td><td class="mono">${g.fornecedores}</td><td class="mono">${g.empregados.toLocaleString('pt-BR')}</td><td class="mono">${g.complN?fmtPct(g.complSoma/g.complN):'—'}</td><td class="mono">${g.vencidos}</td><td class="mono">${g.fase6}</td></tr>
-  `).join('') || '<tr><td colspan="6" class="empty-state">Sem dados de localidade.</td></tr>';
-}
 
 // ── Fornecedores ─────────────────────────────────────────────────────
 function renderFornecedores(){
