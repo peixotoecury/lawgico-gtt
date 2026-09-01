@@ -383,20 +383,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
 
   <!-- ── Documentos ── -->
   <div id="page-documentos" class="page">
-    <div class="grid-2">
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Distribuição por Faixa de Compliance</span></div>
-        <div class="dash-card-body" style="height:220px;"><canvas id="chartFaixaCompliance"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Documentos Não Inseridos no Mês · % por Fornecedor</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartNaoInseridos"></canvas></div>
-      </div>
-      <div class="dash-card" style="grid-column:1/-1;">
-        <div class="dash-card-head"><span>Melhores Desempenhos Documentais</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartMelhoresDesempenhos"></canvas></div>
-      </div>
-    </div>
     <div class="filter-row">
       <div class="form-group"><label class="form-label">Fornecedor</label>
         <select id="fDocFornecedor" class="form-input" onchange="renderDocumentos()"><option value="">Todos</option></select>
@@ -483,14 +469,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
         <div class="dash-card-head"><span>Irregularidades por Fornecedor (Total)</span></div>
         <div class="dash-card-body" style="height:260px;"><canvas id="chartIrregEmpresa"></canvas></div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Irregularidades Documentais por Tipo</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartIrregDocTipo"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Cobertura da Auditoria por Fornecedor</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartCoberturaAuditoria"></canvas></div>
-      </div>
     </div>
   </div>
 
@@ -503,32 +481,9 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
         <div class="dash-card-body" style="height:240px;"><canvas id="chartSituacaoProcessos"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-head"><span>Vínculo com o GTT</span></div>
-        <div class="dash-card-body" style="height:240px;"><canvas id="chartVinculoGtt"></canvas></div>
-      </div>
-      <div class="dash-card">
         <div class="dash-card-head"><span>Exposição por UF (Valor de Causa)</span></div>
         <div class="dash-card-body" style="height:240px;"><canvas id="chartProcessosUF"></canvas></div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Distribuição por Ano de Ajuizamento</span></div>
-        <div class="dash-card-body" style="height:240px;"><canvas id="chartProcessosAno"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Desfecho</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartDesfecho"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Comarcas com Maior Litigiosidade</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartComarcas"></canvas></div>
-      </div>
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-head"><span>Principais Reclamadas · Empresa Empregadora</span></div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Terceira Principal</th><th>Processos</th><th>Valor de Causa</th><th>Médio</th><th>Share</th></tr></thead>
-        <tbody id="tbodyReclamadas"></tbody>
-      </table></div>
     </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Processos</span></div>
@@ -542,24 +497,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   <!-- ── Contratos ── -->
   <div id="page-contratos" class="page">
     <div class="kpi-grid" id="kpiContratos"></div>
-    <div class="grid-2">
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Status dos Contratos</span></div>
-        <div class="dash-card-body" style="height:220px;"><canvas id="chartStatusContratosTab"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Contratos Vencidos por UF</span></div>
-        <div class="dash-card-body" style="height:220px;"><canvas id="chartVencidosUF"></canvas></div>
-      </div>
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-head"><span>Fila de Regularização Contratual</span></div>
-      <div class="hint" style="padding:10px 16px 0;">Só fornecedores fora de "Vigente" — os que precisam de ação.</div>
-      <div class="table-wrap"><table class="rel-table">
-        <thead><tr><th>Fornecedor</th><th>UF</th><th>Status Contrato</th><th>Fase Atual</th><th>Empregados</th><th>Compl. Mês</th></tr></thead>
-        <tbody id="tbodyFilaRegularizacao"></tbody>
-      </table></div>
-    </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Gestão de Contratos de Prestação de Serviços</span></div>
       <div class="table-wrap"><table class="rel-table">
@@ -572,20 +509,6 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   <!-- ── Parcelamentos ── -->
   <div id="page-parcelamentos" class="page">
     <div class="kpi-grid" id="kpiParcelamentos"></div>
-    <div class="grid-2">
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Parcelamentos por Tipo de Débito</span></div>
-        <div class="dash-card-body" style="height:220px;"><canvas id="chartParcTipo"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Status Geral dos Acordos</span></div>
-        <div class="dash-card-body" style="height:220px;"><canvas id="chartParcStatus"></canvas></div>
-      </div>
-      <div class="dash-card" style="grid-column:1/-1;">
-        <div class="dash-card-head"><span>Parcelamentos por Empresa</span></div>
-        <div class="dash-card-body" style="height:200px;"><canvas id="chartParcEmpresa"></canvas></div>
-      </div>
-    </div>
     <div class="dash-card">
       <div class="dash-card-head"><span>Parcelamentos por Fornecedor</span></div>
       <div class="hint" style="padding:10px 16px 0;">Clique numa linha pra ver as parcelas individuais.</div>
@@ -878,7 +801,7 @@ function mudarAba(aba){
   if(aba==='fornecedores') renderFornecedores();
   if(aba==='clientes') renderClientes();
   if(aba==='empregados') { renderEmpregadosAnalitico(); renderEmpregados(); }
-  if(aba==='documentos') { renderDocumentosAnalitico(); renderDocumentos(); }
+  if(aba==='documentos') renderDocumentos();
   if(aba==='tarefas') renderTarefas(true);
   if(aba==='irregularidades') renderIrregularidades();
   if(aba==='processos') renderProcessos();
@@ -1113,39 +1036,6 @@ async function alterarStatusFornecedor(id, novoStatus){
 // ── Documentos ───────────────────────────────────────────────────────
 // Busca sob demanda, só do fornecedor escolhido — a tabela inteira tem
 // 66 mil+ linhas, buscar tudo de uma vez travava a entrada no sistema.
-// ── Documentos · painel analítico (distribuição de compliance, ranking) ──
-let CHART_FAIXA_COMPLIANCE=null, CHART_NAO_INSERIDOS=null, CHART_MELHORES_DESEMPENHOS=null;
-function renderDocumentosAnalitico(){
-  const ultimoMes = COMPLIANCE.length ? [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort().pop() : null;
-  const doMes = COMPLIANCE.filter(c => c.mes_referencia===ultimoMes && c.compliance!=null);
-
-  const faixas = [ [0,20], [20,40], [40,60], [60,80], [80,100.0001] ];
-  const porFaixa = faixas.map(([ini,fim]) => doMes.filter(c => Number(c.compliance)*100>=ini && Number(c.compliance)*100<fim).length);
-  if(CHART_FAIXA_COMPLIANCE) CHART_FAIXA_COMPLIANCE.destroy();
-  CHART_FAIXA_COMPLIANCE = new Chart(document.getElementById('chartFaixaCompliance'), {
-    type:'bar',
-    data:{ labels: faixas.map(([ini,fim])=>`${ini}% a ${Math.min(fim,100)}%`), datasets:[{ data: porFaixa, backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:44 }] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11},formatter:(v)=>{const t=doMes.length||1;return `${v} (${(v/t*100).toFixed(0)}%)`;}}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
-  });
-
-  const ranking = doMes.map(c => ({ empresa:c.empresa, pct: Number(c.compliance)*100 }));
-  const naoInseridos = ranking.map(r=>({empresa:r.empresa, pct: 100-r.pct})).sort((a,b)=>b.pct-a.pct).slice(0,15);
-  if(CHART_NAO_INSERIDOS) CHART_NAO_INSERIDOS.destroy();
-  CHART_NAO_INSERIDOS = new Chart(document.getElementById('chartNaoInseridos'), {
-    type:'bar',
-    data:{ labels: naoInseridos.map(r=>r.empresa.length>26?r.empresa.slice(0,26)+'…':r.empresa), datasets:[{ data: naoInseridos.map(r=>r.pct.toFixed(0)), backgroundColor:'#d03b3b', borderRadius:4, maxBarThickness:22 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>v+'%'}}, scales:{x:{max:100,grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
-
-  const melhores = ranking.sort((a,b)=>b.pct-a.pct).slice(0,15);
-  if(CHART_MELHORES_DESEMPENHOS) CHART_MELHORES_DESEMPENHOS.destroy();
-  CHART_MELHORES_DESEMPENHOS = new Chart(document.getElementById('chartMelhoresDesempenhos'), {
-    type:'bar',
-    data:{ labels: melhores.map(r=>r.empresa.length>26?r.empresa.slice(0,26)+'…':r.empresa), datasets:[{ data: melhores.map(r=>r.pct.toFixed(0)), backgroundColor:'#0ca30c', borderRadius:4, maxBarThickness:22 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>v+'%'}}, scales:{x:{max:100,grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
-}
-
 let DOC_CACHE = {};
 async function renderDocumentos(){
   const filtro = document.getElementById('fDocFornecedor').value;
@@ -1309,7 +1199,7 @@ async function exportarTarefasExcel(){
 }
 
 // ── Irregularidades ──────────────────────────────────────────────────
-let CHART_IRREG_JORNADA=null, CHART_IRREG_EMPRESA=null, CHART_IRREG_DOC_TIPO=null, CHART_COBERTURA_AUDITORIA=null;
+let CHART_IRREG_JORNADA=null, CHART_IRREG_EMPRESA=null;
 function renderIrregularidades(){
   const ultimoMes = IRREGULARIDADES.length ? [...new Set(IRREGULARIDADES.map(i=>i.mes_referencia))].sort().pop() : null;
   const doMes = IRREGULARIDADES.filter(i => i.mes_referencia === ultimoMes);
@@ -1349,30 +1239,10 @@ function renderIrregularidades(){
       datasets:[{ data: totalPorEmpresa.map(e=>e.total), backgroundColor:'#d03b3b', borderRadius:4, maxBarThickness:26 }] },
     options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
   });
-
-  // Irregularidades documentais por tipo
-  const docTipoOrdenado = Object.entries(docTipos).map(([label,campo])=>[label,soma(campo)]).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
-  if(CHART_IRREG_DOC_TIPO) CHART_IRREG_DOC_TIPO.destroy();
-  CHART_IRREG_DOC_TIPO = new Chart(document.getElementById('chartIrregDocTipo'), {
-    type:'bar',
-    data:{ labels: docTipoOrdenado.map(e=>e[0]), datasets:[{ data: docTipoOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[7], borderRadius:4, maxBarThickness:34 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11},formatter:v=>`${v} (${totalDocumentais?(v/totalDocumentais*100).toFixed(0):0}%)`}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
-
-  // Cobertura da auditoria por fornecedor (% analisado / ativo), piores primeiro
-  const cobertura = doMes.map(i => ({ empresa: i.empresa, pct: Number(i.qtd_terceiros_ativos)>0 ? Number(i.qtd_terceiros_analisados)/Number(i.qtd_terceiros_ativos)*100 : null }))
-    .filter(c => c.pct!=null).sort((a,b)=>a.pct-b.pct).slice(0,15);
-  if(CHART_COBERTURA_AUDITORIA) CHART_COBERTURA_AUDITORIA.destroy();
-  CHART_COBERTURA_AUDITORIA = new Chart(document.getElementById('chartCoberturaAuditoria'), {
-    type:'bar',
-    data:{ labels: cobertura.map(c=>c.empresa.length>22?c.empresa.slice(0,22)+'…':c.empresa), datasets:[{ data: cobertura.map(c=>c.pct.toFixed(1)), backgroundColor:PALETA_CATEGORICA[3], borderRadius:4, maxBarThickness:22 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>v+'%'}}, scales:{x:{max:100,grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
 }
 
 // ── Processos ────────────────────────────────────────────────────────
 let CHART_SITUACAO=null, CHART_PROC_UF=null;
-let CHART_VINCULO_GTT=null, CHART_PROC_ANO=null, CHART_DESFECHO=null, CHART_COMARCAS=null;
 function renderProcessos(){
   const totalCausa = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_causa)||0),0);
   const totalDeposito = PROCESSOS.reduce((s,p)=>s+(Number(p.valor_deposito)||0),0);
@@ -1395,15 +1265,6 @@ function renderProcessos(){
     options:{ maintainAspectRatio:false, cutout:'58%', plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12}},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(1)+'%)':v;}}} },
   });
 
-  // Vínculo com o GTT — precisa das colunas novas (terceira_ativa_no_gtt)
-  const porVinculo = {};
-  PROCESSOS.forEach(p => { const v = p.terceira_ativa_no_gtt || 'Sem informação'; porVinculo[v]=(porVinculo[v]||0)+1; });
-  if(CHART_VINCULO_GTT) CHART_VINCULO_GTT.destroy();
-  CHART_VINCULO_GTT = new Chart(document.getElementById('chartVinculoGtt'), {
-    type:'doughnut', data:{ labels:Object.keys(porVinculo), datasets:[{data:Object.values(porVinculo), backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8}] },
-    options:{ maintainAspectRatio:false, cutout:'58%', plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12}},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(1)+'%)':v;}}} },
-  });
-
   // Exposição por UF — agora em valor de causa, não em contagem
   const causaPorUF = {};
   PROCESSOS.forEach(p => { const u = p.uf||'—'; causaPorUF[u] = (causaPorUF[u]||0) + (Number(p.valor_causa)||0); });
@@ -1414,57 +1275,12 @@ function renderProcessos(){
     options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>fmtMi(v)}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'},ticks:{callback:v=>fmtMi(v)}}} },
   });
 
-  // Distribuição por ano de ajuizamento
-  const porAno = {};
-  PROCESSOS.forEach(p => { const a = p.ano_distribuicao || '—'; porAno[a]=(porAno[a]||0)+1; });
-  const anosOrdenados = Object.keys(porAno).sort();
-  if(CHART_PROC_ANO) CHART_PROC_ANO.destroy();
-  CHART_PROC_ANO = new Chart(document.getElementById('chartProcessosAno'), {
-    type:'bar', data:{ labels:anosOrdenados, datasets:[{data:anosOrdenados.map(a=>porAno[a]), backgroundColor:PALETA_CATEGORICA[2], borderRadius:4, maxBarThickness:44}] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
-  });
-
-  // Desfecho
-  const porDesfecho = {};
-  PROCESSOS.forEach(p => { const d = p.tipo_desfecho || 'Sem informação'; porDesfecho[d]=(porDesfecho[d]||0)+1; });
-  const desfechoOrdenado = Object.entries(porDesfecho).sort((a,b)=>b[1]-a[1]);
-  if(CHART_DESFECHO) CHART_DESFECHO.destroy();
-  CHART_DESFECHO = new Chart(document.getElementById('chartDesfecho'), {
-    type:'bar', data:{ labels:desfechoOrdenado.map(e=>e[0].length>28?e[0].slice(0,28)+'…':e[0]), datasets:[{data:desfechoOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:26}] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
-
-  // Comarcas com maior litigiosidade
-  const porComarca = {};
-  PROCESSOS.forEach(p => { const c = p.comarca || '—'; porComarca[c]=(porComarca[c]||0)+1; });
-  const comarcasOrdenadas = Object.entries(porComarca).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  if(CHART_COMARCAS) CHART_COMARCAS.destroy();
-  CHART_COMARCAS = new Chart(document.getElementById('chartComarcas'), {
-    type:'bar', data:{ labels:comarcasOrdenadas.map(e=>e[0]), datasets:[{data:comarcasOrdenadas.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[6], borderRadius:4, maxBarThickness:26}] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
-
-  // Principais reclamadas (empresa empregadora)
-  const porReclamada = {};
-  PROCESSOS.forEach(p => {
-    const emp = p.empresa_reclamada || '—';
-    porReclamada[emp] = porReclamada[emp] || { qtd:0, valor:0 };
-    porReclamada[emp].qtd++;
-    porReclamada[emp].valor += Number(p.valor_causa)||0;
-  });
-  const totalProcessosComReclamada = PROCESSOS.length || 1;
-  const reclamadasOrdenadas = Object.entries(porReclamada).sort((a,b)=>b[1].qtd-a[1].qtd).slice(0,20);
-  document.getElementById('tbodyReclamadas').innerHTML = reclamadasOrdenadas.map(([nome,d]) => `
-    <tr><td>${esc(nome)}</td><td class="mono">${d.qtd}</td><td class="mono">${fmtMi(d.valor)}</td><td class="mono">${fmtMi(d.valor/d.qtd)}</td><td class="mono">${(d.qtd/totalProcessosComReclamada*100).toFixed(1)}%</td></tr>
-  `).join('') || '<tr><td colspan="5" class="empty-state">Nenhum processo.</td></tr>';
-
   document.getElementById('tbodyProcessos').innerHTML = PROCESSOS.slice(0,200).map(p => `
     <tr><td class="mono">${esc(p.numero_processo)}</td><td>${esc(p.empresa_reclamada||'—')}</td><td>${esc(p.situacao||'—')}</td><td>${esc(p.fase||'—')}</td><td>${esc(p.uf||'—')}</td><td>${esc(p.terceira_ativa_no_gtt||'—')}</td><td>${esc(p.tipo_desfecho||'—')}</td><td class="mono">${fmtMoney(p.valor_causa)}</td></tr>
   `).join('') || '<tr><td colspan="8" class="empty-state">Nenhum processo.</td></tr>';
 }
 
 // ── Contratos ────────────────────────────────────────────────────────
-let CHART_STATUS_CONTRATOS_TAB=null, CHART_VENCIDOS_UF=null;
 function renderContratos(){
   const ativos = FORNECEDORES.filter(f => f.status !== 'INATIVA');
   const porStatus = {};
@@ -1479,32 +1295,6 @@ function renderContratos(){
     { label:'Vencimento Próximo', val:String(porStatus['VENCIMENTO PRÓXIMO']||0) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
 
-  const CORES_STATUS_CONTRATO = { 'VIGENTE':'#0ca30c', 'VENCIMENTO PRÓXIMO':'#fab219', 'AGUARDANDO DOCUMENTO':'#ec835a', 'VENCIDO':'#d03b3b', 'Sem informação':'#c3c2b7' };
-  const statusOrdenado = Object.entries(porStatus).sort((a,b)=>b[1]-a[1]);
-  if(CHART_STATUS_CONTRATOS_TAB) CHART_STATUS_CONTRATOS_TAB.destroy();
-  CHART_STATUS_CONTRATOS_TAB = new Chart(document.getElementById('chartStatusContratosTab'), {
-    type:'bar',
-    data:{ labels: statusOrdenado.map(([k])=>k), datasets:[{ data: statusOrdenado.map(([,v])=>v), backgroundColor: statusOrdenado.map(([k])=>CORES_STATUS_CONTRATO[k]||'#7E98AA'), borderRadius:4, maxBarThickness:34 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
-
-  const vencidosPorUF = {};
-  ativos.filter(f=>f.status_contrato==='VENCIDO').forEach(f => { const uf=ufDoFornecedor(f.empresa)||'—'; vencidosPorUF[uf]=(vencidosPorUF[uf]||0)+1; });
-  const ufOrdenado = Object.entries(vencidosPorUF).sort((a,b)=>b[1]-a[1]).slice(0,12);
-  if(CHART_VENCIDOS_UF) CHART_VENCIDOS_UF.destroy();
-  CHART_VENCIDOS_UF = new Chart(document.getElementById('chartVencidosUF'), {
-    type:'bar', data:{ labels: ufOrdenado.map(e=>e[0]), datasets:[{data:ufOrdenado.map(e=>e[1]), backgroundColor:'#d03b3b', borderRadius:4, maxBarThickness:40}] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
-  });
-
-  const filaRegularizacao = ativos.filter(f => f.status_contrato!=='VIGENTE').sort((a,b)=>(a.status_contrato==='VENCIDO'?0:1)-(b.status_contrato==='VENCIDO'?0:1));
-  document.getElementById('tbodyFilaRegularizacao').innerHTML = filaRegularizacao.map(f => {
-    const cor = f.status_contrato==='VENCIDO' ? 'critico' : f.status_contrato==='VENCIMENTO PRÓXIMO' ? 'atencao' : 'neutro';
-    const loc = LOCALIDADES.filter(l => l.empresa === f.empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
-    const s = scoreRisco(f.empresa);
-    return `<tr><td>${esc(f.empresa)}</td><td>${esc(loc?.uf||'—')}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'Sem informação')}</span></td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${loc?Math.round(loc.qtd_funcionarios||0):'—'}</td><td class="mono">${fmtPct(s.complAtual)}</td></tr>`;
-  }).join('') || '<tr><td colspan="6" class="empty-state">Nenhum fornecedor pendente de regularização.</td></tr>';
-
   document.getElementById('tbodyContratos').innerHTML = ativos.map(f => {
     const cor = f.status_contrato==='VENCIDO' ? 'critico' : f.status_contrato==='VIGENTE' ? 'ok' : 'atencao';
     return `<tr><td>${esc(f.empresa)}</td><td>${esc(f.fase_atual||'—')}</td><td class="mono">${f.vencimento_contrato||'—'}</td><td><span class="badge ${cor}">${esc(f.status_contrato||'—')}</span></td><td>${esc(ufDoFornecedor(f.empresa)||'—')}</td></tr>`;
@@ -1513,7 +1303,6 @@ function renderContratos(){
 
 // ── Parcelamentos ────────────────────────────────────────────────────
 let PARCELAS_ABERTAS = {};
-let CHART_PARC_TIPO=null, CHART_PARC_STATUS=null, CHART_PARC_EMPRESA=null;
 function renderParcelamentos(){
   const quitados = PARCELAMENTOS.filter(p => p.status_geral === 'QUITADO').length;
   const vencidos = PARCELAMENTOS.filter(p => (p.parcelas_vencidas||0) > 0).length;
@@ -1522,34 +1311,6 @@ function renderParcelamentos(){
     { label: 'Quitados', val: String(quitados) },
     { label: 'Com Parcelas Vencidas', val: String(vencidos) },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div></div>`).join('');
-
-  const porTipo = {};
-  PARCELAMENTOS.forEach(p => { const t = p.tipo_parcelamento||'—'; porTipo[t]=(porTipo[t]||0)+1; });
-  const tipoOrdenado = Object.entries(porTipo).sort((a,b)=>b[1]-a[1]);
-  if(CHART_PARC_TIPO) CHART_PARC_TIPO.destroy();
-  CHART_PARC_TIPO = new Chart(document.getElementById('chartParcTipo'), {
-    type:'doughnut', data:{ labels:tipoOrdenado.map(e=>e[0]), datasets:[{data:tipoOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8}] },
-    options:{ maintainAspectRatio:false, cutout:'58%', plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12}},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(0)+'%)':v;}}} },
-  });
-
-  const CORES_STATUS_PARC = { 'QUITADO':'#0ca30c', 'PAGO':'#2a78d6', 'VENCIDO':'#d03b3b', 'PENDENTE DE INFORMAÇÃO':'#c3c2b7' };
-  const porStatusParc = {};
-  PARCELAMENTOS.forEach(p => { const s = p.status_geral||'—'; porStatusParc[s]=(porStatusParc[s]||0)+1; });
-  const statusParcOrdenado = Object.entries(porStatusParc).sort((a,b)=>b[1]-a[1]);
-  if(CHART_PARC_STATUS) CHART_PARC_STATUS.destroy();
-  CHART_PARC_STATUS = new Chart(document.getElementById('chartParcStatus'), {
-    type:'bar', data:{ labels:statusParcOrdenado.map(e=>e[0]), datasets:[{data:statusParcOrdenado.map(e=>e[1]), backgroundColor:statusParcOrdenado.map(e=>CORES_STATUS_PARC[e[0]]||'#7E98AA'), borderRadius:4, maxBarThickness:34}] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
-  });
-
-  const porEmpresaParc = {};
-  PARCELAMENTOS.forEach(p => { const e = p.empresa||'—'; porEmpresaParc[e]=(porEmpresaParc[e]||0)+1; });
-  const empresaParcOrdenado = Object.entries(porEmpresaParc).sort((a,b)=>b[1]-a[1]);
-  if(CHART_PARC_EMPRESA) CHART_PARC_EMPRESA.destroy();
-  CHART_PARC_EMPRESA = new Chart(document.getElementById('chartParcEmpresa'), {
-    type:'bar', data:{ labels:empresaParcOrdenado.map(e=>e[0]), datasets:[{data:empresaParcOrdenado.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:40}] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
-  });
 
   document.getElementById('tbodyParcelamentos').innerHTML = PARCELAMENTOS.map((p,i) => {
     const cor = p.status_geral==='QUITADO' ? 'ok' : (p.parcelas_vencidas>0 ? 'critico' : 'atencao');
