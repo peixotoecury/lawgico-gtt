@@ -351,6 +351,35 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   <!-- ── Fornecedores ── -->
   <!-- ── Clientes ── -->
   <div id="page-clientes" class="page">
+    <div class="dc-grid" style="margin-bottom:16px;">
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Fornecedores por Unidade Cliente</span></div>
+          <div class="dc-card-body" id="listaFornPorUnidade"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Empregados por Unidade Cliente</span></div>
+          <div class="dc-card-body" id="listaEmpPorUnidade"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Cidades com Maior Efetivo Terceirizado</span></div>
+          <div class="dc-card-body" id="listaCidadesEfetivo"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 12;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Panorama por Unidade Cliente</span></div>
+          <div class="table-wrap"><table class="rel-table">
+            <thead><tr><th>Unidade Cliente</th><th>Fornecedores</th><th>Empregados</th><th>Compliance Médio</th><th>Contratos Vencidos</th><th>Em Fase 6</th></tr></thead>
+            <tbody id="tbodyPanoramaUnidade"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
     <div class="filter-row">
       <div class="form-group"><label class="form-label">Nome</label><input type="text" id="fClienteNome" class="form-input" placeholder="Buscar..." oninput="renderClientes()"></div>
     </div>
@@ -369,18 +398,30 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   <!-- ── Empregados ── -->
   <div id="page-empregados" class="page">
     <div class="kpi-grid" id="kpiEmpregadosAnalitico"></div>
-    <div class="grid-2">
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Efetivo por UF · Mês Anterior vs. Atual</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartEfetivoUFComparativo"></canvas></div>
+    <div class="dc-grid" style="margin-top:16px;">
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Efetivo por UF · Mês Anterior vs. Atual</span></div>
+          <div class="dc-card-body" id="painelEfetivoUFComparativo" style="display:flex;align-items:flex-end;gap:10px;height:220px;padding:16px 12px;overflow-x:auto;"></div>
+        </div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Maiores Efetivos por Fornecedor</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartMaioresEfetivos"></canvas></div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Efetivo por Unidade Cliente</span></div>
+          <div class="dc-card-body" id="listaEfetivoUnidade"></div>
+        </div>
       </div>
-      <div class="dash-card" style="grid-column:1/-1;">
-        <div class="dash-card-head"><span>Maiores Variações de Efetivo no Mês</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartVariacoesEfetivo"></canvas></div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Maiores Efetivos por Fornecedor</span></div>
+          <div class="dc-card-body" id="listaMaioresEfetivos"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Maiores Variações de Efetivo no Mês</span></div>
+          <div class="dc-card-body" id="listaVariacoesEfetivo"></div>
+        </div>
       </div>
     </div>
     <div class="filter-row">
@@ -418,6 +459,12 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
         <select id="fFornFase" class="form-input" onchange="renderFornecedores()"><option value="">Todas</option></select>
       </div>
     </div>
+    <div class="dc-grid" style="margin-bottom:16px;">
+      <div class="dc-card" style="grid-column:span 12;">
+        <div class="dash-card-head"><span>Menor Compliance do Mês · Atenção Prioritária</span></div>
+        <div class="dc-card-body" id="listaMenorComplianceForn"></div>
+      </div>
+    </div>
     <div class="dash-card">
       <div class="dash-card-head">
         <span>Fornecedores <span id="contagemFornecedores"></span></span>
@@ -432,6 +479,32 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
 
   <!-- ── Documentos ── -->
   <div id="page-documentos" class="page">
+    <div class="dc-grid" style="margin-bottom:16px;">
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head" id="tituloEvolucaoDocumentos">Série Histórica do Compliance Documental</div>
+          <div class="dc-card-body" id="painelEvolucaoDocumentos" style="padding:16px 12px;"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Distribuição por Faixa de Compliance</span></div>
+          <div class="dc-card-body" id="listaFaixaCompliance"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Documentos Não Inseridos no Mês · % por Fornecedor</span></div>
+          <div class="dc-card-body" id="listaNaoInseridos"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Melhores Desempenhos Documentais</span></div>
+          <div class="dc-card-body" id="listaMelhoresDocumentais"></div>
+        </div>
+      </div>
+    </div>
     <div class="filter-row">
       <div class="form-group"><label class="form-label">Fornecedor</label>
         <select id="fDocFornecedor" class="form-input" onchange="renderDocumentos()"><option value="">Todos</option></select>
@@ -509,14 +582,45 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
   <!-- ── Irregularidades ── -->
   <div id="page-irregularidades" class="page">
     <div class="kpi-grid" id="kpiIrregularidades"></div>
-    <div class="grid-2">
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Irregularidades de Jornada</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartIrregJornada"></canvas></div>
+    <div class="dc-grid" style="margin-top:16px;">
+      <div style="grid-column:span 4;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Irregularidades de Jornada</span></div>
+          <div class="dc-card-body" style="display:flex;align-items:center;gap:18px;padding:16px;" id="painelIrregJornada"></div>
+        </div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><span>Irregularidades por Fornecedor (Total)</span></div>
-        <div class="dash-card-body" style="height:260px;"><canvas id="chartIrregEmpresa"></canvas></div>
+      <div style="grid-column:span 8;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Irregularidades por Fornecedor (Total)</span></div>
+          <div class="dc-card-body" id="listaIrregEmpresa"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Irregularidades Documentais por Tipo</span></div>
+          <div class="dc-card-body" id="listaIrregDocTipo"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Irregularidades Documentais por Fornecedor</span></div>
+          <div class="dc-card-body" id="listaIrregDocFornecedor"></div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Rescisões · Pontos de Atenção</span></div>
+          <div class="dc-card-body" style="padding:14px;">
+            <div class="kpi-grid" id="kpiRescisoesAtencao" style="grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+          </div>
+          <div class="card-caption">Lista suja: fornecedores com GRRF ou TRCT em aberto nas rescisões do mês exigem acompanhamento prioritário.</div>
+        </div>
+      </div>
+      <div style="grid-column:span 6;">
+        <div class="dc-card">
+          <div class="dash-card-head"><span>Cobertura da Auditoria por Fornecedor</span></div>
+          <div class="dc-card-body" id="listaCoberturaAuditoria"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1105,6 +1209,19 @@ function renderFornecedores(){
       </td>
     </tr>`;
   }).join('') || '<tr><td colspan="10" class="empty-state">Nenhum fornecedor encontrado.</td></tr>';
+
+  const piores = lista.filter(f=>f.status==='ATIVO').map(f=>{
+    const s = scoreRisco(f.empresa);
+    return { empresa:f.empresa, pct: s.complAtual!=null ? s.complAtual*100 : null };
+  }).filter(x=>x.pct!==null && !isNaN(x.pct)).sort((a,b)=>a.pct-b.pct).slice(0,10);
+  const maxPior = piores.length ? Math.max(...piores.map(x=>x.pct)) : 1;
+  document.getElementById('listaMenorComplianceForn').innerHTML = piores.map(c => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxPior?(c.pct/maxPior*100):0}%;background:${c.pct<40?'#C9553A':c.pct<70?'#E8A33D':'#188049'};"></div>
+      <span class="barra-nome" title="${esc(c.empresa)}">${esc(c.empresa)}</span>
+      <span class="barra-valor">${Math.round(c.pct)}</span>
+      <span class="barra-pct">${c.pct.toFixed(1).replace('.',',')}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de compliance na competência.</div>';
 }
 
 async function alterarStatusFornecedor(id, novoStatus){
@@ -1121,7 +1238,81 @@ async function alterarStatusFornecedor(id, novoStatus){
 // Busca sob demanda, só do fornecedor escolhido — a tabela inteira tem
 // 66 mil+ linhas, buscar tudo de uma vez travava a entrada no sistema.
 let DOC_CACHE = {};
+function renderDocumentosAnalitico(){
+  const fornecedoresAtivos = FORNECEDORES.filter(f=>f.status!=='INATIVA').map(f=>f.empresa);
+  const nomesAtivos = new Set(fornecedoresAtivos);
+  const mesesOrdenados = [...new Set(COMPLIANCE.map(c=>c.mes_referencia))].sort();
+  const ultimoMes = mesesOrdenados[mesesOrdenados.length-1];
+
+  // Série histórica do compliance médio — 14 meses, barras verticais
+  const evoMeses = mesesOrdenados.filter(m=>m).slice(-14);
+  const evoValores = evoMeses.map(m => {
+    const vals = COMPLIANCE.filter(c=>c.mes_referencia===m && nomesAtivos.has(c.empresa)).map(c=>Number(c.compliance)*100).filter(v=>!isNaN(v));
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+  });
+  document.getElementById('tituloEvolucaoDocumentos').innerHTML = `<span>Série Histórica do Compliance Documental${evoMeses.length?' · '+fmtMes(evoMeses[0])+' a '+fmtMes(evoMeses.at(-1)):''}</span>`;
+  const maxEvo = Math.max(...evoValores.filter(v=>v!=null), 1);
+  document.getElementById('painelEvolucaoDocumentos').innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:5px;height:150px;">
+      ${evoMeses.map((m,i) => {
+        const v = evoValores[i];
+        return `<div class="evo-barra-col">
+          <div class="evo-barra-num">${v!=null?Math.round(v):'—'}</div>
+          <div style="width:100%;border-radius:3px 3px 0 0;height:${v!=null?Math.max(v/maxEvo*100,2):2}%;background:#00A9E0;"></div>
+          <div class="evo-barra-mes">${fmtMes(m)}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // Compliance atual (último mês) por fornecedor ativo
+  const complAtualPorForn = fornecedoresAtivos.map(emp => {
+    const c = COMPLIANCE.filter(x=>x.empresa===emp && x.mes_referencia===ultimoMes)[0];
+    return { empresa: emp, pct: c ? Number(c.compliance)*100 : null };
+  }).filter(x=>x.pct!=null && !isNaN(x.pct));
+
+  // Distribuição por faixa de compliance
+  const faixas = [
+    { nome:'0–20%', min:0, max:20, cor:'#C9553A' },
+    { nome:'21–40%', min:20, max:40, cor:'#E8A33D' },
+    { nome:'41–60%', min:40, max:60, cor:'#E8A33D' },
+    { nome:'61–80%', min:60, max:80, cor:'#00A9E0' },
+    { nome:'81–100%', min:80, max:101, cor:'#188049' },
+  ];
+  const contagemFaixas = faixas.map(fx => ({ ...fx, qtd: complAtualPorForn.filter(c=>c.pct>=fx.min && c.pct<fx.max).length }));
+  const maxFaixa = Math.max(...contagemFaixas.map(f=>f.qtd), 1);
+  document.getElementById('listaFaixaCompliance').innerHTML = contagemFaixas.map(fx => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxFaixa?(fx.qtd/maxFaixa*100):0}%;background:${fx.cor};"></div>
+      <span class="barra-nome">${fx.nome}</span>
+      <span class="barra-valor">${fx.qtd}</span>
+      <span class="barra-pct">${complAtualPorForn.length?(fx.qtd/complAtualPorForn.length*100).toFixed(0):0}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de compliance na competência.</div>';
+
+  // Documentos não inseridos no mês (100% - compliance) · % por fornecedor — piores primeiro
+  const naoInseridos = complAtualPorForn.map(c=>({ empresa:c.empresa, pct: 100-c.pct })).sort((a,b)=>b.pct-a.pct).slice(0,10);
+  const maxNaoIns = naoInseridos.length ? naoInseridos[0].pct : 1;
+  document.getElementById('listaNaoInseridos').innerHTML = naoInseridos.map(c => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxNaoIns?(c.pct/maxNaoIns*100):0}%;background:#C9553A;"></div>
+      <span class="barra-nome" title="${esc(c.empresa)}">${esc(c.empresa)}</span>
+      <span class="barra-valor">${Math.round(c.pct)}</span>
+      <span class="barra-pct">${c.pct.toFixed(1).replace('.',',')}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de compliance na competência.</div>';
+
+  // Melhores desempenhos documentais
+  const melhores = [...complAtualPorForn].sort((a,b)=>b.pct-a.pct).slice(0,10);
+  const maxMelhor = melhores.length ? melhores[0].pct : 1;
+  document.getElementById('listaMelhoresDocumentais').innerHTML = melhores.map(c => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxMelhor?(c.pct/maxMelhor*100):0}%;background:#188049;"></div>
+      <span class="barra-nome" title="${esc(c.empresa)}">${esc(c.empresa)}</span>
+      <span class="barra-valor">${Math.round(c.pct)}</span>
+      <span class="barra-pct">${c.pct.toFixed(1).replace('.',',')}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de compliance na competência.</div>';
+}
+
 async function renderDocumentos(){
+  renderDocumentosAnalitico();
   const filtro = document.getElementById('fDocFornecedor').value;
   const tbody = document.getElementById('tbodyDocumentos');
   if(!filtro){
@@ -1283,7 +1474,6 @@ async function exportarTarefasExcel(){
 }
 
 // ── Irregularidades ──────────────────────────────────────────────────
-let CHART_IRREG_JORNADA=null, CHART_IRREG_EMPRESA=null;
 function renderIrregularidades(){
   const ultimoMes = IRREGULARIDADES.length ? [...new Set(IRREGULARIDADES.map(i=>i.mes_referencia))].sort().pop() : null;
   const doMes = IRREGULARIDADES.filter(i => i.mes_referencia === ultimoMes);
@@ -1302,27 +1492,92 @@ function renderIrregularidades(){
     { label: 'Fornecedores com Apontamento', val: String(fornecedoresComApontamento), sub: `de ${doMes.length} auditados` },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
 
-  if(CHART_IRREG_JORNADA) CHART_IRREG_JORNADA.destroy();
-  CHART_IRREG_JORNADA = new Chart(document.getElementById('chartIrregJornada'), {
-    type:'doughnut',
-    data:{ labels:['Cartões Britânico','>2h Extras','Intrajornada','Interjornada','DSR'],
-      datasets:[{ data:['cartoes_britanico','horas_extras_2h','intervalo_intrajornada','intervalo_interjornada','dsr'].map(soma),
-        backgroundColor:PALETA_CATEGORICA, borderColor:'#fff', borderWidth:2, hoverOffset:8 }] },
-    options:{ maintainAspectRatio:false, cutout:'58%', plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:12}}, datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:(v,ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return t?v+' ('+(v/t*100).toFixed(1)+'%)':v;}} } },
-  });
+  // Irregularidades de jornada — donut CSS (conic-gradient) + legenda
+  const CORES_JORNADA = ['#00A9E0','#14324E','#E8A33D','#C9553A','#7C8A9B'];
+  const catsJornada = [
+    { nome:'Cartões Britânico', campo:'cartoes_britanico' },
+    { nome:'>2h Extras', campo:'horas_extras_2h' },
+    { nome:'Intrajornada', campo:'intervalo_intrajornada' },
+    { nome:'Interjornada', campo:'intervalo_interjornada' },
+    { nome:'DSR', campo:'dsr' },
+  ].map((c,i) => ({ ...c, cor: CORES_JORNADA[i], qtd: soma(c.campo) }));
+  const totalJornada = catsJornada.reduce((s,c)=>s+c.qtd,0) || 1;
+  let anguloJornada = 0;
+  const stopsJornada = catsJornada.map(c => { const ini=anguloJornada; anguloJornada+=c.qtd/totalJornada*360; return `${c.cor} ${ini.toFixed(2)}deg, ${c.cor} ${anguloJornada.toFixed(2)}deg`; }).join(', ');
+  document.getElementById('painelIrregJornada').innerHTML = `
+    <div style="position:relative;width:120px;height:120px;border-radius:50%;flex:0 0 auto;background:conic-gradient(${stopsJornada || '#e2e8f0 0deg 360deg'});">
+      <div style="position:absolute;inset:22px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="font-size:22px;font-weight:800;color:var(--escuro-pc);line-height:1;">${totalJornada===1&&!catsJornada.some(c=>c.qtd)?0:Math.round(catsJornada.reduce((s,c)=>s+c.qtd,0))}</div>
+        <div style="font-size:8px;font-weight:800;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;margin-top:3px;">total</div>
+      </div>
+    </div>
+    <div style="flex:1 1 0;min-width:140px;">
+      ${catsJornada.map(c => `
+        <div class="fase-donut-legenda">
+          <div class="fase-donut-cor" style="background:${c.cor};"></div>
+          <div class="fase-donut-nome">${esc(c.nome)}</div>
+          <div class="fase-donut-num">${Math.round(c.qtd)}</div>
+          <div class="fase-donut-pct">${(c.qtd/totalJornada*100).toFixed(1).replace('.',',')}%</div>
+        </div>`).join('')}
+    </div>`;
 
   const totalPorEmpresa = doMes.map(i => ({
     empresa: i.empresa,
     total: ['cartoes_britanico','horas_extras_2h','intervalo_intrajornada','intervalo_interjornada','dsr','irregularidades_rescisoes','irregularidades_trct','irregularidades_grrf']
       .reduce((s,c) => s + (Number(i[c])||0), 0),
   })).sort((a,b)=>b.total-a.total).slice(0,10);
-  if(CHART_IRREG_EMPRESA) CHART_IRREG_EMPRESA.destroy();
-  CHART_IRREG_EMPRESA = new Chart(document.getElementById('chartIrregEmpresa'), {
-    type:'bar',
-    data:{ labels: totalPorEmpresa.map(e=>e.empresa.length>18?e.empresa.slice(0,18)+'…':e.empresa),
-      datasets:[{ data: totalPorEmpresa.map(e=>e.total), backgroundColor:'#d03b3b', borderRadius:4, maxBarThickness:26 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:11}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
+  const maxTotalEmp = totalPorEmpresa.length ? totalPorEmpresa[0].total : 1;
+  document.getElementById('listaIrregEmpresa').innerHTML = totalPorEmpresa.map(e => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxTotalEmp?(e.total/maxTotalEmp*100):0}%;background:#C9553A;"></div>
+      <span class="barra-nome" title="${esc(e.empresa)}">${esc(e.empresa)}</span>
+      <span class="barra-valor">${Math.round(e.total)}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem irregularidade na competência.</div>';
+
+  // Irregularidades documentais por tipo
+  const tiposOrdenados = Object.entries(docTipos).map(([nome,campo])=>({nome,qtd:soma(campo)})).sort((a,b)=>b.qtd-a.qtd);
+  const maxTipo = tiposOrdenados.length ? tiposOrdenados[0].qtd : 1;
+  document.getElementById('listaIrregDocTipo').innerHTML = tiposOrdenados.map(t => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxTipo?(t.qtd/maxTipo*100):0}%;background:#E8A33D;"></div>
+      <span class="barra-nome">${esc(t.nome)}</span>
+      <span class="barra-valor">${Math.round(t.qtd)}</span>
+      <span class="barra-pct">${totalDocumentais?(t.qtd/totalDocumentais*100).toFixed(0):0}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem irregularidade documental na competência.</div>';
+
+  // Irregularidades documentais por fornecedor
+  const docPorEmpresa = doMes.map(i => ({ empresa:i.empresa, total: Object.values(docTipos).reduce((s,c)=>s+(Number(i[c])||0),0) })).filter(e=>e.total>0).sort((a,b)=>b.total-a.total).slice(0,10);
+  const maxDocEmp = docPorEmpresa.length ? docPorEmpresa[0].total : 1;
+  document.getElementById('listaIrregDocFornecedor').innerHTML = docPorEmpresa.map(e => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxDocEmp?(e.total/maxDocEmp*100):0}%;background:#E8A33D;"></div>
+      <span class="barra-nome" title="${esc(e.empresa)}">${esc(e.empresa)}</span>
+      <span class="barra-valor">${Math.round(e.total)}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem irregularidade documental na competência.</div>';
+
+  // Rescisões · pontos de atenção
+  document.getElementById('kpiRescisoesAtencao').innerHTML = [
+    { label:'Rescisões Analisadas', val: Math.round(soma('total_rescisoes')).toLocaleString('pt-BR'), cor:'#14324E' },
+    { label:'Documentos Conferidos', val: Math.round(soma('total_docs_rescisoes')).toLocaleString('pt-BR'), cor:'#00A9E0' },
+    { label:'Irregularidades em Rescisões', val: Math.round(soma('irregularidades_rescisoes')).toLocaleString('pt-BR'), cor:'#C9553A' },
+    { label:'GRRF / TRCT em Aberto', val: `${Math.round(soma('irregularidades_grrf'))} / ${Math.round(soma('irregularidades_trct'))}`, cor:'#E8A33D' },
+  ].map(c => `<div class="kpi-card" style="border-left-color:${c.cor};"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num" style="font-size:20px;color:${c.cor};">${c.val}</span></div></div>`).join('');
+
+  // Cobertura da auditoria por fornecedor — pior cobertura primeiro
+  const cobertura = doMes.map(i => {
+    const ativos = Number(i.qtd_terceiros_ativos)||0, analisados = Number(i.qtd_terceiros_analisados)||0;
+    return { empresa:i.empresa, pct: ativos ? Math.min(100, analisados/ativos*100) : null };
+  }).filter(x=>x.pct!=null).sort((a,b)=>a.pct-b.pct).slice(0,10);
+  const maxCobertura = cobertura.length ? Math.max(...cobertura.map(c=>c.pct)) : 1;
+  document.getElementById('listaCoberturaAuditoria').innerHTML = cobertura.map(c => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxCobertura?(c.pct/maxCobertura*100):0}%;background:${c.pct<40?'#C9553A':c.pct<70?'#E8A33D':'#188049'};"></div>
+      <span class="barra-nome" title="${esc(c.empresa)}">${esc(c.empresa)}</span>
+      <span class="barra-valor">${Math.round(c.pct)}</span>
+      <span class="barra-pct">${c.pct.toFixed(1).replace('.',',')}%</span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de cobertura na competência.</div>';
 }
 
 // ── Processos ────────────────────────────────────────────────────────
@@ -1428,7 +1683,65 @@ function toggleParcelaDetalhe(id, empresa, numeroParcelamento){
 }
 
 // ── Clientes ─────────────────────────────────────────────────────────
+function renderPanoramaUnidadeCliente(){
+  const fornecedores = FORNECEDORES.filter(f => f.status !== 'INATIVA');
+  const filialDoFornecedor = (empresa) => {
+    const loc = LOCALIDADES.filter(l=>l.empresa===empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
+    return loc && loc.filial ? loc.filial : '—';
+  };
+  const porUnidade = {};
+  fornecedores.forEach(f => {
+    const un = filialDoFornecedor(f.empresa);
+    porUnidade[un] = porUnidade[un] || { fornecedores:0, empregados:0, complSoma:0, complN:0, vencidos:0, fase6:0 };
+    const g = porUnidade[un];
+    g.fornecedores++;
+    const loc = LOCALIDADES.filter(l=>l.empresa===f.empresa).sort((a,b)=>b.mes_referencia.localeCompare(a.mes_referencia))[0];
+    g.empregados += loc ? Math.round(loc.qtd_funcionarios||0) : 0;
+    const sc = scoreRisco(f.empresa);
+    if(sc.complAtual!=null){ g.complSoma += sc.complAtual; g.complN++; }
+    if(f.status_contrato==='VENCIDO') g.vencidos++;
+    if((f.fase_atual||'').includes('6')) g.fase6++;
+  });
+  const ordenado = Object.entries(porUnidade).sort((a,b)=>b[1].empregados-a[1].empregados);
+  document.getElementById('tbodyPanoramaUnidade').innerHTML = ordenado.map(([un,g]) => `
+    <tr><td>${esc(un)}</td><td class="mono">${g.fornecedores}</td><td class="mono">${g.empregados.toLocaleString('pt-BR')}</td><td class="mono">${g.complN?fmtPct(g.complSoma/g.complN):'—'}</td><td class="mono">${g.vencidos}</td><td class="mono">${g.fase6}</td></tr>
+  `).join('') || '<tr><td colspan="6" class="empty-state">Sem dados de unidade.</td></tr>';
+
+  const maxForn = ordenado.length ? Math.max(...ordenado.map(([,g])=>g.fornecedores)) : 1;
+  document.getElementById('listaFornPorUnidade').innerHTML = ordenado.slice(0,10).map(([un,g]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxForn?(g.fornecedores/maxForn*100):0}%;background:#00A9E0;"></div>
+      <span class="barra-nome" title="${esc(un)}">${esc(un)}</span>
+      <span class="barra-valor">${g.fornecedores}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de unidade.</div>';
+
+  const ordenadoEmp = [...ordenado].sort((a,b)=>b[1].empregados-a[1].empregados);
+  const maxEmp = ordenadoEmp.length ? Math.max(...ordenadoEmp.map(([,g])=>g.empregados)) : 1;
+  document.getElementById('listaEmpPorUnidade').innerHTML = ordenadoEmp.slice(0,10).map(([un,g]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxEmp?(g.empregados/maxEmp*100):0}%;background:#14324E;"></div>
+      <span class="barra-nome" title="${esc(un)}">${esc(un)}</span>
+      <span class="barra-valor">${g.empregados}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de unidade.</div>';
+
+  const ultimoMesLoc = [...new Set(LOCALIDADES.map(l=>l.mes_referencia))].sort().slice(-1)[0];
+  const porCidade = {};
+  LOCALIDADES.filter(l=>l.mes_referencia===ultimoMesLoc).forEach(l => { const c = l.cidade||'—'; porCidade[c] = (porCidade[c]||0) + (Number(l.qtd_funcionarios)||0); });
+  const cidadesOrdenadas = Object.entries(porCidade).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxCidade = cidadesOrdenadas.length ? cidadesOrdenadas[0][1] : 1;
+  document.getElementById('listaCidadesEfetivo').innerHTML = cidadesOrdenadas.map(([cid,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxCidade?(v/maxCidade*100):0}%;background:#00A9E0;"></div>
+      <span class="barra-nome" title="${esc(cid)}">${esc(cid)}</span>
+      <span class="barra-valor">${Math.round(v)}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de cidade.</div>';
+}
+
 function renderClientes(){
+  renderPanoramaUnidadeCliente();
   const nome = document.getElementById('fClienteNome').value.toLowerCase();
   const lista = CLIENTES.filter(c => !nome || c.nome.toLowerCase().includes(nome));
   document.getElementById('contagemClientes').textContent = `(${lista.length})`;
@@ -1489,7 +1802,6 @@ async function salvarCliente(id){
 
 // ── Empregados ───────────────────────────────────────────────────────
 // ── Empregados · painel analítico (efetivo mensal via gtt_terceiros_localidade) ──
-let CHART_EFETIVO_UF_COMP=null, CHART_MAIORES_EFETIVOS=null, CHART_VARIACOES_EFETIVO=null;
 function renderEmpregadosAnalitico(){
   const meses = [...new Set(LOCALIDADES.map(l=>l.mes_referencia))].sort();
   const ultimoMes = meses[meses.length-1], penultimoMes = meses[meses.length-2];
@@ -1517,42 +1829,59 @@ function renderEmpregadosAnalitico(){
     { label:'Fornecedores com Efetivo', val:String(fornecedoresComEfetivo), sub:'com pelo menos 1 empregado' },
   ].map(c => `<div class="kpi-card"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num">${c.val}</span></div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
 
-  // Efetivo por UF — mês anterior vs atual
+  // Efetivo por UF — mês anterior vs atual (barras verticais pareadas HTML/CSS)
   const porUFMes = (mes) => { const m={}; LOCALIDADES.filter(l=>l.mes_referencia===mes).forEach(l=>{const u=l.uf||'—'; m[u]=(m[u]||0)+(Number(l.qtd_funcionarios)||0);}); return m; };
   const ufAtual = porUFMes(ultimoMes), ufAnterior = penultimoMes ? porUFMes(penultimoMes) : {};
   const ufsOrdenadas = Object.entries(ufAtual).sort((a,b)=>b[1]-a[1]).slice(0,14).map(e=>e[0]);
-  if(CHART_EFETIVO_UF_COMP) CHART_EFETIVO_UF_COMP.destroy();
-  CHART_EFETIVO_UF_COMP = new Chart(document.getElementById('chartEfetivoUFComparativo'), {
-    type:'bar',
-    data:{ labels: ufsOrdenadas, datasets:[
-      { label: penultimoMes?fmtMes(penultimoMes):'Mês Anterior', data: ufsOrdenadas.map(u=>ufAnterior[u]||0), backgroundColor:'#c3c2b7', borderRadius:4, maxBarThickness:22 },
-      { label: ultimoMes?fmtMes(ultimoMes):'Mês Atual', data: ufsOrdenadas.map(u=>ufAtual[u]||0), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:22 },
-    ] },
-    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom'},datalabels:{display:false}}, scales:{x:{ticks:{autoSkip:false},grid:{display:false}},y:{grid:{color:'#e1e0d9'}}} },
-  });
+  const maxUF = ufsOrdenadas.length ? Math.max(...ufsOrdenadas.map(u=>Math.max(ufAtual[u]||0, ufAnterior[u]||0))) : 1;
+  document.getElementById('painelEfetivoUFComparativo').innerHTML = ufsOrdenadas.map(u => `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:44px;flex:1;">
+      <div style="display:flex;align-items:flex-end;gap:2px;height:100%;">
+        <div title="${penultimoMes?fmtMes(penultimoMes):'Mês anterior'}: ${ufAnterior[u]||0}" style="width:12px;height:${maxUF?(ufAnterior[u]||0)/maxUF*100:0}%;background:#C9D3DE;border-radius:2px 2px 0 0;"></div>
+        <div title="${ultimoMes?fmtMes(ultimoMes):'Mês atual'}: ${ufAtual[u]||0}" style="width:12px;height:${maxUF?(ufAtual[u]||0)/maxUF*100:0}%;background:#00A9E0;border-radius:2px 2px 0 0;"></div>
+      </div>
+      <div style="font-size:10.5px;font-weight:700;color:var(--muted2);margin-top:6px;">${esc(u)}</div>
+    </div>`).join('') || '<div class="empty-state">Sem dado de UF.</div>';
+
+  // Efetivo por Unidade Cliente (filial) — último mês
+  const porUnidadeMes = {};
+  LOCALIDADES.filter(l=>l.mes_referencia===ultimoMes).forEach(l => { const un = l.filial||'—'; porUnidadeMes[un]=(porUnidadeMes[un]||0)+(Number(l.qtd_funcionarios)||0); });
+  const unidadesOrdenadas = Object.entries(porUnidadeMes).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxUnidade = unidadesOrdenadas.length ? unidadesOrdenadas[0][1] : 1;
+  document.getElementById('listaEfetivoUnidade').innerHTML = unidadesOrdenadas.map(([un,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxUnidade?(v/maxUnidade*100):0}%;background:#14324E;"></div>
+      <span class="barra-nome" title="${esc(un)}">${esc(un)}</span>
+      <span class="barra-valor">${Math.round(v)}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de unidade.</div>';
 
   // Maiores efetivos por fornecedor
   const porFornecedor = {};
   LOCALIDADES.filter(l=>l.mes_referencia===ultimoMes).forEach(l => { porFornecedor[l.empresa]=(porFornecedor[l.empresa]||0)+(Number(l.qtd_funcionarios)||0); });
   const fornecedoresOrdenados = Object.entries(porFornecedor).sort((a,b)=>b[1]-a[1]).slice(0,15);
-  if(CHART_MAIORES_EFETIVOS) CHART_MAIORES_EFETIVOS.destroy();
-  CHART_MAIORES_EFETIVOS = new Chart(document.getElementById('chartMaioresEfetivos'), {
-    type:'bar',
-    data:{ labels: fornecedoresOrdenados.map(e=>e[0].length>26?e[0].slice(0,26)+'…':e[0]), datasets:[{ data: fornecedoresOrdenados.map(e=>e[1]), backgroundColor:PALETA_CATEGORICA[0], borderRadius:4, maxBarThickness:20 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10}}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
+  const maxForn = fornecedoresOrdenados.length ? fornecedoresOrdenados[0][1] : 1;
+  document.getElementById('listaMaioresEfetivos').innerHTML = fornecedoresOrdenados.map(([emp,v]) => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxForn?(v/maxForn*100):0}%;background:#00A9E0;"></div>
+      <span class="barra-nome" title="${esc(emp)}">${esc(emp)}</span>
+      <span class="barra-valor">${Math.round(v)}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem dado de efetivo.</div>';
 
   // Maiores variações de efetivo no mês
   const porFornecedorAnterior = {};
   if(penultimoMes) LOCALIDADES.filter(l=>l.mes_referencia===penultimoMes).forEach(l => { porFornecedorAnterior[l.empresa]=(porFornecedorAnterior[l.empresa]||0)+(Number(l.qtd_funcionarios)||0); });
   const empresasTodas = new Set([...Object.keys(porFornecedor), ...Object.keys(porFornecedorAnterior)]);
   const variacoes = [...empresasTodas].map(emp => ({ empresa:emp, delta:(porFornecedor[emp]||0)-(porFornecedorAnterior[emp]||0) })).filter(v=>v.delta!==0).sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta)).slice(0,12);
-  if(CHART_VARIACOES_EFETIVO) CHART_VARIACOES_EFETIVO.destroy();
-  CHART_VARIACOES_EFETIVO = new Chart(document.getElementById('chartVariacoesEfetivo'), {
-    type:'bar',
-    data:{ labels: variacoes.map(v=>v.empresa.length>26?v.empresa.slice(0,26)+'…':v.empresa), datasets:[{ data: variacoes.map(v=>v.delta), backgroundColor: variacoes.map(v=>v.delta>=0?'#0ca30c':'#d03b3b'), borderRadius:4, maxBarThickness:22 }] },
-    options:{ maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#0b0b0b',font:{weight:'700',size:10},formatter:v=>(v>=0?'+':'')+v}}, scales:{x:{grid:{color:'#e1e0d9'}},y:{grid:{display:false}}} },
-  });
+  const maxVar = variacoes.length ? Math.max(...variacoes.map(v=>Math.abs(v.delta))) : 1;
+  document.getElementById('listaVariacoesEfetivo').innerHTML = variacoes.map(v => `
+    <div class="barra-linha">
+      <div class="barra-fill" style="width:${maxVar?(Math.abs(v.delta)/maxVar*100):0}%;background:${v.delta>=0?'#188049':'#C9553A'};"></div>
+      <span class="barra-nome" title="${esc(v.empresa)}">${esc(v.empresa)}</span>
+      <span class="barra-valor">${(v.delta>=0?'+':'')+v.delta}</span>
+      <span class="barra-pct"></span>
+    </div>`).join('') || '<div class="empty-state">Sem variação no mês.</div>';
 }
 
 function renderEmpregados(){
