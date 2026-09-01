@@ -270,7 +270,23 @@ body{background:var(--surface2);color:var(--texto);-webkit-font-smoothing:antial
 
   <!-- ── Cenário Geral ── -->
   <div id="page-consolidado" class="page">
-    
+    <div class="filter-row" style="align-items:flex-end;">
+      <div class="form-group">
+        <label class="form-label">Fornecedor</label>
+        <select id="fConsFornecedor" class="form-input" onchange="renderConsGeral()"><option value="">Todos</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Localidade (UF)</label>
+        <select id="fConsUF" class="form-input" onchange="renderConsGeral()"><option value="">Todas</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fase</label>
+        <select id="fConsFase" class="form-input" onchange="renderConsGeral()"><option value="">Todas</option></select>
+      </div>
+      <div class="form-group" style="flex:1 1 auto;min-width:auto;text-align:right;">
+        <span class="hint" id="resumoSelecaoCons" style="margin:0;"></span>
+      </div>
+    </div>
     <div class="secao-header">
       <span class="secao-numero">01</span>
       <span class="secao-titulo">Cenário geral</span>
@@ -1219,6 +1235,9 @@ function popularFiltros(){
   preencher('fGeralFornecedor', nomes);
   preencher('fGeralUF', ufsGeral);
   preencher('fGeralFase', fases);
+  preencher('fConsFornecedor', nomes);
+  preencher('fConsUF', ufsGeral);
+  preencher('fConsFase', fases);
   preencher('fDocFornecedor', nomes);
   preencher('fFornFase', fases);
   preencher('fFornUF', ufsLimpo);
@@ -1268,7 +1287,9 @@ function classeRisco(score){
 
 // ── Navegação ────────────────────────────────────────────────────────
 function renderConsGeral(){
-  const filtroFornecedor = '', filtroUF = '', filtroFase = '';
+  const filtroFornecedor = document.getElementById('fConsFornecedor').value;
+  const filtroUF = document.getElementById('fConsUF').value;
+  const filtroFase = document.getElementById('fConsFase').value;
   let fornecedores = FORNECEDORES.filter(f => f.status !== 'INATIVA');
   if(filtroFornecedor) fornecedores = fornecedores.filter(f => f.empresa === filtroFornecedor);
   if(filtroUF) fornecedores = fornecedores.filter(f => ufDoFornecedor(f.empresa) === filtroUF);
@@ -1333,6 +1354,7 @@ function renderConsGeral(){
     { label: 'Processos de Terceiros', val: String(processosFiltrados.length), sub: `${fmtMi(valorCausaTotal)} em causa`, cor:'#E67E22' },
   ].map(c => `<div class="kpi-card" style="border-left-color:${c.cor};"><div class="kpi-label">${esc(c.label)}</div><div class="kpi-row"><span class="kpi-num" style="color:${c.cor};">${c.val}</span>${c.delta?`<span class="kpi-delta ${c.delta.classe}">${esc(c.delta.texto)}</span>`:''}</div>${c.sub?`<div class="kpi-sub">${esc(c.sub)}</div>`:''}</div>`).join('');
 
+  document.getElementById('resumoSelecaoCons').textContent = `${fornecedores.length} fornecedores · ${empAtual.toLocaleString('pt-BR')} empregados · ${processosFiltrados.length} processos na seleção`;
 
   // Fase de monitoramento — donut CSS (conic-gradient) + legenda, igual ao
   // relatório modelo (não é gráfico Chart.js).
